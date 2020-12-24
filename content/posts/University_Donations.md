@@ -4,6 +4,7 @@ date: 2020-12-23T16:55:34.230158
 draft: true
 summary: This is an amaaaazing post.
 ---
+
 # University Advancement, Donations, and Giving
 
 This analysis uses data from a university's development department to understand more about the donors who have given money to the university. This type of analysis could help the development department answer some of the questions they might have about their work, such as: 
