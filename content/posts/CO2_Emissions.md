@@ -1,7 +1,8 @@
 ---
-title: "World Bank CO2 Emissions Data"
-date: 2020-12-05T12:18:30-08:00
+title: "New post"
+date: 2020-12-23T16:52:55.966231
 draft: true
+summary: Post summary.
 ---
 
 # World Bank CO2 Emissions Data
@@ -18,6 +19,9 @@ The original dataset can be downloaded [here](https://mkt.tableau.com/Public/Dat
 ```python
 !pip install -q pysqlite3-binary
 ```
+
+    [K     |████████████████████████████████| 5.1MB 9.1MB/s 
+    [?25h
 
 ### Define functions
 
@@ -283,17 +287,34 @@ pd.read_sql("""ALTER TABLE CO2_kt
 
 
 
-    ---------------------------------------------------------------------------
-
-    NameError                                 Traceback (most recent call last)
-
-    <ipython-input-1-506a2dedc29c> in <module>()
-          1 #@title Changing column name
-    ----> 2 pd.read_sql("""ALTER TABLE CO2_kt
-          3                RENAME COLUMN `CO2 (kt)` TO CO2_kt;""", database)
 
 
-    NameError: name 'pd' is not defined
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>1</th>
+    </tr>
+  </thead>
+  <tbody>
+  </tbody>
+</table>
+</div>
+
 
 
 
@@ -312,6 +333,37 @@ pd.read_sql("""ALTER TABLE CO2_kt
 
 
 
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>1</th>
+    </tr>
+  </thead>
+  <tbody>
+  </tbody>
+</table>
+</div>
+
+
+
+
+
 <details>
 <summary>Changing column name</summary>
 
@@ -326,6 +378,37 @@ pd.read_sql("""ALTER TABLE CO2_Per_Capita
 
 
 
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>1</th>
+    </tr>
+  </thead>
+  <tbody>
+  </tbody>
+</table>
+</div>
+
+
+
+
+
 <details>
 <summary>Changing column name</summary>
 
@@ -336,6 +419,37 @@ pd.read_sql("""ALTER TABLE CO2_Per_Capita
 ```
 
 </details>
+
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>1</th>
+    </tr>
+  </thead>
+  <tbody>
+  </tbody>
+</table>
+</div>
+
 
 
 ## Understand the data
@@ -641,7 +755,9 @@ plt.margins(0.01, 0.01)
 ```
 
 
+    
 ![png](CO2_Emissions_files/CO2_Emissions_30_0.png)
+    
 
 
 #### Data by year
@@ -677,7 +793,9 @@ plt.margins(0.01, 0.01)
 ```
 
 
+    
 ![png](CO2_Emissions_files/CO2_Emissions_34_0.png)
+    
 
 
 ## Analyze the data
@@ -712,7 +830,9 @@ plt.margins(0.01, 0.01)
 ```
 
 
+    
 ![png](CO2_Emissions_files/CO2_Emissions_38_0.png)
+    
 
 
 ### Regions with the highest emissions
@@ -759,7 +879,9 @@ plt.show()
 ```
 
 
+    
 ![png](CO2_Emissions_files/CO2_Emissions_41_0.png)
+    
 
 
 ### Countries with the highest CO2 emissions 1960-2011
@@ -797,7 +919,9 @@ plt.margins(0.01, 0.01)
 ```
 
 
+    
 ![png](CO2_Emissions_files/CO2_Emissions_44_0.png)
+    
 
 
 ### Countries with the largest increase in emissions between 1960 and 2011
@@ -849,7 +973,9 @@ plt.margins(0.01, 0.01)
 ```
 
 
+    
 ![png](CO2_Emissions_files/CO2_Emissions_47_0.png)
+    
 
 
 ### Countries with the biggest decreases in CO2 emissions
@@ -898,7 +1024,9 @@ plt.margins(0.01, 0.01)
 ```
 
 
+    
 ![png](CO2_Emissions_files/CO2_Emissions_50_0.png)
+    
 
 
 ### The US' CO2 emissions over time
@@ -938,7 +1066,9 @@ plt.show()
 ```
 
 
+    
 ![png](CO2_Emissions_files/CO2_Emissions_53_0.png)
+    
 
 
 ### USA - gross and per-capita emissions
@@ -999,5 +1129,7 @@ fig.show()
 ```
 
 
+    
 ![png](CO2_Emissions_files/CO2_Emissions_56_0.png)
+    
 

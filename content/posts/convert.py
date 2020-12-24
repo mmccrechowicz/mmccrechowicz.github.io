@@ -24,6 +24,11 @@ def _move_assets(path: Path):
     target_assets_dir = (path.parent.joinpath(path.name.replace(".ipynb", "").lower())
                          .joinpath(path.name.replace(".ipynb", "_files")))
 
+    if target_assets_dir.exists():
+        print(f"Clearing target assets dir at {target_assets_dir}.")
+        shutil.rmtree(str(target_assets_dir))
+
+    print(f"Moving assets from {current_assets_dir} to {target_assets_dir}")
     try:
         shutil.move(str(current_assets_dir), str(target_assets_dir))
     except shutil.Error as e:
@@ -65,6 +70,12 @@ def _collapse_forms(path: Path):
 
 
 def _get_front_matter(path: Path):
+
+    default = f"""---\ntitle: "New post"\ndate: {datetime.datetime.now().isoformat()}\ndraft: true\nsummary: Post summary.\n---"""
+
+    if not path.exists():
+        return default
+    
     text = path.read_text()
     pattern = re.compile("---\n(?P<frontmatter>^((?!---).)+)\n---", re.MULTILINE | re.DOTALL)
 
@@ -72,7 +83,7 @@ def _get_front_matter(path: Path):
     if match is not None:
         return f"---\n{match.group('frontmatter')}\n---\n"
 
-    return f"""---\ntitle: "New post"\ndate: {datetime.datetime.now().isoformat()}\ndraft: true\n---"""
+    return default
 
 
 def _add_front_matter(path, front_matter):
