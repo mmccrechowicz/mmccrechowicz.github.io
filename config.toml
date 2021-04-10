@@ -1,7 +1,7 @@
 baseURL = "http://localhost:1313/"
 languageCode = "en"
 defaultContentLanguage = "en"
-title = "Hate Notebooks"                         # site title  # 网站标题
+title = "Data Analysis"                         # site title  # 网站标题
 theme = "zozo"
 hasCJKLanguage = true                  # has chinese/japanese/korean ?  # 自动检测是否包含 中文\日文\韩文
 summaryLength = 100
@@ -42,14 +42,14 @@ pygmentscodefencesguesssyntax = true
   url = "/about/"
 
 [params]
-  subTitle = "the site subtitle"                                       # site's subTitle  # 网站二级标题
+  #subTitle = "the site subtitle"                                       # site's subTitle  # 网站二级标题
   footerSlogan = "My spiritual home"                                   # site's footer slogan  # 网站页脚标语
   keywords = ["Hugo","theme","zozo"]                                  # site's keywords  # 网站关键字
   description = "Hugo theme zozo example site."                        # site's description  # 网站描述
   enableMathJax = true                                                 # enable mathjax  # 是否使用mathjax（数学公式）
   enableSummary = true                                                 # display the article summary  # 是否显示文章摘要
   mainSections = ["posts","post"]
-  
+
 # Valine.
 # You can get your appid and appkey from https://leancloud.cn
 # more info please open https://valine.js.org
@@ -63,10 +63,11 @@ pygmentscodefencesguesssyntax = true
 # Your socail's url
 [social]
   github = " "
-  twitter = " "
-  facebook = " "
-  weibo = " "
-  instagram = " "
+  #twitter = " "
+  #facebook = " "
+  #weibo = " "
+  #instagram = " "
+  linkedin = "https://www.linkedin.com/in/matthewmccarthyrechowicz/"
 
 [markup]
 [markup.goldmark]
