@@ -5,4 +5,4 @@
 3. For a first-time setup, run `poetry install`.
 4. The notebook files (`.ipynb`) should live in `content/posts`.
 5. To convert notebooks to markdown posts, run `poetry run convert`.
-6. To start jupyter, run `jupyter notebook`.
+6. To start jupyter, run `poetry shell` then `jupyter notebook`.

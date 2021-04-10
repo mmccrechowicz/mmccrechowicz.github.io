@@ -691,14 +691,6 @@ optional = false
 python-versions = ">=3.5"
 
 [[package]]
-name = "pysqlite3-binary"
-version = "0.4.6"
-description = "DB-API 2.0 interface for Sqlite 3.x"
-category = "main"
-optional = false
-python-versions = "*"
-
-[[package]]
 name = "pytest"
 version = "5.4.3"
 description = "pytest: simple powerful testing with Python"
@@ -924,6 +916,14 @@ python-versions = "*"
 notebook = ">=4.4.1"
 
 [[package]]
+name = "xlrd"
+version = "1.0.0"
+description = "Library for developers to extract data from Microsoft Excel (tm) spreadsheet files"
+category = "main"
+optional = false
+python-versions = "*"
+
+[[package]]
 name = "zipp"
 version = "3.4.1"
 description = "Backport of pathlib-compatible object wrapper for zip files"
@@ -938,7 +938,7 @@ testing = ["pytest (>=4.6)", "pytest-checkdocs (>=1.2.3)", "pytest-flake8", "pyt
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.7.1<4.0"
-content-hash = "fa4adee3d3a3a204a4c0874debd7d9877f31076d709b15661e43e233ac158c58"
+content-hash = "c2e204c27c5d496e16b22d4fb9a97037c8a171e03e27acc8b331b028c25b86da"
 
 [metadata.files]
 appnope = [
@@ -1378,12 +1378,6 @@ pyparsing = [
 pyrsistent = [
     {file = "pyrsistent-0.17.3.tar.gz", hash = "sha256:2e636185d9eb976a18a8a8e96efce62f2905fea90041958d8cc2a189756ebf3e"},
 ]
-pysqlite3-binary = [
-    {file = "pysqlite3_binary-0.4.6-cp36-cp36m-manylinux1_x86_64.whl", hash = "sha256:3c9e6b95536c6fce4a1ef3f64ee3eab784b137f2e39a00d84673cfb692d70740"},
-    {file = "pysqlite3_binary-0.4.6-cp37-cp37m-manylinux1_x86_64.whl", hash = "sha256:b74e570cfe6fa3e809a43397c52d20862cdb62f3dfd20dbc4633ccd24a589a14"},
-    {file = "pysqlite3_binary-0.4.6-cp38-cp38-manylinux1_x86_64.whl", hash = "sha256:2dcc462af7688b02abb724ed0d09ca28e439d8c501b083cace8c9be35a2c6298"},
-    {file = "pysqlite3_binary-0.4.6-cp39-cp39-manylinux1_x86_64.whl", hash = "sha256:c9a7871ee1f177fb6820184ad60ae7d463109280c16b50f0f7b874fa1befd7c2"},
-]
 pytest = [
     {file = "pytest-5.4.3-py3-none-any.whl", hash = "sha256:5c0db86b698e8f170ba4582a492248919255fcd4c79b1ee64ace34301fb589a1"},
     {file = "pytest-5.4.3.tar.gz", hash = "sha256:7979331bfcba207414f5e1263b5a0f8f521d0f457318836a7355531ed1a4c7d8"},
@@ -1566,6 +1560,10 @@ webencodings = [
 widgetsnbextension = [
     {file = "widgetsnbextension-3.5.1-py2.py3-none-any.whl", hash = "sha256:bd314f8ceb488571a5ffea6cc5b9fc6cba0adaf88a9d2386b93a489751938bcd"},
     {file = "widgetsnbextension-3.5.1.tar.gz", hash = "sha256:079f87d87270bce047512400efd70238820751a11d2d8cb137a5a5bdbaf255c7"},
+]
+xlrd = [
+    {file = "xlrd-1.0.0-py3-none-any.whl", hash = "sha256:05f55eb39a68f1c3d336de186aeb90c98ea5add722813738d8ae8b97819c5924"},
+    {file = "xlrd-1.0.0.tar.gz", hash = "sha256:0ff87dd5d50425084f7219cb6f86bb3eb5aa29063f53d50bf270ed007e941069"},
 ]
 zipp = [
     {file = "zipp-3.4.1-py3-none-any.whl", hash = "sha256:51cb66cc54621609dd593d1787f286ee42a5c0adbb4b29abea5a63edc3e03098"},
