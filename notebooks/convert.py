@@ -115,6 +115,6 @@ def convert():
 
     print("Converting notebooks.")
 
-    for path in Path(".").glob("*.ipynb"):
+    for path in Path("./content/posts").glob("*.ipynb"):
         print(f"Converting {path}.")
         _convert_notebook(path)

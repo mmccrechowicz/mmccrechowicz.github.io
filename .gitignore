@@ -1,1 +1,5 @@
+*.*~
 /pyproject.toml~
+/notebooks/__pycache__/
+/README.md~
+/content/posts/.ipynb_checkpoints/
