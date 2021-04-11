@@ -1,13 +1,15 @@
 ---
-title: "World Bank CO2 Emissions"
-date: 2020-12-23T17:18:45.716240
+title: "World Bank CO2 Emissions Data"
+date: 2021-04-10T15:26:09.928644
 draft: true
-summary: Data analysis using CO2 emissions data from the World Bank.
+summary: How did global CO2 emissions change between 1960 and 2011?
 ---
 
-# World Bank CO2 Emissions Data
-
 Using data from the World Bank, this analysis looks at the ways global CO2 emissions changed between 1960 and 2011.
+
+The climate crisis has been a *hot topic* (or, if you will, a *burning issue*) for several decades now. We are increasingly seeing the effects of climate change in hotter summers, droughts and cataclycsmic weather events. In California, we have seen record-breaking forest fire seasons year after year. We are more aware than ever about the effects our behaviours have on the world around us, and on the changing climate.
+
+Using this dataset from the World Bank, we can see how we have continued to increase CO2 emissions into the atmosphere. We can also identify the most polluting countries and regions, and see which countries have experienced the greatest changes in their CO2 emissions between 1960 and 2011. 
 
 The original dataset can be downloaded [here](https://mkt.tableau.com/Public/Datasets/World_Bank_CO2.xlsx).
 
@@ -18,7 +20,7 @@ The original dataset can be downloaded [here](https://mkt.tableau.com/Public/Dat
 
 
 <details>
-<summary>Define functions</summary>
+<summary>Code</summary>
 
 ```python
 import tempfile
@@ -75,6 +77,8 @@ def excel_dataset_to_sqlite(url: str, database_name: str = ":memory:") -> sqlite
 ### Prepare the data
 
 #### Import the dataset and create the database
+
+I'm importing a dataset from a URL. 
 
 
 ```python
@@ -159,32 +163,39 @@ pd.read_sql("SELECT name FROM sqlite_master WHERE type='table';", database)
 
 
 
-#### These table names have spaces, so they're going to be annoying to work with. We can change the table names to make it easier to write the SQL queries.
+These table names have spaces, so they're going to be annoying to work with. We can change the table names to make it easier to write SQL queries.
 
 
 
 <details>
-<summary>Changing table name</summary>
+<summary>Code</summary>
 
 ```python
-_ = pd.read_sql("""ALTER TABLE `CO2 (kt) for Split` 
-               RENAME TO CO2_kt;""", database)
+database.execute("""ALTER TABLE `CO2 (kt) for Split` 
+               RENAME TO CO2_kt;""")
 
-pd.read_sql("""ALTER TABLE `CO2 Data Cleaned` 
-               RENAME TO CO2_Data_Cleaned;""", database)
+database.execute("""ALTER TABLE `CO2 Data Cleaned` 
+               RENAME TO CO2_Data_Cleaned;""")
 
-pd.read_sql("""ALTER TABLE `CO2 Per Capita (Pivoted)` 
-               RENAME TO CO2_Per_Capita;""", database)
+database.execute("""ALTER TABLE `CO2 Per Capita (Pivoted)` 
+               RENAME TO CO2_Per_Capita;""")
 
-_ = pd.read_sql("""ALTER TABLE `Metadata - Countries` 
-               RENAME TO Metadata_Countries;""", database)
+database.execute("""ALTER TABLE `Metadata - Countries` 
+               RENAME TO Metadata_Countries;""")
 
 ```
 
 </details>
 
 
-#### View the table names again to make sure the changes were made.
+
+
+
+    <sqlite3.Cursor at 0x11d1d7f10>
+
+
+
+View the table names again to make sure the changes were made.
 
 
 ```python
@@ -258,18 +269,27 @@ pd.read_sql("SELECT name FROM sqlite_master WHERE type='table';", database)
 
 
 
-#### I'll mainly be using two tables for this analysis: CO2_kt and CO2_Per_Capita.
+I'll mainly be using two tables for this analysis: CO2_kt and CO2_Per_Capita.
 
 Looking at the columns in these tables, I can see some of them will make SQL queries harder. So, let's change them as we did for the table names.
 
 
 
 <details>
-<summary>Changing column name</summary>
+<summary>Code</summary>
 
 ```python
-pd.read_sql("""ALTER TABLE CO2_kt
-               RENAME COLUMN `CO2 (kt)` TO CO2_kt;""", database)
+database.execute("""ALTER TABLE CO2_kt
+               RENAME COLUMN `CO2 (kt)` TO CO2_kt;""")
+
+database.execute("""ALTER TABLE CO2_kt
+               RENAME COLUMN `Country Name` TO Country_Name;""")
+
+database.execute("""ALTER TABLE CO2_Per_Capita
+               RENAME COLUMN `CO2 Per Capita (metric tons)` TO CO2_Per_Capita;""")
+
+database.execute("""ALTER TABLE CO2_Per_Capita
+               RENAME COLUMN `Country Name` TO Country_Name;""")
 
 ```
 
@@ -279,166 +299,7 @@ pd.read_sql("""ALTER TABLE CO2_kt
 
 
 
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>1</th>
-    </tr>
-  </thead>
-  <tbody>
-  </tbody>
-</table>
-</div>
-
-
-
-
-
-<details>
-<summary>Changing column name</summary>
-
-```python
-pd.read_sql("""ALTER TABLE CO2_kt
-               RENAME COLUMN `Country Name` TO Country_Name;""", database)
-
-```
-
-</details>
-
-
-
-
-
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>1</th>
-    </tr>
-  </thead>
-  <tbody>
-  </tbody>
-</table>
-</div>
-
-
-
-
-
-<details>
-<summary>Changing column name</summary>
-
-```python
-pd.read_sql("""ALTER TABLE CO2_Per_Capita
-               RENAME COLUMN `CO2 Per Capita (metric tons)` TO CO2_Per_Capita;""", database)
-
-```
-
-</details>
-
-
-
-
-
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>1</th>
-    </tr>
-  </thead>
-  <tbody>
-  </tbody>
-</table>
-</div>
-
-
-
-
-
-<details>
-<summary>Changing column name</summary>
-
-```python
-pd.read_sql("""ALTER TABLE CO2_Per_Capita
-               RENAME COLUMN `Country Name` TO Country_Name;""", database)
-
-```
-
-</details>
-
-
-
-
-
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>1</th>
-    </tr>
-  </thead>
-  <tbody>
-  </tbody>
-</table>
-</div>
+    <sqlite3.Cursor at 0x1064531f0>
 
 
 
@@ -587,11 +448,15 @@ result
 
 
 
+
 The second table, CO2_Per-Capita, is very similar, although the columns are ordered differently, and there is no 'Region' column.
 
 
 ```python
-result = pd.read_sql("""SELECT *
+result = pd.read_sql("""SELECT Country_Name,
+                               `Country Code`,
+                               Year,
+                               CO2_Per_Capita
                         FROM CO2_Per_Capita
                         LIMIT 10
                         OFFSET 100;""", database)
@@ -619,273 +484,85 @@ result
   <thead>
     <tr style="text-align: right;">
       <th></th>
-      <th>index</th>
       <th>Country_Name</th>
       <th>Country Code</th>
       <th>Year</th>
       <th>CO2_Per_Capita</th>
-      <th>Unnamed: 4</th>
-      <th>Unnamed: 5</th>
-      <th>Unnamed: 6</th>
-      <th>Unnamed: 7</th>
-      <th>Unnamed: 8</th>
-      <th>...</th>
-      <th>Unnamed: 50</th>
-      <th>Unnamed: 51</th>
-      <th>Unnamed: 52</th>
-      <th>Unnamed: 53</th>
-      <th>Unnamed: 54</th>
-      <th>Unnamed: 55</th>
-      <th>Unnamed: 56</th>
-      <th>Unnamed: 57</th>
-      <th>Unnamed: 58</th>
-      <th>Unnamed: 59</th>
     </tr>
   </thead>
   <tbody>
     <tr>
       <th>0</th>
-      <td>100</td>
       <td>Afghanistan</td>
       <td>AFG</td>
       <td>2008</td>
       <td>0.16</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>...</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
     </tr>
     <tr>
       <th>1</th>
-      <td>101</td>
       <td>Afghanistan</td>
       <td>AFG</td>
       <td>2009</td>
       <td>0.25</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>...</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
     </tr>
     <tr>
       <th>2</th>
-      <td>102</td>
       <td>Afghanistan</td>
       <td>AFG</td>
       <td>2010</td>
       <td>0.30</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>...</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
     </tr>
     <tr>
       <th>3</th>
-      <td>103</td>
       <td>Afghanistan</td>
       <td>AFG</td>
       <td>2011</td>
       <td>0.43</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>...</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
     </tr>
     <tr>
       <th>4</th>
-      <td>104</td>
       <td>Angola</td>
       <td>AGO</td>
       <td>1960</td>
       <td>0.10</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>...</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
     </tr>
     <tr>
       <th>5</th>
-      <td>105</td>
       <td>Angola</td>
       <td>AGO</td>
       <td>1961</td>
       <td>0.08</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>...</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
     </tr>
     <tr>
       <th>6</th>
-      <td>106</td>
       <td>Angola</td>
       <td>AGO</td>
       <td>1962</td>
       <td>0.22</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>...</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
     </tr>
     <tr>
       <th>7</th>
-      <td>107</td>
       <td>Angola</td>
       <td>AGO</td>
       <td>1963</td>
       <td>0.21</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>...</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
     </tr>
     <tr>
       <th>8</th>
-      <td>108</td>
       <td>Angola</td>
       <td>AGO</td>
       <td>1964</td>
       <td>0.22</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>...</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
     </tr>
     <tr>
       <th>9</th>
-      <td>109</td>
       <td>Angola</td>
       <td>AGO</td>
       <td>1965</td>
       <td>0.21</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>...</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
     </tr>
   </tbody>
 </table>
-<p>10 rows × 61 columns</p>
 </div>
 
 
@@ -894,7 +571,7 @@ result
 
 Now that I know what columns each table has, I want to see if there are any missing data points. 
 
-#### Data by country
+#### Data by year
 
 A total of 214 countries are mentioned in the data. No year has data for all 214 countries.
 
@@ -903,31 +580,31 @@ We can see that the data for earlier years are less complete than for later year
 
 
 ```python
-result = pd.read_sql("""SELECT year, COUNT(CO2_kt), COUNT(DISTINCT Country_Name) as number_data_points
+result = pd.read_sql("""SELECT Year, 
+                               COUNT(CO2_kt), 
+                               COUNT(DISTINCT Country_Name) as number_data_points
                         FROM CO2_kt
                         GROUP BY year;""", database)
 ```
 
 
 ```python
-plt.figure(figsize=(20, 8))
+plt.figure(figsize=(12, 4))
 plt.bar(x=result["Year"].astype(str), height=result["COUNT(CO2_kt)"], color='red')
-plt.title("Number of Data Points per Year", pad = 30)
-plt.xlabel("Year", labelpad=20)
-plt.ylabel("# Data Points", labelpad=20)
-_ = plt.xticks(rotation = 90, ha = "center")
-plt.axhline(result["number_data_points"].mean(), color='blue', linewidth=2, label = "# Countries")
-plt.legend()
+plt.title("Number of Data Points per Year", fontsize = 16, pad = 20)
+#plt.xlabel("Year", labelpad=20)
+plt.ylabel("# Data Points", labelpad=20, fontsize = 12)
+_ = plt.xticks(rotation = 90, ha = "center", fontsize = 10)
 plt.margins(0.01, 0.01)
 ```
 
 
     
-![png](CO2_Emissions_files/CO2_Emissions_28_0.png)
+![png](CO2_Emissions_files/CO2_Emissions_25_0.png)
     
 
 
-#### Data by year
+#### Data by country
 
 There are also gaps when we look at the data on a per-country basis, although the data seem more complete than on a per-year basis. 
 
@@ -937,11 +614,13 @@ For 15 countries, there is no data. The remainder have between 5 and 51 data poi
 
 
 ```python
-result = pd.read_sql("""WITH data_point AS (SELECT Country_Name, SUM(CO2_kt IS NOT NULL) AS data_points
-                                             FROM CO2_kt
-                                             GROUP BY Country_Name)
+result = pd.read_sql("""WITH data_point AS (SELECT Country_Name, 
+                                                   SUM(CO2_kt IS NOT NULL) AS data_points
+                                            FROM CO2_kt
+                                            GROUP BY Country_Name)
                               
-                        SELECT DISTINCT(data_points), COUNT(*)
+                        SELECT DISTINCT(data_points), 
+                               COUNT(*)
                         FROM data_point
                         GROUP BY data_points
                         ORDER BY data_points ASC;""", database)
@@ -961,7 +640,7 @@ plt.margins(0.01, 0.01)
 
 
     
-![png](CO2_Emissions_files/CO2_Emissions_32_0.png)
+![png](CO2_Emissions_files/CO2_Emissions_29_0.png)
     
 
 
@@ -985,7 +664,7 @@ result = pd.read_sql("""select year, sum(CO2_kt) as sum_of_year,
 
 
 ```python
-plt.figure(figsize=(20, 8))
+plt.figure(figsize=(10, 4))
 plt.bar(x=result["Year"].astype(str), height=result["sum_of_year"] / 1000000, color='red')
 plt.title("Annual CO2 Emissions", pad = 30)
 plt.xlabel("Year", labelpad=20)
@@ -998,7 +677,7 @@ plt.margins(0.01, 0.01)
 
 
     
-![png](CO2_Emissions_files/CO2_Emissions_36_0.png)
+![png](CO2_Emissions_files/CO2_Emissions_33_0.png)
     
 
 
@@ -1026,7 +705,7 @@ x_2011 = np.arange(len(subset_2011["Region"]))
 y_1960 = subset_1960["SUM(CO2_kt)"] / 1_000_000
 y_2011 = subset_2011["SUM(CO2_kt)"] / 1_000_000
 width = 0.35
-fig, ax = plt.subplots(figsize=(20, 8))
+fig, ax = plt.subplots(figsize=(10, 4))
 rects1 = ax.bar(x_1960 - width/2, y_1960, width, label="1960")
 rects2 = ax.bar(x_2011 + width/2, y_2011, width, label='2011')
 
@@ -1034,20 +713,21 @@ rects2 = ax.bar(x_2011 + width/2, y_2011, width, label='2011')
 ax.set_ylabel('CO2 (kt (millions))')
 ax.yaxis.labelpad = 20
 ax.set_xlabel('Region')
+ax.xaxis.labelpad = 20
 
 ax.set_title('CO2 Emissions By Region - 1960 and 2011', pad=30)
 ax.set_xticks(x_1960)
 ax.set_xticklabels(subset_1960["Region"])
 ax.xaxis.labelpad = 20
 ax.legend()
-_ = plt.xticks(rotation = 90, ha = "center")
+_ = plt.xticks(rotation = 60, ha = "center")
 plt.margins(0.01, 0.01)
 plt.show()
 ```
 
 
     
-![png](CO2_Emissions_files/CO2_Emissions_39_0.png)
+![png](CO2_Emissions_files/CO2_Emissions_36_0.png)
     
 
 
@@ -1070,7 +750,7 @@ result = pd.read_sql("""SELECT Country_Name, Region, SUM(CO2_kt)
 
 
 ```python
-plt.figure(figsize=(20, 8))
+plt.figure(figsize=(10, 4))
 palette = iter(sns.color_palette('Paired'))
 colour_map = {region_name: next(palette) 
               for region_name in np.unique(result["Region"])}
@@ -1080,14 +760,14 @@ plt.bar(x=result["Country_Name"], height=result["SUM(CO2_kt)"] / 1000000, color=
 plt.title("Countries with highest total emissions 1960-2011")
 plt.xlabel("Country", labelpad=20)
 plt.ylabel("CO2 Emissions (kt (millions))", labelpad=20)
-_ = plt.xticks(rotation = 90, ha = "center")
+_ = plt.xticks(rotation = 60, ha = "right")
 plt.margins(0.01, 0.01)
 
 ```
 
 
     
-![png](CO2_Emissions_files/CO2_Emissions_42_0.png)
+![png](CO2_Emissions_files/CO2_Emissions_39_0.png)
     
 
 
@@ -1118,13 +798,11 @@ result = pd.read_sql("""WITH first_emissions AS (SELECT DISTINCT Country_Name,
                         AND Year = 2011
                         ORDER BY increase_in_emissions DESC
                         LIMIT 20;""", database)
-
-
 ```
 
 
 ```python
-plt.figure(figsize=(20, 8))
+plt.figure(figsize=(10, 4))
 palette = iter(sns.color_palette('Paired'))
 colour_map = {region_name: next(palette) 
               for region_name in np.unique(result["Region"])}
@@ -1134,14 +812,14 @@ plt.bar(x=result["Country_Name"], height=result["increase_in_emissions"] / 10000
 plt.title("Countries with greatest increase in emissions")
 plt.xlabel("Country", labelpad= 20)
 plt.ylabel("Increase in CO2 emissions (kt (millions))", labelpad=20)
-_ = plt.xticks(rotation = 90, ha = "right")
+_ = plt.xticks(rotation = 60, ha = "right")
 plt.margins(0.01, 0.01)
 
 ```
 
 
     
-![png](CO2_Emissions_files/CO2_Emissions_45_0.png)
+![png](CO2_Emissions_files/CO2_Emissions_42_0.png)
     
 
 
@@ -1150,6 +828,8 @@ plt.margins(0.01, 0.01)
 Despite the global increase in emissions during the period, some countries have seen reductions in the amount of CO2 they are producing. 
 
 Ukraine and Russia have seen the biggest reductions in CO2 emissions, followed by Germany and the UK. 
+
+While it's positive to see some countries have reduced their CO2 emissions, it's worth noting that the size of these reductions is far smaller than the size of the increases generated by other countries. For example, Russia's emissions are down 350,000 kt, but China's have increased by more than 8,000,000 kt.
 
 
 ```python
@@ -1176,23 +856,23 @@ result = pd.read_sql("""WITH first_emissions AS (SELECT DISTINCT Country_Name,
 
 
 ```python
-plt.figure(figsize=(20, 8))
+plt.figure(figsize=(10, 4))
 palette = iter(sns.color_palette('Paired'))
 colour_map = {region_name: next(palette) 
               for region_name in np.unique(result["Region"])}
 colours = [colour_map.get(x, "green") for x in result["Region"]]
 regions = [region for region in result["Region"]]
 plt.bar(x=result["Country_Name"], height=result["increase_in_emissions"] / 1000, color=colours, align = 'center')
-plt.title("Countries with greatest increase in emissions", pad = 30)
+plt.title("Countries with greatest decrease in emissions", pad = 30)
 plt.xlabel("Country", labelpad = 20)
 plt.ylabel("Decrease in CO2 emissions (kt (thousands))", labelpad = 20)
-_ = plt.xticks(rotation = 90, ha = "right")
+_ = plt.xticks(rotation = 60, ha = "right")
 plt.margins(0.01, 0.01)
 ```
 
 
     
-![png](CO2_Emissions_files/CO2_Emissions_48_0.png)
+![png](CO2_Emissions_files/CO2_Emissions_45_0.png)
     
 
 
@@ -1210,14 +890,11 @@ result = pd.read_sql("""SELECT CO2_kt.year, CO2_kt, CO2_Per_Capita
                         FROM CO2_kt
                         LEFT JOIN CO2_Per_Capita ON CO2_kt.year = CO2_Per_Capita.year AND CO2_kt.Country_Name = CO2_Per_Capita.Country_Name
                         WHERE CO2_kt.Country_Name = "United States";""", database)
-
-
-
 ```
 
 
 ```python
-fig, ax = plt.subplots(figsize=(20, 8))
+fig, ax = plt.subplots(figsize=(10, 4))
 ax.plot_date(x=result["Year"].astype(str), y=result["CO2_kt"] / 1_000_000, marker='o', linestyle='-')
 #ax.plot_date(x=result["Year"].astype(str), y=result["CO2_Per_Capita"], marker='', linestyle='-')
 fig.autofmt_xdate()
@@ -1232,13 +909,13 @@ plt.margins(0.01, 0.05)
 plt.show()
 ```
 
-    <ipython-input-30-3ca0f9b74cd2>:2: UserWarning: marker is redundantly defined by the 'marker' keyword argument and the fmt string "o" (-> marker='o'). The keyword argument will take precedence.
+    <ipython-input-24-85fc8f5d9510>:2: UserWarning: marker is redundantly defined by the 'marker' keyword argument and the fmt string "o" (-> marker='o'). The keyword argument will take precedence.
       ax.plot_date(x=result["Year"].astype(str), y=result["CO2_kt"] / 1_000_000, marker='o', linestyle='-')
 
 
 
     
-![png](CO2_Emissions_files/CO2_Emissions_51_1.png)
+![png](CO2_Emissions_files/CO2_Emissions_48_1.png)
     
 
 
@@ -1271,7 +948,7 @@ result = pd.read_sql("""WITH initial_gross AS (SELECT CO2_kt FROM CO2_kt
 
 ```python
 # line 1 points
-fig, ax1 = plt.subplots(figsize=(20, 8))
+fig, ax1 = plt.subplots(figsize=(10, 4))
 _ = plt.xticks(rotation = 90, ha = "center")
 x1 = result["Year"].astype(str)
 y1 = result["gross_CO2"]
@@ -1299,14 +976,14 @@ fig.show()
 
 ```
 
-    <ipython-input-32-babbf7de53f0>:13: UserWarning: FixedFormatter should only be used together with FixedLocator
+    <ipython-input-26-1345e35afd00>:13: UserWarning: FixedFormatter should only be used together with FixedLocator
       ax1.set_xticklabels(result["Year"].astype(str))
-    <ipython-input-32-babbf7de53f0>:25: UserWarning: Matplotlib is currently using module://ipykernel.pylab.backend_inline, which is a non-GUI backend, so cannot show the figure.
+    <ipython-input-26-1345e35afd00>:25: UserWarning: Matplotlib is currently using module://ipykernel.pylab.backend_inline, which is a non-GUI backend, so cannot show the figure.
       fig.show()
 
 
 
     
-![png](CO2_Emissions_files/CO2_Emissions_54_1.png)
+![png](CO2_Emissions_files/CO2_Emissions_51_1.png)
     
 

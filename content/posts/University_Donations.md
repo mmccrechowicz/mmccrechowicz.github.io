@@ -35,6 +35,9 @@ The original dataset can be downloaded [here](https://public.tableau.com/s/sites
 !pip install -q pysqlite3-binary
 ```
 
+    [K     |████████████████████████████████| 5.3MB 4.0MB/s 
+    [?25h
+
 ### Define functions
 
 
@@ -89,6 +92,8 @@ def excel_dataset_to_sqlite(url: str, database_name: str = ":memory:") -> sqlite
 
 ## Prepare the data
 
+
+
 ### Import the dataset and create the database
 
 
@@ -96,7 +101,7 @@ def excel_dataset_to_sqlite(url: str, database_name: str = ":memory:") -> sqlite
 database = excel_dataset_to_sqlite("https://public.tableau.com/s/sites/default/files/media/advancement_donations_and_giving_demo.xls")
 ```
 
-    /usr/local/lib/python3.6/dist-packages/pandas/core/generic.py:2615: UserWarning: The spaces in these column names will not be changed. In pandas versions < 0.14, spaces were converted to underscores.
+    /usr/local/lib/python3.7/dist-packages/pandas/core/generic.py:2615: UserWarning: The spaces in these column names will not be changed. In pandas versions < 0.14, spaces were converted to underscores.
       method=method,
 
 
@@ -343,50 +348,26 @@ We can change the column names which have spaces.
 
 
 ```python
-pd.read_sql("""Alter Table GiftRecords
-             Rename Column `Allocation Subcategory` To Allocation_Subcategory;""", database)
+database.execute("""Alter Table GiftRecords
+             Rename Column `Allocation Subcategory` To Allocation_Subcategory;""")
 
-pd.read_sql("""Alter Table GiftRecords
-             Rename Column `Gift Allocation` To Gift_Allocation;""", database)
+database.execute("""Alter Table GiftRecords
+             Rename Column `Gift Allocation` To Gift_Allocation;""")
 
-pd.read_sql("""Alter Table GiftRecords
-             Rename Column `Gift Amount` To Gift_Amount;""", database)
+database.execute("""Alter Table GiftRecords
+             Rename Column `Gift Amount` To Gift_Amount;""")
 
-pd.read_sql("""Alter Table GiftRecords
-             Rename Column `Gift Date` To Gift_Date;""", database)
+database.execute("""Alter Table GiftRecords
+             Rename Column `Gift Date` To Gift_Date;""")
 
-pd.read_sql("""Alter Table GiftRecords
-             Rename Column `Prospect ID` To Prospect_ID;""", database)
+database.execute("""Alter Table GiftRecords
+             Rename Column `Prospect ID` To Prospect_ID;""")
 ```
 
 
 
 
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>1</th>
-    </tr>
-  </thead>
-  <tbody>
-  </tbody>
-</table>
-</div>
+    <pysqlite3.dbapi2.Cursor at 0x7f17bbbb81f0>
 
 
 
@@ -632,41 +613,17 @@ pd.read_sql("Select * From GraduationYear;", database)
 
 
 ```python
-pd.read_sql("""Alter Table GraduationYear
-             Rename Column `Prospect ID` To Prospect_ID;""", database)
+database.execute("""Alter Table GraduationYear
+             Rename Column `Prospect ID` To Prospect_ID;""")
 
-pd.read_sql("""Alter Table GraduationYear
-             Rename Column `Year of Graduation` To Graduation_Year;""", database)
+database.execute("""Alter Table GraduationYear
+             Rename Column `Year of Graduation` To Graduation_Year;""")
 ```
 
 
 
 
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>1</th>
-    </tr>
-  </thead>
-  <tbody>
-  </tbody>
-</table>
-</div>
+    <pysqlite3.dbapi2.Cursor at 0x7f17ab561f80>
 
 
 
@@ -1136,9 +1093,11 @@ plt.margins(0.01, 0.07)
 
 Who are the most generous donors and how much have they given?
 
-Based on the distribution chart, we know that two donors in particular have been very generous to the university, donating more than \$400,000 and $200,000 respectively.
+Based on the distribution chart, we know that two donors in particular have been very generous to the university, donating more than \$400,000 and $200,000 respectively in single gifts.
 
 A larger number of donors have also given amounts between \$20,000 and $100,000.
+
+But who made the largest cumulative donations in the period 2010-2015?
 
 
 ```python
@@ -1176,12 +1135,12 @@ Who are the top 5 most generous donors each year?
 
 From the chart above, we know who the top overall donors are.
 
-But what does this look like on an annual basis? We can find the top five donors each year to see if there are any patterns. 
+But what does this look like on an annual basis? We can find the top five largest gifts each year to see if there are any patterns. 
 
 
 ```python
 result = pd.read_sql("""SELECT * FROM (SELECT Prospect_ID, 
-                      Gift_Amount,
+                      CAST(Gift_Amount AS INT) AS Gift_Amount,
                       substr(Gift_Date, 1, 4) as Year,
                       RANK () OVER (PARTITION BY substr(Gift_Date, 1, 4) ORDER BY Gift_Amount DESC) donor_rank
                       From GiftRecords)
@@ -1224,17 +1183,23 @@ ax.set_ylabel('Total Gifts ($)')
 ax.yaxis.labelpad = 20
 ax.set_xlabel("Year")
 
+x = np.arange(len(result["Year"]))  # the label locations
+
 def autolabel(rects):
     """Attach a text label above each bar in *rects*, displaying its height."""
     for rect in rects:
         height = rect.get_height()
-        ax.annotate("{}".format(result["Prospect_ID"]),
+        ax.annotate("${:,}".format(height),
                     xy=(rect.get_x() + rect.get_width() / 2, height),
                     xytext=(0, 3),  # 3 points vertical offset
                     textcoords="offset points",
-                    ha='center', va='bottom')
+                    ha='left', va='bottom', rotation = 60)
 
 autolabel(rects1)
+autolabel(rects2)
+autolabel(rects3)
+autolabel(rects4)
+autolabel(rects5)
 
 ax.set_title('Top 5 Gifts, 2010-2015', pad=30)
 ax.set_xticks(x_first)
@@ -1242,7 +1207,7 @@ ax.set_xticklabels(subset_first["Year"])
 ax.xaxis.labelpad = 20
 #ax.legend()
 _ = plt.xticks(rotation = 0, ha = "center")
-plt.margins(0.01, 0.01)
+plt.margins(0.03, 0.2)
 plt.show()
 ```
 
@@ -1252,17 +1217,195 @@ plt.show()
     
 
 
-Running total of gifts (value lowest to highest).
+Running total of gifts (highest to lowest value).
 
 
 ```python
-result = pd.read_sql("""SELECT Prospect_ID, Gift_Amount, 
-               SUM(Gift_Amount) OVER (ORDER BY Gift_Amount DESC ROWS BETWEEN unbounded preceding and current row) As running_total
-               From GiftRecords
-               Order By Gift_Amount DESC
-               LIMIT 20;""", database)
+result = pd.read_sql("""WITH Sum_Total_Gifts AS (SELECT SUM(Gift_Amount) AS Sum_Total_Gifts FROM GiftRecords)
 
+                        SELECT Prospect_ID, Gift_Amount, Sum_Total_Gifts,
+                        SUM(Gift_Amount) OVER (ORDER BY Gift_Amount DESC ROWS BETWEEN unbounded preceding and current row) As running_total
+                        From GiftRecords
+                        JOIN Sum_Total_Gifts
+                        GROUP BY Gift_Amount
+                        Order By Gift_Amount DESC
+                        LIMIT 20;""", database)
+result
 ```
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Prospect_ID</th>
+      <th>Gift_Amount</th>
+      <th>Sum_Total_Gifts</th>
+      <th>running_total</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>2875</td>
+      <td>455,821.00</td>
+      <td>24,672,757.00</td>
+      <td>455,821.00</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2898</td>
+      <td>225,843.00</td>
+      <td>24,672,757.00</td>
+      <td>681,664.00</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>2933</td>
+      <td>62,000.00</td>
+      <td>24,672,757.00</td>
+      <td>743,664.00</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>2953</td>
+      <td>45,468.00</td>
+      <td>24,672,757.00</td>
+      <td>789,132.00</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>2619</td>
+      <td>38,052.00</td>
+      <td>24,672,757.00</td>
+      <td>827,184.00</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>2571</td>
+      <td>37,383.00</td>
+      <td>24,672,757.00</td>
+      <td>864,567.00</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>1852</td>
+      <td>37,080.00</td>
+      <td>24,672,757.00</td>
+      <td>901,647.00</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>2580</td>
+      <td>36,780.00</td>
+      <td>24,672,757.00</td>
+      <td>938,427.00</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>2555</td>
+      <td>34,302.00</td>
+      <td>24,672,757.00</td>
+      <td>972,729.00</td>
+    </tr>
+    <tr>
+      <th>9</th>
+      <td>2573</td>
+      <td>34,047.00</td>
+      <td>24,672,757.00</td>
+      <td>1,006,776.00</td>
+    </tr>
+    <tr>
+      <th>10</th>
+      <td>2943</td>
+      <td>33,357.00</td>
+      <td>24,672,757.00</td>
+      <td>1,040,133.00</td>
+    </tr>
+    <tr>
+      <th>11</th>
+      <td>1868</td>
+      <td>29,581.00</td>
+      <td>24,672,757.00</td>
+      <td>1,069,714.00</td>
+    </tr>
+    <tr>
+      <th>12</th>
+      <td>2593</td>
+      <td>29,538.00</td>
+      <td>24,672,757.00</td>
+      <td>1,099,252.00</td>
+    </tr>
+    <tr>
+      <th>13</th>
+      <td>2585</td>
+      <td>29,480.00</td>
+      <td>24,672,757.00</td>
+      <td>1,128,732.00</td>
+    </tr>
+    <tr>
+      <th>14</th>
+      <td>1893</td>
+      <td>29,367.00</td>
+      <td>24,672,757.00</td>
+      <td>1,158,099.00</td>
+    </tr>
+    <tr>
+      <th>15</th>
+      <td>1098</td>
+      <td>29,033.00</td>
+      <td>24,672,757.00</td>
+      <td>1,187,132.00</td>
+    </tr>
+    <tr>
+      <th>16</th>
+      <td>1007</td>
+      <td>28,838.00</td>
+      <td>24,672,757.00</td>
+      <td>1,215,970.00</td>
+    </tr>
+    <tr>
+      <th>17</th>
+      <td>2598</td>
+      <td>28,089.00</td>
+      <td>24,672,757.00</td>
+      <td>1,244,059.00</td>
+    </tr>
+    <tr>
+      <th>18</th>
+      <td>2576</td>
+      <td>27,569.00</td>
+      <td>24,672,757.00</td>
+      <td>1,271,628.00</td>
+    </tr>
+    <tr>
+      <th>19</th>
+      <td>2566</td>
+      <td>27,173.00</td>
+      <td>24,672,757.00</td>
+      <td>1,298,801.00</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
 
 
 ```python
@@ -1283,37 +1426,11 @@ plt.margins(0.01, 0.01)
     
 
 
-### Most generous cities
-
-
-```python
-result = pd.read_sql("""Select City, SUM(Gift_Amount), COUNT(Gift_Amount), SUM(Gift_Amount) / COUNT(Gift_Amount) AS Average_Gift
-               From GiftRecords
-               Group By City
-               Order By SUM(Gift_Amount) DESC
-               Limit 20;""", database)
-```
-
-
-```python
-plt.figure(figsize=(20, 8))
-plt.bar(x=result["City"].astype(str), height=result["SUM(Gift_Amount)"] / 1_000, color='red')
-plt.title("Top 20 Cities, 2010-2015", pad = 30)
-#plt.xlabel("City", labelpad=20)
-plt.ylabel("Total gifts ($ '000)", labelpad=20)
-_ = plt.xticks(rotation = 90, ha = "center")
-#plt.axhline(result["number_data_points"].mean(), color='blue', linewidth=2, label = "# Countries")
-#plt.legend()
-plt.margins(0.01, 0.01)
-```
-
-
-    
-![png](University_Donations_files/University_Donations_43_0.png)
-    
-
-
 ### Most generous states
+
+In which states were alumni the most generous?
+
+Colorado was the most generous state, sending more than $3m in donations to the university. Montana was the least generous state.
 
 
 ```python
@@ -1338,11 +1455,183 @@ plt.margins(0.01, 0.01)
 
 
     
-![png](University_Donations_files/University_Donations_46_0.png)
+![png](University_Donations_files/University_Donations_43_0.png)
     
 
 
+Let's look at Colorado and Montana in more detail.
+
+Colorado recorded more than 90 times as many gifts as Montana, and an average gift amount that was more than 60% higher than Montana's. The largest gift from a Colorado donor was \$38,052, almost \$30,000 more than the largest gift originating in Montana.
+
+210 individual donors from Colorado made contributions to the univeristy, compared to just 2 from Montana.
+
+
+```python
+result = pd.read_sql("""SELECT State, 
+                               COUNT(Gift_Amount) AS Number_of_Gifts, 
+                               MAX(Gift_Amount) Largest_Gift_Amount,
+                               AVG(Gift_Amount) Average_Gift_Amount,
+                               COUNT(DISTINCT City) Number_of_Cities,
+                               COUNT(DISTINCT Prospect_ID) Number_of_Donors
+                        From GiftRecords
+                        WHERE State = 'CO' OR State = 'MT'
+                        Group By State;""", database)
+result
+```
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>State</th>
+      <th>Number_of_Gifts</th>
+      <th>Largest_Gift_Amount</th>
+      <th>Average_Gift_Amount</th>
+      <th>Number_of_Cities</th>
+      <th>Number_of_Donors</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>CO</td>
+      <td>368</td>
+      <td>38,052.00</td>
+      <td>8,651.94</td>
+      <td>2</td>
+      <td>210</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>MT</td>
+      <td>4</td>
+      <td>8,481.00</td>
+      <td>5,300.50</td>
+      <td>1</td>
+      <td>2</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
+
+### Most generous cities
+
+Colorado was the most generous, and its capital was the most generous city in the dataset.
+
+
+```python
+result = pd.read_sql("""Select City, SUM(Gift_Amount), COUNT(Gift_Amount), SUM(Gift_Amount) / COUNT(Gift_Amount) AS Average_Gift
+               From GiftRecords
+               Group By City
+               Order By SUM(Gift_Amount) DESC
+               Limit 20;""", database)
+```
+
+
+```python
+plt.figure(figsize=(20, 8))
+plt.bar(x=result["City"].astype(str), height=result["SUM(Gift_Amount)"] / 1_000, color='red')
+plt.title("Top 20 Cities, 2010-2015", pad = 30)
+#plt.xlabel("City", labelpad=20)
+plt.ylabel("Total gifts ($ '000)", labelpad=20)
+_ = plt.xticks(rotation = 60, ha = "right")
+#plt.axhline(result["number_data_points"].mean(), color='blue', linewidth=2, label = "# Countries")
+#plt.legend()
+plt.margins(0.01, 0.01)
+```
+
+
+    
+![png](University_Donations_files/University_Donations_49_0.png)
+    
+
+
+Let's look at the data for Denver in more detail. We see that Denver accounts for most of the donations from the state of Colorado: 311 of the 368 total gifts, and 181 of the 210 individual donors from Colorado are from Denver.
+
+
+
+```python
+result = pd.read_sql("""SELECT City, 
+                               COUNT(Gift_Amount) AS Number_of_Gifts, 
+                               MAX(Gift_Amount) Largest_Gift_Amount,
+                               AVG(Gift_Amount) Average_Gift_Amount,
+                               COUNT(DISTINCT City) Number_of_Cities,
+                               COUNT(DISTINCT Prospect_ID) Number_of_Donors
+                        From GiftRecords
+                        WHERE City = 'Denver'
+                        Group By City;""", database)
+result
+```
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>City</th>
+      <th>Number_of_Gifts</th>
+      <th>Largest_Gift_Amount</th>
+      <th>Average_Gift_Amount</th>
+      <th>Number_of_Cities</th>
+      <th>Number_of_Donors</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>Denver</td>
+      <td>311</td>
+      <td>38,052.00</td>
+      <td>9,184.87</td>
+      <td>1</td>
+      <td>181</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
+
 ### Most generous majors
+
+Are donors who studied particular majors more likely to donate money to the university after they graduate?
+
+The chart below shows the top 20 most generous majors. Engineers were the most generous donors to the university, followed by Composition and Mathematics graduates.
 
 
 ```python
@@ -1368,13 +1657,93 @@ plt.margins(0.01, 0.01)
 
 
     
-![png](University_Donations_files/University_Donations_49_0.png)
+![png](University_Donations_files/University_Donations_54_0.png)
     
+
+
+We can take a closer look at the top three most generous majors.
+
+Although Engineering graduates were the most generous overall, fewer Engineering graduates made gifts than did graduates from Composition or Mathematics. Of the three majors, Composition delivered the highest number of gifts and the highest number of individual donors, but the smallest overall and average gift values.
+
+
+```python
+result = pd.read_sql("""SELECT Major, 
+                               COUNT(Gift_Amount) AS Number_of_Gifts, 
+                               MAX(Gift_Amount) Largest_Gift_Amount,
+                               AVG(Gift_Amount) Average_Gift_Amount,
+                               COUNT(DISTINCT Prospect_ID) Number_of_Donors
+                        From GiftRecords
+                        WHERE Major = 'Engineering-No Major' OR Major = 'Composition' OR Major = 'Mathematics'
+                        Group By Major;""", database)
+result
+```
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Major</th>
+      <th>Number_of_Gifts</th>
+      <th>Largest_Gift_Amount</th>
+      <th>Average_Gift_Amount</th>
+      <th>Number_of_Donors</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>Composition</td>
+      <td>60</td>
+      <td>37,080.00</td>
+      <td>7,234.15</td>
+      <td>37</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>Engineering-No Major</td>
+      <td>21</td>
+      <td>455,821.00</td>
+      <td>26,786.60</td>
+      <td>14</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>Mathematics</td>
+      <td>32</td>
+      <td>225,843.00</td>
+      <td>12,993.22</td>
+      <td>18</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
 
 
 ### Most popular gift allocations
 
-Where do the donations go?
+Donors were able to direct their gifts to 25 funds or causes within the university. Where did the donations go?
+
+The two most popular donation destinations were non-subject specific: the Diversity Fund and the University Annual Fund.
+
+The College of Natural Science was the third highest overall recipient of donations, and received more donations than any other university faculty.
 
 
 ```python
@@ -1399,18 +1768,118 @@ plt.margins(0.01, 0.01)
 
 
     
-![png](University_Donations_files/University_Donations_52_0.png)
+![png](University_Donations_files/University_Donations_59_0.png)
     
+
+
+Let's have a look at the donation profiles for the three funds which received the highest number of donations.
+
+Of these three, the University Annual Fund received the highest number of gifts from the highest number of individual donors. However, this fund had the lowest average gift. 
+
+We might assume that the Diversity Fund and the University Annual Fund would attract a more diverse group of donors in terms of the subjects they studied. However, the College of Natural Science had donors from all 12 colleges in the university, as did the other two funds, and had donors from only eight fewer majors than the general funds. 
+
+
+```python
+result = pd.read_sql("""SELECT Allocation_Subcategory, 
+                               COUNT(Gift_Amount) AS Number_of_Gifts, 
+                               SUM(Gift_Amount) AS Total_Gift_Amount,
+                               MAX(Gift_Amount) AS Largest_Gift_Amount,
+                               AVG(Gift_Amount) AS Average_Gift_Amount,
+                               COUNT(DISTINCT Prospect_ID) AS Number_of_Donors,
+                               COUNT(DISTINCT College) AS Number_of_Colleges,
+                               COUNT(DISTINCT Major) AS Number_of_Majors
+                        From GiftRecords
+                        WHERE Allocation_Subcategory = 'Diversity Fund' OR Allocation_Subcategory = 'University Annual Fund' OR Allocation_Subcategory = 'College of Natural Science'
+                        Group By Allocation_Subcategory;""", database)
+result
+```
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Allocation_Subcategory</th>
+      <th>Number_of_Gifts</th>
+      <th>Total_Gift_Amount</th>
+      <th>Largest_Gift_Amount</th>
+      <th>Average_Gift_Amount</th>
+      <th>Number_of_Donors</th>
+      <th>Number_of_Colleges</th>
+      <th>Number_of_Majors</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>College of Natural Science</td>
+      <td>308</td>
+      <td>2,106,294.00</td>
+      <td>225,843.00</td>
+      <td>6,838.62</td>
+      <td>280</td>
+      <td>12</td>
+      <td>105</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>Diversity Fund</td>
+      <td>351</td>
+      <td>2,656,506.50</td>
+      <td>455,821.00</td>
+      <td>7,568.39</td>
+      <td>335</td>
+      <td>12</td>
+      <td>113</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>University Annual Fund</td>
+      <td>383</td>
+      <td>2,492,738.00</td>
+      <td>29,538.00</td>
+      <td>6,508.45</td>
+      <td>355</td>
+      <td>12</td>
+      <td>113</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
 
 
 ### When are graduates most generous?
 
+The dataset covers donations made between 2010 and 2015 by individuals who graduated from the university between 1960 and 2009.
+
+The first chart shows that, until about 25 years after graduation, graduates get more generous the longer they have been away from the university. 
+
 
 ```python
-result = pd.read_sql("""SELECT (substr(Gift_Date, 1, 4) - Graduation_Year) AS Years_Since_Graduation, SUM(Gift_Amount)
-               FROM GiftRecords LEFT JOIN GraduationYear On GiftRecords.Prospect_ID = GraduationYear.Prospect_ID
-               GROUP BY Years_Since_Graduation;""", database)
-
+result = pd.read_sql("""SELECT (substr(Gift_Date, 1, 4) - Graduation_Year) AS Years_Since_Graduation, 
+                               SUM(Gift_Amount),
+                               COUNT(Gift_Amount),
+                               SUM(Gift_Amount) / COUNT(Gift_Amount) AS Average_Gift
+                        FROM GiftRecords 
+                        LEFT JOIN GraduationYear On GiftRecords.Prospect_ID = GraduationYear.Prospect_ID
+                        GROUP BY Years_Since_Graduation;""", database)
 ```
 
 
@@ -1428,6 +1897,24 @@ plt.margins(0.01, 0.01)
 
 
     
-![png](University_Donations_files/University_Donations_55_0.png)
+![png](University_Donations_files/University_Donations_64_0.png)
+    
+
+
+
+```python
+plt.figure(figsize=(20, 8))
+plt.bar(x=result["Years_Since_Graduation"].astype(str), height=result["Average_Gift"], color='red')
+plt.title("Average Gift Amount By Years Since Graduation, 2010-2015", pad = 30)
+plt.xlabel("Years Since Graduation", labelpad=20)
+plt.ylabel("Average Gift ($)", labelpad=20)
+_ = plt.xticks(rotation = 0, ha = "center")
+#plt.legend()
+plt.margins(0.01, 0.01)
+```
+
+
+    
+![png](University_Donations_files/University_Donations_65_0.png)
     
 
