@@ -191,7 +191,7 @@ database.execute("""ALTER TABLE `Metadata - Countries`
 
 
 
-    <sqlite3.Cursor at 0x11d1d7f10>
+    <sqlite3.Cursor at 0x120a2ef80>
 
 
 
@@ -299,7 +299,7 @@ database.execute("""ALTER TABLE CO2_Per_Capita
 
 
 
-    <sqlite3.Cursor at 0x1064531f0>
+    <sqlite3.Cursor at 0x120a2eea0>
 
 
 
@@ -590,6 +590,7 @@ result = pd.read_sql("""SELECT Year,
 
 ```python
 plt.figure(figsize=(12, 4))
+plt.grid(False)
 plt.bar(x=result["Year"].astype(str), height=result["COUNT(CO2_kt)"], color='red')
 plt.title("Number of Data Points per Year", fontsize = 16, pad = 20)
 #plt.xlabel("Year", labelpad=20)
@@ -629,12 +630,13 @@ result = pd.read_sql("""WITH data_point AS (SELECT Country_Name,
 
 
 ```python
-plt.figure(figsize=(20, 8))
+plt.figure(figsize=(12, 4))
+plt.grid(False)
 plt.bar(x=result["data_points"].astype(str), height=result["COUNT(*)"], color='red')
-plt.title("Countries by Number of Data Points", pad = 30)
-plt.xlabel("# Data Points", labelpad=20)
-plt.ylabel("# Countries", labelpad=20)
-_ = plt.xticks(ha = "center")
+plt.title("Countries by Number of Data Points", pad = 20, fontsize = 16)
+plt.xlabel("# Data Points", labelpad=20, fontsize = 12)
+plt.ylabel("# Countries", labelpad=20, fontsize = 12)
+_ = plt.xticks(ha = "center", fontsize = 10)
 plt.margins(0.01, 0.01)
 ```
 
@@ -664,12 +666,13 @@ result = pd.read_sql("""select year, sum(CO2_kt) as sum_of_year,
 
 
 ```python
-plt.figure(figsize=(10, 4))
+plt.figure(figsize=(12, 4))
+plt.grid(False)
 plt.bar(x=result["Year"].astype(str), height=result["sum_of_year"] / 1000000, color='red')
-plt.title("Annual CO2 Emissions", pad = 30)
-plt.xlabel("Year", labelpad=20)
-plt.ylabel("CO2 Emissions (kt)", labelpad=20)
-_ = plt.xticks(rotation = 90, ha = "center")
+plt.title("Annual CO2 Emissions", pad = 20, fontsize = 16)
+#plt.xlabel("Year", labelpad=20)
+plt.ylabel("CO2 Emissions (kt)", labelpad=20, fontsize = 12)
+_ = plt.xticks(rotation = 90, ha = "center", fontsize = 10)
 plt.axhline((result["sum_of_year"] / 1000000).mean(), color='blue', linewidth=2, label = "Average")
 plt.legend()
 plt.margins(0.01, 0.01)
@@ -705,23 +708,24 @@ x_2011 = np.arange(len(subset_2011["Region"]))
 y_1960 = subset_1960["SUM(CO2_kt)"] / 1_000_000
 y_2011 = subset_2011["SUM(CO2_kt)"] / 1_000_000
 width = 0.35
-fig, ax = plt.subplots(figsize=(10, 4))
+fig, ax = plt.subplots(figsize=(12, 4))
 rects1 = ax.bar(x_1960 - width/2, y_1960, width, label="1960")
 rects2 = ax.bar(x_2011 + width/2, y_2011, width, label='2011')
 
 # Add some text for labels, title and custom x-axis tick labels, etc.
-ax.set_ylabel('CO2 (kt (millions))')
+ax.set_ylabel('CO2 (kt (millions))', fontsize = 12)
 ax.yaxis.labelpad = 20
-ax.set_xlabel('Region')
+#ax.set_xlabel('Region')
 ax.xaxis.labelpad = 20
 
-ax.set_title('CO2 Emissions By Region - 1960 and 2011', pad=30)
+ax.set_title('CO2 Emissions By Region - 1960 and 2011', pad=20, fontsize = 16)
 ax.set_xticks(x_1960)
 ax.set_xticklabels(subset_1960["Region"])
 ax.xaxis.labelpad = 20
 ax.legend()
-_ = plt.xticks(rotation = 60, ha = "center")
+_ = plt.xticks(rotation = 60, ha = "right", fontsize = 10)
 plt.margins(0.01, 0.01)
+plt.grid(False)
 plt.show()
 ```
 
@@ -750,17 +754,18 @@ result = pd.read_sql("""SELECT Country_Name, Region, SUM(CO2_kt)
 
 
 ```python
-plt.figure(figsize=(10, 4))
+plt.figure(figsize=(12, 4))
+plt.grid(False)
 palette = iter(sns.color_palette('Paired'))
 colour_map = {region_name: next(palette) 
               for region_name in np.unique(result["Region"])}
 colours = [colour_map.get(x, "green") for x in result["Region"]]
 regions = [region for region in result["Region"]]
 plt.bar(x=result["Country_Name"], height=result["SUM(CO2_kt)"] / 1000000, color=colours)
-plt.title("Countries with highest total emissions 1960-2011")
-plt.xlabel("Country", labelpad=20)
-plt.ylabel("CO2 Emissions (kt (millions))", labelpad=20)
-_ = plt.xticks(rotation = 60, ha = "right")
+plt.title("Countries with highest total emissions 1960-2011", fontsize = 16, pad = 20)
+#plt.xlabel("Country", labelpad=20)
+plt.ylabel("CO2 Emissions (kt (millions))", labelpad=20, fontsize = 12)
+_ = plt.xticks(rotation = 60, ha = "right", fontsize = 10)
 plt.margins(0.01, 0.01)
 
 ```
@@ -802,17 +807,18 @@ result = pd.read_sql("""WITH first_emissions AS (SELECT DISTINCT Country_Name,
 
 
 ```python
-plt.figure(figsize=(10, 4))
+plt.figure(figsize=(12, 4))
+plt.grid(False)
 palette = iter(sns.color_palette('Paired'))
 colour_map = {region_name: next(palette) 
               for region_name in np.unique(result["Region"])}
 colours = [colour_map.get(x, "green") for x in result["Region"]]
 regions = [region for region in result["Region"]]
 plt.bar(x=result["Country_Name"], height=result["increase_in_emissions"] / 1000000, color=colours, align = 'center')
-plt.title("Countries with greatest increase in emissions")
-plt.xlabel("Country", labelpad= 20)
-plt.ylabel("Increase in CO2 emissions (kt (millions))", labelpad=20)
-_ = plt.xticks(rotation = 60, ha = "right")
+plt.title("Countries with greatest increase in emissions", fontsize = 16, pad = 20)
+#plt.xlabel("Country", labelpad= 20)
+plt.ylabel("Increase in CO2 emissions (kt (millions))", labelpad=20, fontsize = 12)
+_ = plt.xticks(rotation = 60, ha = "right", fontsize = 10)
 plt.margins(0.01, 0.01)
 
 ```
@@ -856,17 +862,18 @@ result = pd.read_sql("""WITH first_emissions AS (SELECT DISTINCT Country_Name,
 
 
 ```python
-plt.figure(figsize=(10, 4))
+plt.figure(figsize=(12, 4))
+plt.grid(False)
 palette = iter(sns.color_palette('Paired'))
 colour_map = {region_name: next(palette) 
               for region_name in np.unique(result["Region"])}
 colours = [colour_map.get(x, "green") for x in result["Region"]]
 regions = [region for region in result["Region"]]
 plt.bar(x=result["Country_Name"], height=result["increase_in_emissions"] / 1000, color=colours, align = 'center')
-plt.title("Countries with greatest decrease in emissions", pad = 30)
-plt.xlabel("Country", labelpad = 20)
-plt.ylabel("Decrease in CO2 emissions (kt (thousands))", labelpad = 20)
-_ = plt.xticks(rotation = 60, ha = "right")
+plt.title("Countries with greatest decrease in emissions", pad = 20, fontsize = 16)
+#plt.xlabel("Country", labelpad = 20)
+plt.ylabel("Decrease in CO2 emissions (kt (thousands))", labelpad = 20, fontsize = 12)
+_ = plt.xticks(rotation = 60, ha = "right", fontsize = 10)
 plt.margins(0.01, 0.01)
 ```
 
@@ -894,28 +901,25 @@ result = pd.read_sql("""SELECT CO2_kt.year, CO2_kt, CO2_Per_Capita
 
 
 ```python
-fig, ax = plt.subplots(figsize=(10, 4))
-ax.plot_date(x=result["Year"].astype(str), y=result["CO2_kt"] / 1_000_000, marker='o', linestyle='-')
+fig, ax = plt.subplots(figsize=(12, 4))
+ax.plot_date(x=result["Year"].astype(str), y=result["CO2_kt"] / 1_000_000, linestyle='-')
 #ax.plot_date(x=result["Year"].astype(str), y=result["CO2_Per_Capita"], marker='', linestyle='-')
 fig.autofmt_xdate()
-plt.title("USA - CO2 emissions", pad = 30)
+plt.grid(False)
+plt.title("USA - CO2 emissions", fontsize = 16, pad = 20)
 #axes.titlepad = 20
 plt.xlabel("Year")
 ax.xaxis.labelpad = 20
-plt.ylabel("CO2 emissions (kt (millions))")
+plt.ylabel("CO2 emissions (kt (millions))", fontsize = 12)
 ax.yaxis.labelpad = 20
-_ = plt.xticks(rotation = 90, ha = "center")
+_ = plt.xticks(rotation = 90, ha = "center", fontsize = 10)
 plt.margins(0.01, 0.05)
 plt.show()
 ```
 
-    <ipython-input-24-85fc8f5d9510>:2: UserWarning: marker is redundantly defined by the 'marker' keyword argument and the fmt string "o" (-> marker='o'). The keyword argument will take precedence.
-      ax.plot_date(x=result["Year"].astype(str), y=result["CO2_kt"] / 1_000_000, marker='o', linestyle='-')
-
-
 
     
-![png](CO2_Emissions_files/CO2_Emissions_48_1.png)
+![png](CO2_Emissions_files/CO2_Emissions_48_0.png)
     
 
 
@@ -948,7 +952,8 @@ result = pd.read_sql("""WITH initial_gross AS (SELECT CO2_kt FROM CO2_kt
 
 ```python
 # line 1 points
-fig, ax1 = plt.subplots(figsize=(10, 4))
+fig, ax1 = plt.subplots(figsize=(12, 4))
+ax1.grid(False)
 _ = plt.xticks(rotation = 90, ha = "center")
 x1 = result["Year"].astype(str)
 y1 = result["gross_CO2"]
@@ -959,14 +964,14 @@ ax1.plot(x1, y1, label = "Gross CO2 Emissions")
 y2 = result["capita_CO2"]
 # plotting the line 2 points 
 ax1.plot(x1, y2, label = "Per Capita CO2 Emissions")
-ax1.set_xticklabels(result["Year"].astype(str))
-ax1.set_xlabel('Year')
-ax1.xaxis.labelpad = 20
+ax1.set_xticklabels(result["Year"].astype(str), fontsize = 10)
+#ax1.set_xlabel('Year')
+#ax1.xaxis.labelpad = 20
 # Set the y axis label of the current axis.
-ax1.set_ylabel('% Change in Emissions')
+ax1.set_ylabel('% Change in Emissions', fontsize = 12)
 ax1.yaxis.labelpad = 20
 # Set a title of the current axes.
-ax1.set_title('USA - Changes in Gross and Per Capita CO2 Emissions (1960 = 100)', pad = 30)
+ax1.set_title('USA - Changes in Gross and Per Capita CO2 Emissions (1960 = 100)', pad = 20, fontsize = 16)
 # show a legend on the plot
 ax1.legend()
 ax1.margins(0.0, 0.01)
@@ -976,9 +981,9 @@ fig.show()
 
 ```
 
-    <ipython-input-26-1345e35afd00>:13: UserWarning: FixedFormatter should only be used together with FixedLocator
-      ax1.set_xticklabels(result["Year"].astype(str))
-    <ipython-input-26-1345e35afd00>:25: UserWarning: Matplotlib is currently using module://ipykernel.pylab.backend_inline, which is a non-GUI backend, so cannot show the figure.
+    <ipython-input-32-27dd846fbb4d>:14: UserWarning: FixedFormatter should only be used together with FixedLocator
+      ax1.set_xticklabels(result["Year"].astype(str), fontsize = 10)
+    <ipython-input-32-27dd846fbb4d>:26: UserWarning: Matplotlib is currently using module://ipykernel.pylab.backend_inline, which is a non-GUI backend, so cannot show the figure.
       fig.show()
 
 
