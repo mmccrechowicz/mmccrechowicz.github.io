@@ -582,11 +582,13 @@ hr {
 table {
   border-collapse: collapse;
   border-spacing: 0;
-  overflow-x: scroll;
-  display: block;
+  /*overflow-x: scroll;*/
+  display: block; /* Following lines of code allow scrolling of overflow in tables*/
+  border-style: none;
   max-width: -moz-fit-content;
   max-width: fit-content;
-  margin: 0 auto;
+  /*margin: 0 auto;*/
+  margin: 0 left; /* To set the tables to left align. Instead of line above*/
   overflow-x: auto;
   white-space: nowrap;
 }

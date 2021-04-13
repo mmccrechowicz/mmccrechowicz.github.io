@@ -5,9 +5,11 @@ draft: true
 summary: Who were the university's top donors?
 ---
 
-This analysis uses data from a university's development department to understand more about the donors who have given money to the university. This type of analysis could help the development department/alumni relations team answer some of the questions they might have about their work, such as:
+# University Advancement, Donations, and Giving
 
-*   Who are the donors and how much do they give?
+This analysis uses data from a university's development department to understand more about the donors who have given money to the university. This type of analysis could help the development department/alumni relations team answer some of the questions they might have about their work, such as: 
+ 
+*   Who are the donors and how much do they give? 
 *   What makes someone likely to be a donor? E.g. are people with particular majors particular likely to donate?
 *   Did outreach and campaigns have any effect on donations?
 *   Which demographics should the alumni relations team target and when?
@@ -80,7 +82,7 @@ def excel_dataset_to_sqlite(url: str, database_name: str = ":memory:") -> sqlite
 
 #### Import the dataset and create the database
 
-I'm importing a dataset from a URL.
+I'm importing a dataset from a URL. 
 
 
 ```python
@@ -144,7 +146,8 @@ The column names have spaces, which will make them annoying to work with in SQL 
 
 
 ```python
-pd.read_sql("Select * From GiftRecords;", database)
+pd.read_sql("""Select * From GiftRecords
+            LIMIT 5;""", database)
 ```
 
 
@@ -246,87 +249,8 @@ pd.read_sql("Select * From GiftRecords;", database)
       <td>1004</td>
       <td>UT</td>
     </tr>
-    <tr>
-      <th>...</th>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-    </tr>
-    <tr>
-      <th>3908</th>
-      <td>3908</td>
-      <td>College of Arts and Sciences</td>
-      <td>Lexington</td>
-      <td>College of Engineering</td>
-      <td>Scholarship</td>
-      <td>936.00</td>
-      <td>2015-11-22 00:00:00</td>
-      <td>Environmental Engineering</td>
-      <td>3315</td>
-      <td>KY</td>
-    </tr>
-    <tr>
-      <th>3909</th>
-      <td>3909</td>
-      <td>Diversity Fund</td>
-      <td>New York</td>
-      <td>College of Natural Science</td>
-      <td>Endowment</td>
-      <td>4,466.00</td>
-      <td>2015-01-14 00:00:00</td>
-      <td>Earth Science Interdepartmental</td>
-      <td>3316</td>
-      <td>NY</td>
-    </tr>
-    <tr>
-      <th>3910</th>
-      <td>3910</td>
-      <td>College of Arts and Sciences</td>
-      <td>San Francisco</td>
-      <td>College of Arts and Sciences</td>
-      <td>Scholarship</td>
-      <td>14,156.00</td>
-      <td>2015-08-30 00:00:00</td>
-      <td>Art History and Visual Culture</td>
-      <td>3317</td>
-      <td>CA</td>
-    </tr>
-    <tr>
-      <th>3911</th>
-      <td>3911</td>
-      <td>College of Arts and Sciences</td>
-      <td>Denver</td>
-      <td>College of Engineering</td>
-      <td>Scholarship</td>
-      <td>15,711.00</td>
-      <td>2015-07-03 00:00:00</td>
-      <td>Computer Science</td>
-      <td>3318</td>
-      <td>CO</td>
-    </tr>
-    <tr>
-      <th>3912</th>
-      <td>3912</td>
-      <td>Diversity Fund</td>
-      <td>Des Moines</td>
-      <td>College of Engineering</td>
-      <td>Endowment</td>
-      <td>31.00</td>
-      <td>2015-11-20 00:00:00</td>
-      <td>Biosystems Engineering</td>
-      <td>3319</td>
-      <td>IA</td>
-    </tr>
   </tbody>
 </table>
-<p>3913 rows × 10 columns</p>
 </div>
 
 
@@ -354,7 +278,7 @@ database.execute("""Alter Table GiftRecords
 
 
 
-    <sqlite3.Cursor at 0x1247caf10>
+    <sqlite3.Cursor at 0x11aae39d0>
 
 
 
@@ -495,7 +419,8 @@ There's a second table in this database, so we can do the same to the columns in
 
 
 ```python
-pd.read_sql("Select * From GraduationYear;", database)
+pd.read_sql("""Select * From GraduationYear
+            LIMIT 5;""", database)
 ```
 
 
@@ -555,45 +480,8 @@ pd.read_sql("Select * From GraduationYear;", database)
       <td>3012</td>
       <td>1993</td>
     </tr>
-    <tr>
-      <th>...</th>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-    </tr>
-    <tr>
-      <th>2312</th>
-      <td>2312</td>
-      <td>2475</td>
-      <td>1981</td>
-    </tr>
-    <tr>
-      <th>2313</th>
-      <td>2313</td>
-      <td>1847</td>
-      <td>1993</td>
-    </tr>
-    <tr>
-      <th>2314</th>
-      <td>2314</td>
-      <td>2388</td>
-      <td>1988</td>
-    </tr>
-    <tr>
-      <th>2315</th>
-      <td>2315</td>
-      <td>3145</td>
-      <td>1992</td>
-    </tr>
-    <tr>
-      <th>2316</th>
-      <td>2316</td>
-      <td>1678</td>
-      <td>1994</td>
-    </tr>
   </tbody>
 </table>
-<p>2317 rows × 3 columns</p>
 </div>
 
 
@@ -610,7 +498,7 @@ database.execute("""Alter Table GraduationYear
 
 
 
-    <sqlite3.Cursor at 0x124791730>
+    <sqlite3.Cursor at 0x105492f80>
 
 
 
@@ -690,7 +578,8 @@ From the above queries, it's clear we can join the two tables in the database on
 ```python
 pd.read_sql("""
 SELECT * From GiftRecords
-LEFT JOIN GraduationYear ON GiftRecords.Prospect_ID = GraduationYear.Prospect_ID;""", database)
+LEFT JOIN GraduationYear ON GiftRecords.Prospect_ID = GraduationYear.Prospect_ID
+LIMIT 5;""", database)
 ```
 
 
@@ -810,110 +699,13 @@ LEFT JOIN GraduationYear ON GiftRecords.Prospect_ID = GraduationYear.Prospect_ID
       <td>1004</td>
       <td>1986</td>
     </tr>
-    <tr>
-      <th>...</th>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-    </tr>
-    <tr>
-      <th>3908</th>
-      <td>3908</td>
-      <td>College of Arts and Sciences</td>
-      <td>Lexington</td>
-      <td>College of Engineering</td>
-      <td>Scholarship</td>
-      <td>936.00</td>
-      <td>2015-11-22 00:00:00</td>
-      <td>Environmental Engineering</td>
-      <td>3315</td>
-      <td>KY</td>
-      <td>1777</td>
-      <td>3315</td>
-      <td>1992</td>
-    </tr>
-    <tr>
-      <th>3909</th>
-      <td>3909</td>
-      <td>Diversity Fund</td>
-      <td>New York</td>
-      <td>College of Natural Science</td>
-      <td>Endowment</td>
-      <td>4,466.00</td>
-      <td>2015-01-14 00:00:00</td>
-      <td>Earth Science Interdepartmental</td>
-      <td>3316</td>
-      <td>NY</td>
-      <td>512</td>
-      <td>3316</td>
-      <td>1976</td>
-    </tr>
-    <tr>
-      <th>3910</th>
-      <td>3910</td>
-      <td>College of Arts and Sciences</td>
-      <td>San Francisco</td>
-      <td>College of Arts and Sciences</td>
-      <td>Scholarship</td>
-      <td>14,156.00</td>
-      <td>2015-08-30 00:00:00</td>
-      <td>Art History and Visual Culture</td>
-      <td>3317</td>
-      <td>CA</td>
-      <td>1127</td>
-      <td>3317</td>
-      <td>1985</td>
-    </tr>
-    <tr>
-      <th>3911</th>
-      <td>3911</td>
-      <td>College of Arts and Sciences</td>
-      <td>Denver</td>
-      <td>College of Engineering</td>
-      <td>Scholarship</td>
-      <td>15,711.00</td>
-      <td>2015-07-03 00:00:00</td>
-      <td>Computer Science</td>
-      <td>3318</td>
-      <td>CO</td>
-      <td>870</td>
-      <td>3318</td>
-      <td>2008</td>
-    </tr>
-    <tr>
-      <th>3912</th>
-      <td>3912</td>
-      <td>Diversity Fund</td>
-      <td>Des Moines</td>
-      <td>College of Engineering</td>
-      <td>Endowment</td>
-      <td>31.00</td>
-      <td>2015-11-20 00:00:00</td>
-      <td>Biosystems Engineering</td>
-      <td>3319</td>
-      <td>IA</td>
-      <td>135</td>
-      <td>3319</td>
-      <td>1986</td>
-    </tr>
   </tbody>
 </table>
-<p>3913 rows × 13 columns</p>
 </div>
 
 
 
-There are 3913 rows of data in the GiftRecords table. Selecting the unique values from the table shows that, for example, there are 25 Allocation_Subcategories donors can choose from, and that 95 cities, 120 majors, and 2317 individual donors are represented in the data.
+There are 3913 rows of data in the GiftRecords table. Selecting the unique values from the table shows that, for example, there are 25 Allocation_Subcategories donors can choose from, and that 95 cities, 120 majors, and 2317 individual donors are represented in the data. 
 
 There are only 2 Gift_Allocations categories, so it won't be possible to do detailed analysis using this field.
 
@@ -990,7 +782,7 @@ Join years;""", database)
 
 ### How much did the university raise each year?
 
-The chart below shows total donations for each of the six years in the data.
+The chart below shows total donations for each of the six years in the data. 
 
 Looking at the annual average donations made, there is no clear pattern or trend; rather we see fluctuations from year to year. Donations peaked in 2013 before falling in the two subsequent years.
 
@@ -999,8 +791,8 @@ It would be interesting to know whether the development team ran any initiatives
 
 ```python
 result = pd.read_sql("""
-SELECT substr(Gift_Date, 1, 4) AS Year,
-       SUM(Gift_Amount),
+SELECT substr(Gift_Date, 1, 4) AS Year, 
+       SUM(Gift_Amount), 
        COUNT(Gift_Amount)
 FROM GiftRecords
 GROUP BY Year;""", database)
@@ -1018,16 +810,16 @@ plt.margins(0.01, 0.01)
 ```
 
 
-
+    
 ![png](University_Donations_files/University_Donations_26_0.png)
-
+    
 
 
 ### What is the distribution of gifts?
 
 We looked at the data earlier, so we know there are 3913 unique gift records in the data.
 
-To understand these gifts at a basic level, we can look at the distribution of gifts among different gift amounts.
+To understand these gifts at a basic level, we can look at the distribution of gifts among different gift amounts. 
 
 By bucketing the gifts in this way, it is clear that the vast majority of gifts are below \\$10k, with only a small percentage above \\$20k.
 
@@ -1073,21 +865,21 @@ plt.margins(0.01, 0.08)
 ```
 
 
-
+    
 ![png](University_Donations_files/University_Donations_29_0.png)
-
+    
 
 
 #### Largest gifts in each year
 
 From the chart above, we know who the top overall donors are.
 
-But what does this look like on an annual basis? We can find the top five largest gifts each year to see if there are any patterns.
+But what does this look like on an annual basis? We can find the top five largest gifts each year to see if there are any patterns. 
 
 
 ```python
 result = pd.read_sql("""
-SELECT * FROM (SELECT Prospect_ID,
+SELECT * FROM (SELECT Prospect_ID, 
                CAST(Gift_Amount AS INT) AS Gift_Amount,
                substr(Gift_Date, 1, 4) as Year,
                RANK () OVER (PARTITION BY substr(Gift_Date, 1, 4) ORDER BY Gift_Amount DESC) donor_rank
@@ -1160,9 +952,9 @@ plt.show()
 ```
 
 
-
+    
 ![png](University_Donations_files/University_Donations_32_0.png)
-
+    
 
 
 ### Most generous donors
@@ -1181,9 +973,9 @@ result = pd.read_sql("""
 With total_donations As (Select Sum(Gift_Amount) as total_donations
                          From GiftRecords)
 
-Select Distinct(Prospect_ID),
-       SUM(Gift_Amount),
-       total_donations,
+Select Distinct(Prospect_ID), 
+       SUM(Gift_Amount), 
+       total_donations, 
        (SUM(Gift_Amount) / total_donations) AS percentage_of_total
 From GiftRecords
 Join total_donations
@@ -1205,9 +997,9 @@ plt.margins(0.01, 0.01)
 ```
 
 
-
+    
 ![png](University_Donations_files/University_Donations_35_0.png)
-
+    
 
 
 ### Most generous states
@@ -1219,9 +1011,9 @@ Colorado was the most generous state, sending more than $3m in donations to the 
 
 ```python
 result = pd.read_sql(
-"""Select State,
-          SUM(Gift_Amount),
-          COUNT(Gift_Amount),
+"""Select State, 
+          SUM(Gift_Amount), 
+          COUNT(Gift_Amount), 
           SUM(Gift_Amount) / COUNT(Gift_Amount) AS Average_Gift
 From GiftRecords
 Group By State
@@ -1235,14 +1027,14 @@ plt.grid(False)
 plt.bar(x=result["State"].astype(str), height=result["SUM(Gift_Amount)"] / 1_000, color='red')
 plt.title("Gift Amount By State, 2010-2015", pad = 20, fontsize = 16)
 plt.ylabel("Total gifts ($ '000)", labelpad=20, fontsize = 12)
-_ = plt.xticks(rotation = 0, ha = "center")
+_ = plt.xticks(rotation = 0, ha = "center", fontsize = 10)
 plt.margins(0.01, 0.01)
 ```
 
 
-
+    
 ![png](University_Donations_files/University_Donations_38_0.png)
-
+    
 
 
 Let's look at Colorado and Montana in more detail.
@@ -1254,8 +1046,8 @@ Colorado recorded more than 90 times as many gifts as Montana, and an average gi
 
 ```python
 result = pd.read_sql("""
-SELECT State,
-       COUNT(Gift_Amount) AS Number_of_Gifts,
+SELECT State, 
+       COUNT(Gift_Amount) AS Number_of_Gifts, 
        MAX(Gift_Amount) Largest_Gift_Amount,
        AVG(Gift_Amount) Average_Gift_Amount,
        COUNT(DISTINCT City) Number_of_Cities,
@@ -1327,9 +1119,9 @@ Colorado was the most generous state, and its capital was the most generous city
 
 ```python
 result = pd.read_sql("""
-Select City,
-       SUM(Gift_Amount),
-       COUNT(Gift_Amount),
+Select City, 
+       SUM(Gift_Amount), 
+       COUNT(Gift_Amount), 
        SUM(Gift_Amount) / COUNT(Gift_Amount) AS Average_Gift
 From GiftRecords
 Group By City
@@ -1349,9 +1141,9 @@ plt.margins(0.01, 0.01)
 ```
 
 
-
+    
 ![png](University_Donations_files/University_Donations_44_0.png)
-
+    
 
 
 Let's look at the data for Denver in more detail. We see that Denver accounts for most of the donations from the state of Colorado: 311 of the 368 total gifts, and 181 of the 210 individual donors from Colorado are from Denver.
@@ -1360,8 +1152,8 @@ Let's look at the data for Denver in more detail. We see that Denver accounts fo
 
 ```python
 result = pd.read_sql("""
-SELECT City,
-       COUNT(Gift_Amount) AS Number_of_Gifts,
+SELECT City, 
+       COUNT(Gift_Amount) AS Number_of_Gifts, 
        MAX(Gift_Amount) Largest_Gift_Amount,
        AVG(Gift_Amount) Average_Gift_Amount,
        COUNT(DISTINCT City) Number_of_Cities,
@@ -1426,9 +1218,9 @@ The chart below shows the top 20 most generous majors. Engineers were the most g
 
 ```python
 result = pd.read_sql("""
-Select Major,
-       SUM(Gift_Amount),
-       COUNT(Gift_Amount),
+Select Major, 
+       SUM(Gift_Amount), 
+       COUNT(Gift_Amount), 
        SUM(Gift_Amount) / COUNT(Gift_Amount) AS Average_Gift
 From GiftRecords
 Group By Major
@@ -1448,9 +1240,9 @@ plt.margins(0.01, 0.01)
 ```
 
 
-
+    
 ![png](University_Donations_files/University_Donations_49_0.png)
-
+    
 
 
 We can take a closer look at the top three most generous majors.
@@ -1460,13 +1252,13 @@ Although Engineering graduates were the most generous overall, fewer Engineering
 
 ```python
 result = pd.read_sql("""
-SELECT Major,
-       COUNT(Gift_Amount) AS Number_of_Gifts,
+SELECT Major, 
+       COUNT(Gift_Amount) AS Number_of_Gifts, 
        MAX(Gift_Amount) Largest_Gift_Amount,
        AVG(Gift_Amount) Average_Gift_Amount,
        COUNT(DISTINCT Prospect_ID) Number_of_Donors
 From GiftRecords
-WHERE Major = 'Engineering-No Major'
+WHERE Major = 'Engineering-No Major' 
         OR Major = 'Composition' OR Major = 'Mathematics'
 Group By Major;""", database)
 result
@@ -1542,8 +1334,8 @@ The College of Natural Science was the third highest overall recipient of donati
 
 ```python
 result = pd.read_sql("""
-Select Allocation_Subcategory,
-       SUM(Gift_Amount),
+Select Allocation_Subcategory, 
+       SUM(Gift_Amount), 
        COUNT(Gift_Amount)
 From GiftRecords
 Group By Allocation_Subcategory
@@ -1562,22 +1354,22 @@ plt.margins(0.01, 0.01)
 ```
 
 
-
+    
 ![png](University_Donations_files/University_Donations_54_0.png)
-
+    
 
 
 Let's have a look at the donation profiles for the three funds which received the highest number of donations.
 
-Of these three, the University Annual Fund received the highest number of gifts from the highest number of individual donors. However, this fund had the lowest average gift.
+Of these three, the University Annual Fund received the highest number of gifts from the highest number of individual donors. However, this fund had the lowest average gift. 
 
-We might assume that the Diversity Fund and the University Annual Fund would attract a more diverse group of donors in terms of the subjects they studied. However, the College of Natural Science had donors from all 12 colleges in the university, as did the other two funds, and had donors from only eight fewer majors than the general funds.
+We might assume that the Diversity Fund and the University Annual Fund would attract a more diverse group of donors in terms of the subjects they studied. However, the College of Natural Science had donors from all 12 colleges in the university, as did the other two funds, and had donors from only eight fewer majors than the general funds. 
 
 
 ```python
 result = pd.read_sql("""
-SELECT Allocation_Subcategory,
-       COUNT(Gift_Amount) AS Number_of_Gifts,
+SELECT Allocation_Subcategory, 
+       COUNT(Gift_Amount) AS Number_of_Gifts, 
        SUM(Gift_Amount) AS Total_Gift_Amount,
        MAX(Gift_Amount) AS Largest_Gift_Amount,
        AVG(Gift_Amount) AS Average_Gift_Amount,
@@ -1670,12 +1462,12 @@ The first chart shows that, until about 25 years after graduation, graduates get
 
 ```python
 result = pd.read_sql("""
-SELECT (substr(Gift_Date, 1, 4) - Graduation_Year) AS Years_Since_Graduation,
+SELECT (substr(Gift_Date, 1, 4) - Graduation_Year) AS Years_Since_Graduation, 
        SUM(Gift_Amount),
        COUNT(Gift_Amount),
        SUM(Gift_Amount) / COUNT(Gift_Amount) AS Average_Gift
-FROM GiftRecords
-LEFT JOIN GraduationYear On
+FROM GiftRecords 
+LEFT JOIN GraduationYear On 
         GiftRecords.Prospect_ID = GraduationYear.Prospect_ID
 GROUP BY Years_Since_Graduation;""", database)
 ```
@@ -1693,9 +1485,9 @@ plt.margins(0.01, 0.01)
 ```
 
 
-
+    
 ![png](University_Donations_files/University_Donations_59_0.png)
-
+    
 
 The second chart shows that the average gift does not change significantly over time. Rather, it is the number of gifts that changes significantly over time. The number of gifts increases steadily until the 24th year after graduation, after which there is a steep decline, with the number levelling out at approximately 35 years after graduation.
 
@@ -1717,5 +1509,7 @@ axes2.tick_params(axis='y', colors='b')
 ```
 
 
-
+    
 ![png](University_Donations_files/University_Donations_61_0.png)
+    
+
