@@ -7,7 +7,7 @@ summary: How did global CO2 emissions change between 1960 and 2011?
 
 Using data from the World Bank, this analysis looks at the ways global CO2 emissions changed between 1960 and 2011.
 
-The climate crisis has been a *hot topic* (or, if you will, a *burning issue*) for several decades now. We are increasingly seeing the effects of climate change in hotter summers, droughts and cataclycsmic weather events. In California, we have seen record-breaking forest fire seasons year after year. We are more aware than ever about the effects our behaviours have on the world around us, and on the changing climate.
+The climate crisis has been a hot topic (or, if you will, a burning issue) for several decades now. We are increasingly seeing the effects of climate change in hotter summers, droughts and cataclycsmic weather events. In California, we have seen record-breaking forest fire seasons year after year. We are more aware than ever about the effects our behaviours have on the world around us, and on the changing climate.
 
 Using this dataset from the World Bank, we can see how we have continued to increase CO2 emissions into the atmosphere. We can also identify the most polluting countries and regions, and see which countries have experienced the greatest changes in their CO2 emissions between 1960 and 2011. 
 
@@ -26,7 +26,6 @@ The original dataset can be downloaded [here](https://mkt.tableau.com/Public/Dat
 import tempfile
 from urllib import request
 import sqlite3
-#import pysqlite3
 
 from typing import Dict
 
@@ -93,7 +92,8 @@ database = excel_dataset_to_sqlite("https://mkt.tableau.com/Public/Datasets/Worl
 
 
 ```python
-pd.read_sql("SELECT name FROM sqlite_master WHERE type='table';", database)
+pd.read_sql(
+    """SELECT name FROM sqlite_master WHERE type='table';""", database)
 ```
 
 
@@ -163,12 +163,9 @@ pd.read_sql("SELECT name FROM sqlite_master WHERE type='table';", database)
 
 
 
+
 These table names have spaces, so they're going to be annoying to work with. We can change the table names to make it easier to write SQL queries.
 
-
-
-<details>
-<summary>Code</summary>
 
 ```python
 database.execute("""ALTER TABLE `CO2 (kt) for Split` 
@@ -182,16 +179,12 @@ database.execute("""ALTER TABLE `CO2 Per Capita (Pivoted)`
 
 database.execute("""ALTER TABLE `Metadata - Countries` 
                RENAME TO Metadata_Countries;""")
-
 ```
 
-</details>
 
 
 
-
-
-    <sqlite3.Cursor at 0x120a2ef80>
+    <sqlite3.Cursor at 0x111018030>
 
 
 
@@ -199,7 +192,8 @@ View the table names again to make sure the changes were made.
 
 
 ```python
-pd.read_sql("SELECT name FROM sqlite_master WHERE type='table';", database)
+pd.read_sql(
+    """SELECT name FROM sqlite_master WHERE type='table';""", database)
 ```
 
 
@@ -269,14 +263,11 @@ pd.read_sql("SELECT name FROM sqlite_master WHERE type='table';", database)
 
 
 
+
 I'll mainly be using two tables for this analysis: CO2_kt and CO2_Per_Capita.
 
 Looking at the columns in these tables, I can see some of them will make SQL queries harder. So, let's change them as we did for the table names.
 
-
-
-<details>
-<summary>Code</summary>
 
 ```python
 database.execute("""ALTER TABLE CO2_kt
@@ -290,16 +281,12 @@ database.execute("""ALTER TABLE CO2_Per_Capita
 
 database.execute("""ALTER TABLE CO2_Per_Capita
                RENAME COLUMN `Country Name` TO Country_Name;""")
-
 ```
 
-</details>
 
 
 
-
-
-    <sqlite3.Cursor at 0x120a2eea0>
+    <sqlite3.Cursor at 0x126430c70>
 
 
 
@@ -580,11 +567,12 @@ We can see that the data for earlier years are less complete than for later year
 
 
 ```python
-result = pd.read_sql("""SELECT Year, 
-                               COUNT(CO2_kt), 
-                               COUNT(DISTINCT Country_Name) as number_data_points
-                        FROM CO2_kt
-                        GROUP BY year;""", database)
+result = pd.read_sql(
+"""SELECT Year, 
+          COUNT(CO2_kt), 
+          COUNT(DISTINCT Country_Name) as number_data_points
+FROM CO2_kt
+GROUP BY year;""", database)
 ```
 
 
@@ -593,7 +581,6 @@ plt.figure(figsize=(12, 4))
 plt.grid(False)
 plt.bar(x=result["Year"].astype(str), height=result["COUNT(CO2_kt)"], color='red')
 plt.title("Number of Data Points per Year", fontsize = 16, pad = 20)
-#plt.xlabel("Year", labelpad=20)
 plt.ylabel("# Data Points", labelpad=20, fontsize = 12)
 _ = plt.xticks(rotation = 90, ha = "center", fontsize = 10)
 plt.margins(0.01, 0.01)
@@ -615,16 +602,17 @@ For 15 countries, there is no data. The remainder have between 5 and 51 data poi
 
 
 ```python
-result = pd.read_sql("""WITH data_point AS (SELECT Country_Name, 
-                                                   SUM(CO2_kt IS NOT NULL) AS data_points
-                                            FROM CO2_kt
-                                            GROUP BY Country_Name)
+result = pd.read_sql(
+"""WITH data_point AS (SELECT Country_Name, 
+                       SUM(CO2_kt IS NOT NULL) AS data_points
+                       FROM CO2_kt
+                       GROUP BY Country_Name)
                               
-                        SELECT DISTINCT(data_points), 
-                               COUNT(*)
-                        FROM data_point
-                        GROUP BY data_points
-                        ORDER BY data_points ASC;""", database)
+SELECT DISTINCT(data_points), 
+       COUNT(*)
+FROM data_point
+GROUP BY data_points
+ORDER BY data_points ASC;""", database)
 
 ```
 
@@ -657,10 +645,10 @@ The average annual emissions for the period 1960-2011 were approximately 17m kt.
 
 
 ```python
-result = pd.read_sql("""select year, sum(CO2_kt) as sum_of_year, 
-                        avg(sum(CO2_kt)) OVER() as avg_sum
-                        from CO2_kt
-                        group by year;""", database)
+result = pd.read_sql("""SELECT year, SUM(CO2_kt) as sum_of_year, 
+                        AVG(SUM(CO2_kt)) OVER() as avg_sum
+                        FROM CO2_kt
+                        GROUP BY year;""", database)
 
 ```
 
@@ -670,7 +658,6 @@ plt.figure(figsize=(12, 4))
 plt.grid(False)
 plt.bar(x=result["Year"].astype(str), height=result["sum_of_year"] / 1000000, color='red')
 plt.title("Annual CO2 Emissions", pad = 20, fontsize = 16)
-#plt.xlabel("Year", labelpad=20)
 plt.ylabel("CO2 Emissions (kt)", labelpad=20, fontsize = 12)
 _ = plt.xticks(rotation = 90, ha = "center", fontsize = 10)
 plt.axhline((result["sum_of_year"] / 1000000).mean(), color='blue', linewidth=2, label = "Average")
@@ -763,7 +750,6 @@ colours = [colour_map.get(x, "green") for x in result["Region"]]
 regions = [region for region in result["Region"]]
 plt.bar(x=result["Country_Name"], height=result["SUM(CO2_kt)"] / 1000000, color=colours)
 plt.title("Countries with highest total emissions 1960-2011", fontsize = 16, pad = 20)
-#plt.xlabel("Country", labelpad=20)
 plt.ylabel("CO2 Emissions (kt (millions))", labelpad=20, fontsize = 12)
 _ = plt.xticks(rotation = 60, ha = "right", fontsize = 10)
 plt.margins(0.01, 0.01)
@@ -784,25 +770,27 @@ China has seen the greatest increase in emissions. China's annual emissions were
 
 
 ```python
-result = pd.read_sql("""WITH first_emissions AS (SELECT DISTINCT Country_Name,
-                                                 FIRST_VALUE(Year) OVER (PARTITION BY Country_Name ORDER BY year ASC) as initial_year,
-                                                 FIRST_VALUE(CO2_kt) OVER (PARTITION BY Country_Name ORDER BY year ASC) as initial_emissions
-                                                 FROM CO2_kt
-                                                 WHERE CO2_kt IS NOT NULL)
+result = pd.read_sql(
+"""WITH first_emissions AS 
+       (SELECT DISTINCT Country_Name,
+        FIRST_VALUE(Year) OVER (PARTITION BY Country_Name ORDER BY year ASC) as initial_year,
+        FIRST_VALUE(CO2_kt) OVER (PARTITION BY Country_Name ORDER BY year ASC) as initial_emissions
+        FROM CO2_kt
+        WHERE CO2_kt IS NOT NULL)
 
-                        SELECT CO2_kt.Country_Name, 
-                               first_emissions.initial_year,
-                               first_emissions.initial_emissions,
-                               Year,
-                               CO2_kt,
-                               Region,
-                               (CO2_kt - first_emissions.initial_emissions) AS increase_in_emissions                               
-                        FROM CO2_kt
-                        INNER JOIN first_emissions ON CO2_kt.Country_Name = first_emissions.Country_Name
-                        WHERE CO2_kt IS NOT NULL
-                        AND Year = 2011
-                        ORDER BY increase_in_emissions DESC
-                        LIMIT 20;""", database)
+SELECT CO2_kt.Country_Name, 
+       first_emissions.initial_year,
+       first_emissions.initial_emissions,
+       Year,
+       CO2_kt,
+       Region,
+      (CO2_kt - first_emissions.initial_emissions) AS increase_in_emissions                               
+FROM CO2_kt
+INNER JOIN first_emissions ON CO2_kt.Country_Name = first_emissions.Country_Name
+WHERE CO2_kt IS NOT NULL
+AND Year = 2011
+ORDER BY increase_in_emissions DESC
+LIMIT 20;""", database)
 ```
 
 
@@ -816,7 +804,6 @@ colours = [colour_map.get(x, "green") for x in result["Region"]]
 regions = [region for region in result["Region"]]
 plt.bar(x=result["Country_Name"], height=result["increase_in_emissions"] / 1000000, color=colours, align = 'center')
 plt.title("Countries with greatest increase in emissions", fontsize = 16, pad = 20)
-#plt.xlabel("Country", labelpad= 20)
 plt.ylabel("Increase in CO2 emissions (kt (millions))", labelpad=20, fontsize = 12)
 _ = plt.xticks(rotation = 60, ha = "right", fontsize = 10)
 plt.margins(0.01, 0.01)
@@ -839,25 +826,27 @@ While it's positive to see some countries have reduced their CO2 emissions, it's
 
 
 ```python
-result = pd.read_sql("""WITH first_emissions AS (SELECT DISTINCT Country_Name,
-                                                 FIRST_VALUE(Year) OVER (PARTITION BY Country_Name ORDER BY year ASC) as initial_year,
-                                                 FIRST_VALUE(CO2_kt) OVER (PARTITION BY Country_Name ORDER BY year ASC) as initial_emissions
-                                                 FROM CO2_kt
-                                                 WHERE CO2_kt IS NOT NULL)
+result = pd.read_sql(
+"""WITH first_emissions AS 
+   (SELECT DISTINCT Country_Name,
+    FIRST_VALUE(Year) OVER (PARTITION BY Country_Name ORDER BY year ASC) as initial_year,
+    FIRST_VALUE(CO2_kt) OVER (PARTITION BY Country_Name ORDER BY year ASC) as initial_emissions
+    FROM CO2_kt
+    WHERE CO2_kt IS NOT NULL)
 
-                        SELECT CO2_kt.Country_Name, 
-                               first_emissions.initial_year,
-                               first_emissions.initial_emissions,
-                               Year,
-                               CO2_kt,
-                               Region,
-                               (CO2_kt - first_emissions.initial_emissions) AS increase_in_emissions                               
-                        FROM CO2_kt
-                        INNER JOIN first_emissions ON CO2_kt.Country_Name = first_emissions.Country_Name
-                        WHERE CO2_kt IS NOT NULL
-                        AND Year = 2011
-                        ORDER BY increase_in_emissions ASC
-                        LIMIT 20;""", database)
+SELECT CO2_kt.Country_Name, 
+       first_emissions.initial_year,
+       first_emissions.initial_emissions,
+       Year,
+       CO2_kt,
+       Region,
+      (CO2_kt - first_emissions.initial_emissions) AS increase_in_emissions                               
+FROM CO2_kt
+INNER JOIN first_emissions ON CO2_kt.Country_Name = first_emissions.Country_Name
+WHERE CO2_kt IS NOT NULL
+AND Year = 2011
+ORDER BY increase_in_emissions ASC
+LIMIT 20;""", database)
 ```
 
 
@@ -871,7 +860,6 @@ colours = [colour_map.get(x, "green") for x in result["Region"]]
 regions = [region for region in result["Region"]]
 plt.bar(x=result["Country_Name"], height=result["increase_in_emissions"] / 1000, color=colours, align = 'center')
 plt.title("Countries with greatest decrease in emissions", pad = 20, fontsize = 16)
-#plt.xlabel("Country", labelpad = 20)
 plt.ylabel("Decrease in CO2 emissions (kt (thousands))", labelpad = 20, fontsize = 12)
 _ = plt.xticks(rotation = 60, ha = "right", fontsize = 10)
 plt.margins(0.01, 0.01)
@@ -893,21 +881,21 @@ Emissions declined sharply between 2008 and 2009 during the financial crisis. Al
 
 
 ```python
-result = pd.read_sql("""SELECT CO2_kt.year, CO2_kt, CO2_Per_Capita
-                        FROM CO2_kt
-                        LEFT JOIN CO2_Per_Capita ON CO2_kt.year = CO2_Per_Capita.year AND CO2_kt.Country_Name = CO2_Per_Capita.Country_Name
-                        WHERE CO2_kt.Country_Name = "United States";""", database)
+result = pd.read_sql("""
+ SELECT CO2_kt.year, CO2_kt, CO2_Per_Capita
+ FROM CO2_kt
+ LEFT JOIN CO2_Per_Capita ON CO2_kt.year = CO2_Per_Capita.year 
+     AND CO2_kt.Country_Name = CO2_Per_Capita.Country_Name
+ WHERE CO2_kt.Country_Name = "United States";""", database)
 ```
 
 
 ```python
 fig, ax = plt.subplots(figsize=(12, 4))
-ax.plot_date(x=result["Year"].astype(str), y=result["CO2_kt"] / 1_000_000, linestyle='-')
-#ax.plot_date(x=result["Year"].astype(str), y=result["CO2_Per_Capita"], marker='', linestyle='-')
+ax.plot_date(x=result["Year"].astype(str), y=result["CO2_kt"] / 1_000_000, linestyle = "-", marker = "")
 fig.autofmt_xdate()
 plt.grid(False)
 plt.title("USA - CO2 emissions", fontsize = 16, pad = 20)
-#axes.titlepad = 20
 plt.xlabel("Year")
 ax.xaxis.labelpad = 20
 plt.ylabel("CO2 emissions (kt (millions))", fontsize = 12)
@@ -917,9 +905,13 @@ plt.margins(0.01, 0.05)
 plt.show()
 ```
 
+    <ipython-input-24-6c0117d8a232>:2: UserWarning: marker is redundantly defined by the 'marker' keyword argument and the fmt string "o" (-> marker='o'). The keyword argument will take precedence.
+      ax.plot_date(x=result["Year"].astype(str), y=result["CO2_kt"] / 1_000_000, linestyle = "-", marker = "")
+
+
 
     
-![png](CO2_Emissions_files/CO2_Emissions_48_0.png)
+![png](CO2_Emissions_files/CO2_Emissions_48_1.png)
     
 
 
@@ -931,22 +923,26 @@ This chart shows that the US' emissions have increased since 1960 at both the gr
 
 
 ```python
-result = pd.read_sql("""WITH initial_gross AS (SELECT CO2_kt FROM CO2_kt
-                                               WHERE Country_Name = "United States"
-                                               ORDER BY year ASC
-                                               LIMIT 1),
+result = pd.read_sql("""
+WITH initial_gross AS (SELECT CO2_kt FROM CO2_kt
+                       WHERE Country_Name = "United States"
+                       ORDER BY year ASC
+                       LIMIT 1),
 
-                        initial_capita AS (SELECT CO2_Per_Capita FROM CO2_Per_Capita
-                                               WHERE Country_Name = "United States"
-                                               ORDER BY year ASC
-                                               LIMIT 1)                                           
+     initial_capita AS (SELECT CO2_Per_Capita FROM CO2_Per_Capita
+                        WHERE Country_Name = "United States"
+                        ORDER BY year ASC
+                        LIMIT 1)                                           
 
-                        SELECT CO2_kt.year, (CO2_kt.CO2_kt / initial_gross.CO2_kt) * 100 as gross_CO2, (CO2_Per_Capita.CO2_Per_Capita / initial_capita.CO2_Per_Capita) * 100 as capita_CO2
-                                    FROM CO2_kt
-                                    LEFT JOIN CO2_Per_Capita ON CO2_kt.year = CO2_Per_Capita.year AND CO2_kt.Country_Name = CO2_Per_Capita.Country_Name
-                                    INNER JOIN initial_gross
-                                    INNER JOIN initial_capita
-                                    WHERE CO2_kt.Country_Name = "United States";""", database)
+SELECT CO2_kt.year, 
+      (CO2_kt.CO2_kt / initial_gross.CO2_kt) * 100 as gross_CO2, 
+      (CO2_Per_Capita.CO2_Per_Capita / initial_capita.CO2_Per_Capita) * 100 as capita_CO2
+      FROM CO2_kt
+      LEFT JOIN CO2_Per_Capita ON CO2_kt.year = CO2_Per_Capita.year 
+              AND CO2_kt.Country_Name = CO2_Per_Capita.Country_Name
+      INNER JOIN initial_gross
+      INNER JOIN initial_capita
+      WHERE CO2_kt.Country_Name = "United States";""", database)
 ```
 
 
@@ -960,13 +956,10 @@ y1 = result["gross_CO2"]
 # plotting the line 1 points 
 ax1.plot(x1, y1, label = "Gross CO2 Emissions")
 # line 2 points
-#x1 = result["Year"]
 y2 = result["capita_CO2"]
 # plotting the line 2 points 
 ax1.plot(x1, y2, label = "Per Capita CO2 Emissions")
 ax1.set_xticklabels(result["Year"].astype(str), fontsize = 10)
-#ax1.set_xlabel('Year')
-#ax1.xaxis.labelpad = 20
 # Set the y axis label of the current axis.
 ax1.set_ylabel('% Change in Emissions', fontsize = 12)
 ax1.yaxis.labelpad = 20
@@ -981,9 +974,9 @@ fig.show()
 
 ```
 
-    <ipython-input-32-27dd846fbb4d>:14: UserWarning: FixedFormatter should only be used together with FixedLocator
+    <ipython-input-26-bcd2fa143e6c>:13: UserWarning: FixedFormatter should only be used together with FixedLocator
       ax1.set_xticklabels(result["Year"].astype(str), fontsize = 10)
-    <ipython-input-32-27dd846fbb4d>:26: UserWarning: Matplotlib is currently using module://ipykernel.pylab.backend_inline, which is a non-GUI backend, so cannot show the figure.
+    <ipython-input-26-bcd2fa143e6c>:23: UserWarning: Matplotlib is currently using module://ipykernel.pylab.backend_inline, which is a non-GUI backend, so cannot show the figure.
       fig.show()
 
 

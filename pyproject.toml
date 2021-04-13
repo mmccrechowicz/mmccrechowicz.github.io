@@ -11,7 +11,7 @@ jupyter = "1.0.0"
 pandas = "1.2.3"
 seaborn = "0.11.1"
 openpyxl = "*"
-xlrd = "1.0.0"
+xlrd = "1.2.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
