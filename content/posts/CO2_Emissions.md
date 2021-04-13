@@ -7,7 +7,7 @@ summary: How did global CO2 emissions change between 1960 and 2011?
 
 Using data from the World Bank, this analysis looks at the ways global CO2 emissions changed between 1960 and 2011.
 
-The climate crisis has been a hot topic (or, if you will, a burning issue) for several decades now. We are increasingly seeing the effects of climate change in hotter summers, droughts and cataclycsmic weather events. In California, we have seen record-breaking forest fire seasons year after year. We are more aware than ever about the effects our behaviours have on the world around us, and on the changing climate.
+The climate crisis has been a hot topic (or, if you will, a burning issue) for several decades now. We are increasingly seeing the effects of climate change in hotter summers, droughts and cataclysmic weather events. In California, we have seen record-breaking forest fire seasons year after year. We are more aware than ever about the effects our behaviours have on the world around us, and on the changing climate.
 
 Using this dataset from the World Bank, we can see how we have continued to increase CO2 emissions into the atmosphere. We can also identify the most polluting countries and regions, and see which countries have experienced the greatest changes in their CO2 emissions between 1960 and 2011. 
 
