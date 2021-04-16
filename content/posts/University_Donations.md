@@ -5,8 +5,6 @@ draft: true
 summary: Who were the university's top donors?
 ---
 
-# University Advancement, Donations, and Giving
-
 This analysis uses data from a university's development department to understand more about the donors who have given money to the university. This type of analysis could help the development department/alumni relations team answer some of the questions they might have about their work, such as: 
  
 *   Who are the donors and how much do they give? 

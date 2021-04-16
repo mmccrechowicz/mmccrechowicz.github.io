@@ -1,8 +1,8 @@
 ---
-title: "New post"
+title: "Significant Volcanic Eruptions"
 date: 2021-04-10T15:17:35.702320
 draft: true
-summary: Post summary.
+summary: Which countries have been most affected by volcanic incidents?
 ---
 
 Note: some map-based visualisations would be good in this analysis. Ask Maciej for help with this: https://colab.research.google.com/github/jakevdp/PythonDataScienceHandbook/blob/master/notebooks/04.13-Geographic-Data-With-Basemap.ipynb#scrollTo=HhB0JKS0_l4s
