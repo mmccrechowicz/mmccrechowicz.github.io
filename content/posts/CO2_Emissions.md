@@ -1,7 +1,7 @@
 ---
 title: "World Bank CO2 Emissions Data"
 date: 2021-04-10T15:26:09.928644
-draft: true
+draft: false
 summary: How did global CO2 emissions change between 1960 and 2011?
 ---
 
@@ -9,7 +9,7 @@ Using data from the World Bank, this analysis looks at the ways global CO2 emiss
 
 The climate crisis has been a hot topic (or, if you will, a burning issue) for several decades now. We are increasingly seeing the effects of climate change in hotter summers, droughts and cataclysmic weather events. In California, we have seen record-breaking forest fire seasons year after year. We are more aware than ever about the effects our behaviours have on the world around us, and on the changing climate.
 
-Using this dataset from the World Bank, we can see how we have continued to increase CO2 emissions into the atmosphere. We can also identify the most polluting countries and regions, and see which countries have experienced the greatest changes in their CO2 emissions between 1960 and 2011. 
+Using this dataset from the World Bank, we can see how we have continued to increase CO2 emissions into the atmosphere. We can also identify the most polluting countries and regions, and see which countries have experienced the greatest changes in their CO2 emissions between 1960 and 2011.
 
 The original dataset can be downloaded [here](https://mkt.tableau.com/Public/Datasets/World_Bank_CO2.xlsx).
 
@@ -77,7 +77,7 @@ def excel_dataset_to_sqlite(url: str, database_name: str = ":memory:") -> sqlite
 
 #### Import the dataset and create the database
 
-I'm importing a dataset from a URL. 
+I'm importing a dataset from a URL.
 
 
 ```python
@@ -168,16 +168,16 @@ These table names have spaces, so they're going to be annoying to work with. We 
 
 
 ```python
-database.execute("""ALTER TABLE `CO2 (kt) for Split` 
+database.execute("""ALTER TABLE `CO2 (kt) for Split`
                RENAME TO CO2_kt;""")
 
-database.execute("""ALTER TABLE `CO2 Data Cleaned` 
+database.execute("""ALTER TABLE `CO2 Data Cleaned`
                RENAME TO CO2_Data_Cleaned;""")
 
-database.execute("""ALTER TABLE `CO2 Per Capita (Pivoted)` 
+database.execute("""ALTER TABLE `CO2 Per Capita (Pivoted)`
                RENAME TO CO2_Per_Capita;""")
 
-database.execute("""ALTER TABLE `Metadata - Countries` 
+database.execute("""ALTER TABLE `Metadata - Countries`
                RENAME TO Metadata_Countries;""")
 ```
 
@@ -556,20 +556,20 @@ result
 
 ### How complete is the data?
 
-Now that I know what columns each table has, I want to see if there are any missing data points. 
+Now that I know what columns each table has, I want to see if there are any missing data points.
 
 #### Data by year
 
 A total of 214 countries are mentioned in the data. No year has data for all 214 countries.
 
-We can see that the data for earlier years are less complete than for later years. Approximately 150 countries feature in the data for 1960; this rises to approximately 200 for 2011. 
+We can see that the data for earlier years are less complete than for later years. Approximately 150 countries feature in the data for 1960; this rises to approximately 200 for 2011.
 
 
 
 ```python
 result = pd.read_sql(
-"""SELECT Year, 
-          COUNT(CO2_kt), 
+"""SELECT Year,
+          COUNT(CO2_kt),
           COUNT(DISTINCT Country_Name) as number_data_points
 FROM CO2_kt
 GROUP BY year;""", database)
@@ -587,28 +587,28 @@ plt.margins(0.01, 0.01)
 ```
 
 
-    
+
 ![png](CO2_Emissions_files/CO2_Emissions_25_0.png)
-    
+
 
 
 #### Data by country
 
-There are also gaps when we look at the data on a per-country basis, although the data seem more complete than on a per-year basis. 
+There are also gaps when we look at the data on a per-country basis, although the data seem more complete than on a per-year basis.
 
-The data cover 52 years from 1960-2011. 147 of the 214 countries (69%) in the dataset have data for every one of these years. 
+The data cover 52 years from 1960-2011. 147 of the 214 countries (69%) in the dataset have data for every one of these years.
 
 For 15 countries, there is no data. The remainder have between 5 and 51 data points.
 
 
 ```python
 result = pd.read_sql(
-"""WITH data_point AS (SELECT Country_Name, 
+"""WITH data_point AS (SELECT Country_Name,
                        SUM(CO2_kt IS NOT NULL) AS data_points
                        FROM CO2_kt
                        GROUP BY Country_Name)
-                              
-SELECT DISTINCT(data_points), 
+
+SELECT DISTINCT(data_points),
        COUNT(*)
 FROM data_point
 GROUP BY data_points
@@ -629,9 +629,9 @@ plt.margins(0.01, 0.01)
 ```
 
 
-    
+
 ![png](CO2_Emissions_files/CO2_Emissions_29_0.png)
-    
+
 
 
 ## Analyze the data
@@ -645,7 +645,7 @@ The average annual emissions for the period 1960-2011 were approximately 17m kt.
 
 
 ```python
-result = pd.read_sql("""SELECT year, SUM(CO2_kt) as sum_of_year, 
+result = pd.read_sql("""SELECT year, SUM(CO2_kt) as sum_of_year,
                         AVG(SUM(CO2_kt)) OVER() as avg_sum
                         FROM CO2_kt
                         GROUP BY year;""", database)
@@ -666,9 +666,9 @@ plt.margins(0.01, 0.01)
 ```
 
 
-    
+
 ![png](CO2_Emissions_files/CO2_Emissions_33_0.png)
-    
+
 
 
 ### Regions with the highest emissions
@@ -677,7 +677,7 @@ Annual emissions have increased across all regions since 1960. North America was
 
 
 ```python
-result = pd.read_sql("""SELECT region, year, SUM(CO2_kt) 
+result = pd.read_sql("""SELECT region, year, SUM(CO2_kt)
                         FROM CO2_kt
                         WHERE year = 1960 OR year = 2011
                         GROUP BY region, year;""", database)
@@ -717,20 +717,20 @@ plt.show()
 ```
 
 
-    
+
 ![png](CO2_Emissions_files/CO2_Emissions_36_0.png)
-    
+
 
 
 ### Countries with the highest CO2 emissions 1960-2011
 
-This chart shows the 20 countries with the highest cumulative emissions in the period covered. 
+This chart shows the 20 countries with the highest cumulative emissions in the period covered.
 
 The US was the largest producer of CO2 in this period. The other countries in the top 20 are mainly from Europe, East Asia & Pacific, or North America.
 
 
 ```python
-result = pd.read_sql("""SELECT Country_Name, Region, SUM(CO2_kt) 
+result = pd.read_sql("""SELECT Country_Name, Region, SUM(CO2_kt)
                         FROM CO2_kt
                         GROUP BY Country_Name
                         ORDER BY SUM(CO2_kt) DESC
@@ -744,7 +744,7 @@ result = pd.read_sql("""SELECT Country_Name, Region, SUM(CO2_kt)
 plt.figure(figsize=(12, 4))
 plt.grid(False)
 palette = iter(sns.color_palette('Paired'))
-colour_map = {region_name: next(palette) 
+colour_map = {region_name: next(palette)
               for region_name in np.unique(result["Region"])}
 colours = [colour_map.get(x, "green") for x in result["Region"]]
 regions = [region for region in result["Region"]]
@@ -757,28 +757,28 @@ plt.margins(0.01, 0.01)
 ```
 
 
-    
+
 ![png](CO2_Emissions_files/CO2_Emissions_39_0.png)
-    
+
 
 
 ### Countries with the largest increase in emissions between 1960 and 2011
 
 Global CO2 emissions have increased over the period, but where have they increased the most?
 
-China has seen the greatest increase in emissions. China's annual emissions were more than eight million kt higher in 2011 than in 1960. 
+China has seen the greatest increase in emissions. China's annual emissions were more than eight million kt higher in 2011 than in 1960.
 
 
 ```python
 result = pd.read_sql(
-"""WITH first_emissions AS 
+"""WITH first_emissions AS
        (SELECT DISTINCT Country_Name,
         FIRST_VALUE(Year) OVER (PARTITION BY Country_Name ORDER BY year ASC) as initial_year,
         FIRST_VALUE(CO2_kt) OVER (PARTITION BY Country_Name ORDER BY year ASC) as initial_emissions
         FROM CO2_kt
         WHERE CO2_kt IS NOT NULL)
 
-SELECT CO2_kt.Country_Name, 
+SELECT CO2_kt.Country_Name,
        first_emissions.initial_year,
        first_emissions.initial_emissions,
        Year,
@@ -798,7 +798,7 @@ LIMIT 20;""", database)
 plt.figure(figsize=(12, 4))
 plt.grid(False)
 palette = iter(sns.color_palette('Paired'))
-colour_map = {region_name: next(palette) 
+colour_map = {region_name: next(palette)
               for region_name in np.unique(result["Region"])}
 colours = [colour_map.get(x, "green") for x in result["Region"]]
 regions = [region for region in result["Region"]]
@@ -811,30 +811,30 @@ plt.margins(0.01, 0.01)
 ```
 
 
-    
+
 ![png](CO2_Emissions_files/CO2_Emissions_42_0.png)
-    
+
 
 
 ### Countries with the biggest decreases in CO2 emissions
 
-Despite the global increase in emissions during the period, some countries have seen reductions in the amount of CO2 they are producing. 
+Despite the global increase in emissions during the period, some countries have seen reductions in the amount of CO2 they are producing.
 
-Ukraine and Russia have seen the biggest reductions in CO2 emissions, followed by Germany and the UK. 
+Ukraine and Russia have seen the biggest reductions in CO2 emissions, followed by Germany and the UK.
 
 While it's positive to see some countries have reduced their CO2 emissions, it's worth noting that the size of these reductions is far smaller than the size of the increases generated by other countries. For example, Russia's emissions are down 350,000 kt, but China's have increased by more than 8,000,000 kt.
 
 
 ```python
 result = pd.read_sql(
-"""WITH first_emissions AS 
+"""WITH first_emissions AS
    (SELECT DISTINCT Country_Name,
     FIRST_VALUE(Year) OVER (PARTITION BY Country_Name ORDER BY year ASC) as initial_year,
     FIRST_VALUE(CO2_kt) OVER (PARTITION BY Country_Name ORDER BY year ASC) as initial_emissions
     FROM CO2_kt
     WHERE CO2_kt IS NOT NULL)
 
-SELECT CO2_kt.Country_Name, 
+SELECT CO2_kt.Country_Name,
        first_emissions.initial_year,
        first_emissions.initial_emissions,
        Year,
@@ -854,7 +854,7 @@ LIMIT 20;""", database)
 plt.figure(figsize=(12, 4))
 plt.grid(False)
 palette = iter(sns.color_palette('Paired'))
-colour_map = {region_name: next(palette) 
+colour_map = {region_name: next(palette)
               for region_name in np.unique(result["Region"])}
 colours = [colour_map.get(x, "green") for x in result["Region"]]
 regions = [region for region in result["Region"]]
@@ -866,16 +866,16 @@ plt.margins(0.01, 0.01)
 ```
 
 
-    
+
 ![png](CO2_Emissions_files/CO2_Emissions_45_0.png)
-    
+
 
 
 ### The US' CO2 emissions over time
 
 What do the data say about individual countries? Let's look at the US' CO2 emissions over the period.
 
-Global CO2 emissions have been on a steady upward trajectory. The same can be said for the US, which produced 2 million kt more CO2 in 2011 than in 1960. However, deviations from this path have been more severe and lasted longer in the US than on the global level. 
+Global CO2 emissions have been on a steady upward trajectory. The same can be said for the US, which produced 2 million kt more CO2 in 2011 than in 1960. However, deviations from this path have been more severe and lasted longer in the US than on the global level.
 
 Emissions declined sharply between 2008 and 2009 during the financial crisis. Although they rebounded, in 2011 they remained below the 2007 peak. On the global level, there was a less severe reduction in emissions between 2008 and 2009, and in 2011 emissions were higher than in 2007.
 
@@ -884,7 +884,7 @@ Emissions declined sharply between 2008 and 2009 during the financial crisis. Al
 result = pd.read_sql("""
  SELECT CO2_kt.year, CO2_kt, CO2_Per_Capita
  FROM CO2_kt
- LEFT JOIN CO2_Per_Capita ON CO2_kt.year = CO2_Per_Capita.year 
+ LEFT JOIN CO2_Per_Capita ON CO2_kt.year = CO2_Per_Capita.year
      AND CO2_kt.Country_Name = CO2_Per_Capita.Country_Name
  WHERE CO2_kt.Country_Name = "United States";""", database)
 ```
@@ -910,16 +910,16 @@ plt.show()
 
 
 
-    
+
 ![png](CO2_Emissions_files/CO2_Emissions_48_1.png)
-    
+
 
 
 ### USA - gross and per-capita emissions
 
 How do US emissions on the national scale relate to the emissions of individual residents?
 
-This chart shows that the US' emissions have increased since 1960 at both the gross and per-capita level. However, per-capita emissions peaked in 1973, while gross emissions did not peak until 2007. In 2011, gross emissions where 83% higher than in 1960, but per-capita emissions only 6% higher. 
+This chart shows that the US' emissions have increased since 1960 at both the gross and per-capita level. However, per-capita emissions peaked in 1973, while gross emissions did not peak until 2007. In 2011, gross emissions where 83% higher than in 1960, but per-capita emissions only 6% higher.
 
 
 ```python
@@ -934,11 +934,11 @@ WITH initial_gross AS (SELECT CO2_kt FROM CO2_kt
                         ORDER BY year ASC
                         LIMIT 1)                                           
 
-SELECT CO2_kt.year, 
-      (CO2_kt.CO2_kt / initial_gross.CO2_kt) * 100 as gross_CO2, 
+SELECT CO2_kt.year,
+      (CO2_kt.CO2_kt / initial_gross.CO2_kt) * 100 as gross_CO2,
       (CO2_Per_Capita.CO2_Per_Capita / initial_capita.CO2_Per_Capita) * 100 as capita_CO2
       FROM CO2_kt
-      LEFT JOIN CO2_Per_Capita ON CO2_kt.year = CO2_Per_Capita.year 
+      LEFT JOIN CO2_Per_Capita ON CO2_kt.year = CO2_Per_Capita.year
               AND CO2_kt.Country_Name = CO2_Per_Capita.Country_Name
       INNER JOIN initial_gross
       INNER JOIN initial_capita
@@ -953,11 +953,11 @@ ax1.grid(False)
 _ = plt.xticks(rotation = 90, ha = "center")
 x1 = result["Year"].astype(str)
 y1 = result["gross_CO2"]
-# plotting the line 1 points 
+# plotting the line 1 points
 ax1.plot(x1, y1, label = "Gross CO2 Emissions")
 # line 2 points
 y2 = result["capita_CO2"]
-# plotting the line 2 points 
+# plotting the line 2 points
 ax1.plot(x1, y2, label = "Per Capita CO2 Emissions")
 ax1.set_xticklabels(result["Year"].astype(str), fontsize = 10)
 # Set the y axis label of the current axis.
@@ -981,7 +981,5 @@ fig.show()
 
 
 
-    
-![png](CO2_Emissions_files/CO2_Emissions_51_1.png)
-    
 
+![png](CO2_Emissions_files/CO2_Emissions_51_1.png)

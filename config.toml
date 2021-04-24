@@ -1,4 +1,4 @@
-baseURL = "http://localhost:1313/"
+baseURL = "https://mmccrechowicz.github.io"
 languageCode = "en"
 defaultContentLanguage = "en"
 title = "Rainbow Sparkle Data Analysis"                         # site title  # 网站标题
