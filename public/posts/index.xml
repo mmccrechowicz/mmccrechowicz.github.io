@@ -2,17 +2,17 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Posts on Rainbow Sparkle Data Analysis</title>
-    <link>https://mmccrechowicz.github.io/posts/</link>
+    <link>https://mmccrechowicz.github.io/public/posts/</link>
     <description>Recent content in Posts on Rainbow Sparkle Data Analysis</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en</language>
-    <lastBuildDate>Sat, 10 Apr 2021 15:26:09 +0000</lastBuildDate><atom:link href="https://mmccrechowicz.github.io/posts/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sat, 10 Apr 2021 15:26:09 +0000</lastBuildDate><atom:link href="https://mmccrechowicz.github.io/public/posts/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>World Bank CO2 Emissions Data</title>
-      <link>https://mmccrechowicz.github.io/posts/co2_emissions/</link>
+      <link>https://mmccrechowicz.github.io/public/posts/co2_emissions/</link>
       <pubDate>Sat, 10 Apr 2021 15:26:09 +0000</pubDate>
       
-      <guid>https://mmccrechowicz.github.io/posts/co2_emissions/</guid>
+      <guid>https://mmccrechowicz.github.io/public/posts/co2_emissions/</guid>
       <description>How did global CO2 emissions change between 1960 and 2011?</description>
     </item>
     

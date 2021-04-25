@@ -1,4 +1,4 @@
-baseURL = "https://mmccrechowicz.github.io/"
+baseURL = "https://mmccrechowicz.github.io/public/"
 languageCode = "en"
 defaultContentLanguage = "en"
 title = "Rainbow Sparkle Data Analysis"                         # site title  # 网站标题

@@ -3,31 +3,31 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <url>
-    <loc>https://mmccrechowicz.github.io/posts/</loc>
+    <loc>https://mmccrechowicz.github.io/public/posts/</loc>
     <lastmod>2021-04-10T15:26:09+00:00</lastmod>
   </url>
   
   <url>
-    <loc>https://mmccrechowicz.github.io/</loc>
+    <loc>https://mmccrechowicz.github.io/public/</loc>
     <lastmod>2021-04-10T15:26:09+00:00</lastmod>
   </url>
   
   <url>
-    <loc>https://mmccrechowicz.github.io/posts/co2_emissions/</loc>
+    <loc>https://mmccrechowicz.github.io/public/posts/co2_emissions/</loc>
     <lastmod>2021-04-10T15:26:09+00:00</lastmod>
   </url>
   
   <url>
-    <loc>https://mmccrechowicz.github.io/about/</loc>
+    <loc>https://mmccrechowicz.github.io/public/about/</loc>
     <priority>0</priority>
   </url>
   
   <url>
-    <loc>https://mmccrechowicz.github.io/categories/</loc>
+    <loc>https://mmccrechowicz.github.io/public/categories/</loc>
   </url>
   
   <url>
-    <loc>https://mmccrechowicz.github.io/tags/</loc>
+    <loc>https://mmccrechowicz.github.io/public/tags/</loc>
   </url>
   
 </urlset>
