@@ -1,7 +1,7 @@
 ---
 title: "Significant Volcanic Eruptions"
 date: 2021-04-10T15:17:35.702320
-draft: False
+draft: false
 summary: Which countries have been most affected by volcanic incidents?
 ---
 

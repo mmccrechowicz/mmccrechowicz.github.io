@@ -1,7 +1,7 @@
 ---
 title: "UK University Research Excellence Framework 2014"
 date: 2021-04-10T15:17:31.586474
-draft: False
+draft: false
 summary: Which are the best performing UK universities?
 ---
 

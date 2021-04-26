@@ -1,7 +1,7 @@
 ---
 title: "University Fundraising"
 date: 2020-12-23T16:55:34.230158
-draft: False
+draft: false
 summary: Who were the university's top donors?
 ---
 

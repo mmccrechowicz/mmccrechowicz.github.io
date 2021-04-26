@@ -1,0 +1,1079 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="author" content="VarKai" />
+	
+	
+	
+	<title>UK University Research Excellence Framework 2014 ｜ Rainbow Sparkle Data Analysis</title>
+	
+    
+    
+    <meta name="description" content="Which are the best performing UK universities?" />
+    
+
+    
+    
+    <meta name="keywords" content="Hugo, theme, zozo" />
+    
+
+	
+    
+    <link rel="shortcut icon" href="https://mmccrechowicz.github.io/public/images/favicon.ico" />
+
+    <link rel="stylesheet" type="text/css" media="screen" href="https://mmccrechowicz.github.io/public/css/normalize.css" />
+    <link rel="stylesheet" type="text/css" media="screen" href="https://cdn.jsdelivr.net/npm/animate.css@4.1.0/animate.min.css" />
+    <link rel="stylesheet" type="text/css" media="screen" href="https://mmccrechowicz.github.io/public/css/zozo.css" />
+	<link rel="stylesheet" type="text/css" media="screen" href="https://cdn.jsdelivr.net/npm/remixicon@2.5.0/fonts/remixicon.css" />
+    <link rel="stylesheet" type="text/css" media="screen" href="https://mmccrechowicz.github.io/public/css/highlight.css" />
+
+    
+    
+</head>
+
+<body>
+    <div class="main">
+        <div class="nav_container animated fadeInDown">
+    <div class="site_nav" id="site_nav">
+        <ul>
+            
+            <li>
+                <a href="/public/">Home</a>
+            </li>
+            
+            <li>
+                <a href="/public/posts/">Archive</a>
+            </li>
+            
+            <li>
+                <a href="/public/tags/">Tags</a>
+            </li>
+            
+            <li>
+                <a href="/public/about/">About</a>
+            </li>
+            
+        </ul>
+    </div>
+    <div class="menu_icon">
+        <a id="menu_icon"><i class="ri-menu-line"></i></a>
+    </div>
+</div>
+        <div class="header">
+    <div class="site_title_container">
+        <div class="site_title">
+            <h1>
+                <a href="https://mmccrechowicz.github.io/public/">
+                    <span>Rainbow Sparkle Data Analysis</span>
+                </a>
+            </h1>
+        </div>
+        <div class="description">
+            <p class="sub_title"></p>
+            <div class="my_socials">
+                
+                
+                <a href="%20" title="github" target="_blank"><i class="ri-github-fill"></i></a>
+                
+                
+                
+                <a href="https://www.linkedin.com/in/matthewmccarthyrechowicz/" title="linkedin" target="_blank"><i class="ri-linkedin-fill"></i></a>
+                
+                
+                <a href="https://mmccrechowicz.github.io/public/index.xml" type="application/rss+xml" title="rss" target="_blank"><i
+                        class="ri-rss-fill"></i></a>
+            </div>
+        </div>
+    </div>
+</div>
+
+        <div class="content">
+            <div class="post_page">
+                <div class="post">
+                    <div class="post_title post_detail_title">
+                        <h2><a href='/public/posts/uk_ref_2014/'>UK University Research Excellence Framework 2014</a></h2>
+                        <span class="date">2021.04.10</span>
+                    </div>
+                    <div class="post_content markdown"><p>The <a href="https://en.wikipedia.org/wiki/Research_Excellence_Framework">Research Excellence Framework</a> is a periodic evaluation of the quality of research produced by universities in the United Kingdom. It was first applied in 2014, with reference to research completed in the period 2008-2013.</p>
+<p>The REF assesses submitted research and awards it a classification based on its quality. One of five quality ratings is possible:</p>
+<ul>
+<li><strong>Four star</strong>: Quality that is world-leading in originality, significance and rigour.</li>
+<li><strong>Three star</strong>: Quality that is internationally excellent in originality, significance and rigour but which falls short of the highest standards of excellence.</li>
+<li><strong>Two star</strong>: Quality that is recognised internationally in originality, significance and rigour.</li>
+<li><strong>One star</strong>: Quality that is recognised nationally in originality, significance and rigour.</li>
+<li><strong>Unclassified Quality</strong>: that falls below the standard of nationally recognised work. Or work which does not meet the published definition of research for the purposes of this assessment.</li>
+</ul>
+<p>This analysis uses data from the 2014 REF to understand the UK&rsquo;s higher education landscape and identify the top-performing universities, including:</p>
+<ul>
+<li>Which institutions teach the broadest range of subjects, and which specialise in particular areas of learning?</li>
+<li>Which subjects are the most widely taught at UK universities?</li>
+<li>Which universities received the highest number of 4* quality ratings, and which universities received the lowest number?</li>
+<li>Which universities were the most collaborative?</li>
+</ul>
+<h2 id="set-up">Set up</h2>
+<h3 id="define-functions">Define functions</h3>
+<details>
+<summary>Code</summary>
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="kn">import</span> <span class="nn">tempfile</span>
+<span class="kn">from</span> <span class="nn">urllib</span> <span class="kn">import</span> <span class="n">request</span>
+<span class="kn">import</span> <span class="nn">sqlite3</span>
+
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="kn">as</span> <span class="nn">pd</span>
+
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
+<span class="o">%</span><span class="n">matplotlib</span> <span class="n">inline</span>
+
+<span class="kn">import</span> <span class="nn">seaborn</span> <span class="kn">as</span> <span class="nn">sns</span>
+<span class="n">sns</span><span class="o">.</span><span class="n">set</span><span class="p">()</span>
+
+<span class="c1">#%load_ext google.colab.data_table</span>
+
+<span class="c1"># Set float display options for pandas dataframes.</span>
+<span class="n">pd</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">display</span><span class="o">.</span><span class="n">float_format</span> <span class="o">=</span> <span class="s2">&#34;{:,.2f}&#34;</span><span class="o">.</span><span class="n">format</span>
+
+<span class="k">def</span> <span class="nf">excel_dataset_to_sqlite</span><span class="p">(</span><span class="n">url</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">database_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&#34;:memory:&#34;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">sqlite3</span><span class="o">.</span><span class="n">Connection</span><span class="p">:</span>
+  <span class="s2">&#34;&#34;&#34;Downloads an excel dataset and loads it into an sqlite database.&#34;&#34;&#34;</span>
+
+  <span class="c1"># Download the data into a local variable.</span>
+  <span class="n">data</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">urlopen</span><span class="p">(</span><span class="n">url</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+
+  <span class="c1"># Write it out to afiles</span>
+  <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryFile</span><span class="p">()</span> <span class="k">as</span> <span class="n">fle</span><span class="p">:</span>
+    <span class="n">fle</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+    <span class="c1"># Read into pandas from excel file.</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_excel</span><span class="p">(</span><span class="n">fle</span><span class="p">,</span> <span class="n">sheet_name</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span>
+
+  <span class="c1"># Create a database.</span>
+  <span class="n">conn</span> <span class="o">=</span> <span class="n">sqlite3</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">database_name</span><span class="p">)</span>
+
+  <span class="c1"># Loads data from pandas objects into individual tables.</span>
+  <span class="k">for</span> <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">sheet</span><span class="p">)</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="n">sheet</span> <span class="o">=</span> <span class="n">sheet</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">notnull</span><span class="p">(</span><span class="n">sheet</span><span class="p">),</span> <span class="bp">None</span><span class="p">)</span>
+    <span class="n">sheet</span><span class="o">.</span><span class="n">to_sql</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">conn</span><span class="p">)</span>
+
+
+  <span class="c1"># Return database.</span>
+  <span class="k">return</span> <span class="n">conn</span>
+
+</code></pre></div></details>
+<h3 id="prepare-the-data">Prepare the data</h3>
+<h4 id="import-the-dataset-and-create-the-database">Import the dataset and create the database</h4>
+<p>I&rsquo;m importing a dataset from a URL.</p>
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="n">database</span> <span class="o">=</span> <span class="n">excel_dataset_to_sqlite</span><span class="p">(</span><span class="s2">&#34;https://public.tableau.com/s/sites/default/files/media/Resources/Research</span><span class="si">%20E</span><span class="s2">xcellence</span><span class="si">%20F</span><span class="s2">ramework</span><span class="si">%202014%</span><span class="s2">20Results_Pivoted.xlsx&#34;</span><span class="p">)</span>
+</code></pre></div><pre><code>/Users/Matthew/Library/Caches/pypoetry/virtualenvs/notebooks-iGyxaocD-py3.8/lib/python3.8/site-packages/pandas/core/generic.py:2779: UserWarning: The spaces in these column names will not be changed. In pandas versions &lt; 0.14, spaces were converted to underscores.
+  sql.to_sql(
+</code></pre>
+<h4 id="view-the-table-names-to-make-sure-the-correct-tables-have-been-created">View the table names to make sure the correct tables have been created</h4>
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="s2">&#34;SELECT name FROM sqlite_master WHERE type=&#39;table&#39;;&#34;</span><span class="p">,</span> <span class="n">database</span><span class="p">)</span>
+</code></pre></div><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+<pre><code>.dataframe tbody tr th {
+    vertical-align: top;
+}
+
+.dataframe thead th {
+    text-align: right;
+}
+</code></pre>
+<p></style></p>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>name</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>Sheet1-Tableau</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>About</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<p>That first table name isn&rsquo;t very helpful. Let&rsquo;s change it to something more meaningful.</p>
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="n">database</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+    <span class="s2">&#34;&#34;&#34;ALTER TABLE &#39;Sheet1-Tableau&#39; RENAME TO REF_Results;&#34;&#34;&#34;</span><span class="p">)</span>
+</code></pre></div><pre><code>&lt;sqlite3.Cursor at 0x125d85880&gt;
+</code></pre>
+<p>And then check that the change was made.</p>
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="s2">&#34;SELECT name FROM sqlite_master WHERE type=&#39;table&#39;;&#34;</span><span class="p">,</span> <span class="n">database</span><span class="p">)</span>
+</code></pre></div><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+<pre><code>.dataframe tbody tr th {
+    vertical-align: top;
+}
+
+.dataframe thead th {
+    text-align: right;
+}
+</code></pre>
+<p></style></p>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>name</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>REF_Results</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>About</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<p>Now let&rsquo;s have a look at the column names to make sure they won&rsquo;t make it difficult to work with this dataset.</p>
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="s2">&#34;&#34;&#34;SELECT * FROM REF_Results
+</span><span class="s2">            LIMIT 5;&#34;&#34;&#34;</span><span class="p">,</span> <span class="n">database</span><span class="p">)</span>
+</code></pre></div><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+<pre><code>.dataframe tbody tr th {
+    vertical-align: top;
+}
+
+.dataframe thead th {
+    text-align: right;
+}
+</code></pre>
+<p></style></p>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>index</th>
+      <th>Institution code (UKPRN)</th>
+      <th>Institution name</th>
+      <th>Institution sort order</th>
+      <th>Main panel</th>
+      <th>Unit of assessment number</th>
+      <th>Unit of assessment name</th>
+      <th>Multiple submission letter</th>
+      <th>Multiple submission name</th>
+      <th>Joint submission</th>
+      <th>Profile</th>
+      <th>FTE Category A staff submitted</th>
+      <th>Star Rating</th>
+      <th>Percentage</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0</td>
+      <td>10000291</td>
+      <td>Anglia Ruskin University</td>
+      <td>10</td>
+      <td>A</td>
+      <td>3</td>
+      <td>Allied Health Professions, Dentistry, Nursing ...</td>
+      <td></td>
+      <td>None</td>
+      <td>None</td>
+      <td>Outputs</td>
+      <td>11.30</td>
+      <td>4*</td>
+      <td>6.4</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>1</td>
+      <td>10000291</td>
+      <td>Anglia Ruskin University</td>
+      <td>10</td>
+      <td>A</td>
+      <td>3</td>
+      <td>Allied Health Professions, Dentistry, Nursing ...</td>
+      <td></td>
+      <td>None</td>
+      <td>None</td>
+      <td>Outputs</td>
+      <td>11.30</td>
+      <td>3*</td>
+      <td>68.1</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>2</td>
+      <td>10000291</td>
+      <td>Anglia Ruskin University</td>
+      <td>10</td>
+      <td>A</td>
+      <td>3</td>
+      <td>Allied Health Professions, Dentistry, Nursing ...</td>
+      <td></td>
+      <td>None</td>
+      <td>None</td>
+      <td>Outputs</td>
+      <td>11.30</td>
+      <td>2*</td>
+      <td>25.5</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>3</td>
+      <td>10000291</td>
+      <td>Anglia Ruskin University</td>
+      <td>10</td>
+      <td>A</td>
+      <td>3</td>
+      <td>Allied Health Professions, Dentistry, Nursing ...</td>
+      <td></td>
+      <td>None</td>
+      <td>None</td>
+      <td>Outputs</td>
+      <td>11.30</td>
+      <td>1*</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>4</td>
+      <td>10000291</td>
+      <td>Anglia Ruskin University</td>
+      <td>10</td>
+      <td>A</td>
+      <td>3</td>
+      <td>Allied Health Professions, Dentistry, Nursing ...</td>
+      <td></td>
+      <td>None</td>
+      <td>None</td>
+      <td>Outputs</td>
+      <td>11.30</td>
+      <td>unclassified</td>
+      <td>0</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<p>Those column names are going to make working with this table more difficult. Let&rsquo;s change them to make life easier for ourselves.</p>
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="n">database</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&#34;&#34;&#34;Alter Table REF_Results
+</span><span class="s2">   Rename Column `Institution Code (UKPRN)` To Institution_Code;&#34;&#34;&#34;</span><span class="p">)</span>
+
+<span class="n">database</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&#34;&#34;&#34;Alter Table REF_Results
+</span><span class="s2">   Rename Column `Institution Name` To Institution_Name;&#34;&#34;&#34;</span><span class="p">)</span>
+
+<span class="n">database</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&#34;&#34;&#34;Alter Table REF_Results
+</span><span class="s2">   Rename Column `Institution Sort Order` To Institution_Sort_Order;&#34;&#34;&#34;</span><span class="p">)</span>
+
+<span class="n">database</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&#34;&#34;&#34;Alter Table REF_Results
+</span><span class="s2">   Rename Column `Main Panel` To Main_Panel;&#34;&#34;&#34;</span><span class="p">)</span>
+
+<span class="n">database</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&#34;&#34;&#34;Alter Table REF_Results
+</span><span class="s2">   Rename Column `Unit of Assessment Number` To Unit_of_Assessment_Number;&#34;&#34;&#34;</span><span class="p">)</span>
+
+<span class="n">database</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&#34;&#34;&#34;Alter Table REF_Results
+</span><span class="s2">   Rename Column `Unit of Assessment Name` To Unit_of_Assessment_Name;&#34;&#34;&#34;</span><span class="p">)</span>
+
+<span class="n">database</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&#34;&#34;&#34;Alter Table REF_Results
+</span><span class="s2">   Rename Column `FTE Category A staff submitted` To FTE_Category_A_staff_submitted;&#34;&#34;&#34;</span><span class="p">)</span>
+
+<span class="n">database</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&#34;&#34;&#34;Alter Table REF_Results
+</span><span class="s2">   Rename Column `Star Rating` To Star_Rating;&#34;&#34;&#34;</span><span class="p">)</span>
+
+<span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="s2">&#34;&#34;&#34;SELECT * FROM REF_Results
+</span><span class="s2">                    LIMIT 5;&#34;&#34;&#34;</span><span class="p">,</span> <span class="n">database</span><span class="p">)</span>
+
+</code></pre></div><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+<pre><code>.dataframe tbody tr th {
+    vertical-align: top;
+}
+
+.dataframe thead th {
+    text-align: right;
+}
+</code></pre>
+<p></style></p>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>index</th>
+      <th>Institution_Code</th>
+      <th>Institution_Name</th>
+      <th>Institution_Sort_Order</th>
+      <th>Main_Panel</th>
+      <th>Unit_of_Assessment_Number</th>
+      <th>Unit_of_Assessment_Name</th>
+      <th>Multiple submission letter</th>
+      <th>Multiple submission name</th>
+      <th>Joint submission</th>
+      <th>Profile</th>
+      <th>FTE_Category_A_staff_submitted</th>
+      <th>Star_Rating</th>
+      <th>Percentage</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0</td>
+      <td>10000291</td>
+      <td>Anglia Ruskin University</td>
+      <td>10</td>
+      <td>A</td>
+      <td>3</td>
+      <td>Allied Health Professions, Dentistry, Nursing ...</td>
+      <td></td>
+      <td>None</td>
+      <td>None</td>
+      <td>Outputs</td>
+      <td>11.30</td>
+      <td>4*</td>
+      <td>6.4</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>1</td>
+      <td>10000291</td>
+      <td>Anglia Ruskin University</td>
+      <td>10</td>
+      <td>A</td>
+      <td>3</td>
+      <td>Allied Health Professions, Dentistry, Nursing ...</td>
+      <td></td>
+      <td>None</td>
+      <td>None</td>
+      <td>Outputs</td>
+      <td>11.30</td>
+      <td>3*</td>
+      <td>68.1</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>2</td>
+      <td>10000291</td>
+      <td>Anglia Ruskin University</td>
+      <td>10</td>
+      <td>A</td>
+      <td>3</td>
+      <td>Allied Health Professions, Dentistry, Nursing ...</td>
+      <td></td>
+      <td>None</td>
+      <td>None</td>
+      <td>Outputs</td>
+      <td>11.30</td>
+      <td>2*</td>
+      <td>25.5</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>3</td>
+      <td>10000291</td>
+      <td>Anglia Ruskin University</td>
+      <td>10</td>
+      <td>A</td>
+      <td>3</td>
+      <td>Allied Health Professions, Dentistry, Nursing ...</td>
+      <td></td>
+      <td>None</td>
+      <td>None</td>
+      <td>Outputs</td>
+      <td>11.30</td>
+      <td>1*</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>4</td>
+      <td>10000291</td>
+      <td>Anglia Ruskin University</td>
+      <td>10</td>
+      <td>A</td>
+      <td>3</td>
+      <td>Allied Health Professions, Dentistry, Nursing ...</td>
+      <td></td>
+      <td>None</td>
+      <td>None</td>
+      <td>Outputs</td>
+      <td>11.30</td>
+      <td>unclassified</td>
+      <td>0</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<h2 id="understand-the-data">Understand the data</h2>
+<p>The dataset has 38,220 rows. But how many unique records do we have in each of the 14 columns?</p>
+<p>We can see that 154 institutions are included in the dataset, and that they were assessed in 36 different subjects, across four profiles. Five different star ratings were available.</p>
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="s2">&#34;&#34;&#34;SELECT COUNT(DISTINCT Institution_Name) AS Institutions,
+</span><span class="s2">                COUNT(DISTINCT Unit_of_Assessment_Name) AS Units_of_Assessment,
+</span><span class="s2">                COUNT(DISTINCT Profile) AS Profiles,
+</span><span class="s2">                COUNT(DISTINCT Star_Rating) AS Star_Ratings
+</span><span class="s2">                FROM REF_Results;&#34;&#34;&#34;</span><span class="p">,</span> <span class="n">database</span><span class="p">)</span>
+
+</code></pre></div><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+<pre><code>.dataframe tbody tr th {
+    vertical-align: top;
+}
+
+.dataframe thead th {
+    text-align: right;
+}
+</code></pre>
+<p></style></p>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Institutions</th>
+      <th>Units_of_Assessment</th>
+      <th>Profiles</th>
+      <th>Star_Ratings</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>154</td>
+      <td>36</td>
+      <td>4</td>
+      <td>5</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<h2 id="analyze-the-data">Analyze the data</h2>
+<h3 id="lets-start-by-seeing-which-universities-were-assessed-across-the-widest-range-of-subjects">Let&rsquo;s start by seeing which universities were assessed across the widest range of subjects.</h3>
+<p>We know there are 36 unique subjects (units of assessment) in the database. No single institution was assessed on all of them - UCL has the widest range at 32 of the 36 subjects - and some universities were only assessed in one subject.</p>
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="n">result</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span>
+    <span class="s2">&#34;&#34;&#34;SELECT Institution_Name, COUNT(DISTINCT Unit_of_Assessment_Name)
+</span><span class="s2">       FROM REF_Results
+</span><span class="s2">       GROUP BY Institution_Name
+</span><span class="s2">       ORDER BY COUNT(DISTINCT Unit_of_Assessment_Name) DESC
+</span><span class="s2">       LIMIT 20;&#34;&#34;&#34;</span><span class="p">,</span> <span class="n">database</span><span class="p">)</span>
+</code></pre></div><div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">result</span><span class="p">[</span><span class="s2">&#34;Institution_Name&#34;</span><span class="p">],</span> <span class="n">height</span><span class="o">=</span><span class="n">result</span><span class="p">[</span><span class="s2">&#34;COUNT(DISTINCT Unit_of_Assessment_Name)&#34;</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;red&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&#34;Top 20 Universities by Number of Subjects Assessed&#34;</span><span class="p">,</span> <span class="n">pad</span> <span class="o">=</span> <span class="mi">20</span><span class="p">,</span> <span class="n">fontsize</span> <span class="o">=</span> <span class="mi">16</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&#34;Number of Subjects Assessed&#34;</span><span class="p">,</span> <span class="n">labelpad</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">fontsize</span> <span class="o">=</span> <span class="mi">12</span><span class="p">)</span>
+<span class="n">_</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">(</span><span class="n">rotation</span> <span class="o">=</span> <span class="mi">60</span><span class="p">,</span> <span class="n">ha</span> <span class="o">=</span> <span class="s2">&#34;right&#34;</span><span class="p">,</span> <span class="n">fontsize</span> <span class="o">=</span> <span class="mi">10</span><span class="p">)</span>
+<span class="c1">#plt.axhline(result[&#34;number_data_points&#34;].mean(), color=&#39;blue&#39;, linewidth=2, label = &#34;# Countries&#34;)</span>
+<span class="c1">#plt.legend()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">margins</span><span class="p">(</span><span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">)</span>
+</code></pre></div><p><img src="UK_REF_2014_files/UK_REF_2014_22_0.png" alt="png"></p>
+<p>We can look at the distribution of universities based on the number of subjects they were assessed on. Most universities were assessed on only a small number of subjects, with 26 universities having been evaluated in only one subject.</p>
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="n">result</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span>
+    <span class="s2">&#34;&#34;&#34;WITH Institutions_By_Assessment_Count AS
+</span><span class="s2">         (SELECT Institution_Name,
+</span><span class="s2">          COUNT(DISTINCT Unit_of_Assessment_Name) AS Number_of_Assessment_Units
+</span><span class="s2">          FROM REF_Results GROUP BY Institution_Name)
+</span><span class="s2">
+</span><span class="s2">        SELECT DISTINCT Number_of_Assessment_Units,
+</span><span class="s2">               COUNT(DISTINCT Institution_Name) AS Number_of_Institutions,
+</span><span class="s2">               SUM(COUNT(DISTINCT Institution_Name)) OVER
+</span><span class="s2">                  (ORDER BY Number_of_Assessment_Units
+</span><span class="s2">                   ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW)
+</span><span class="s2">                   AS Running_Total
+</span><span class="s2">        FROM Institutions_By_Assessment_Count
+</span><span class="s2">        GROUP BY Number_of_Assessment_Units
+</span><span class="s2">        ORDER BY Number_of_Assessment_Units ASC;&#34;&#34;&#34;</span><span class="p">,</span> <span class="n">database</span><span class="p">)</span>
+</code></pre></div><div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">result</span><span class="p">[</span><span class="s2">&#34;Number_of_Assessment_Units&#34;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">),</span> <span class="n">height</span><span class="o">=</span><span class="n">result</span><span class="p">[</span><span class="s2">&#34;Number_of_Institutions&#34;</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;red&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&#34;Distribution of Institutions by Number of Subjects Assessed&#34;</span><span class="p">,</span> <span class="n">pad</span> <span class="o">=</span> <span class="mi">20</span><span class="p">,</span> <span class="n">fontsize</span> <span class="o">=</span> <span class="mi">16</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&#34;Number of Subjects Assessed&#34;</span><span class="p">,</span> <span class="n">labelpad</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">fontsize</span> <span class="o">=</span> <span class="mi">12</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&#34;Number of Institutions&#34;</span><span class="p">,</span> <span class="n">labelpad</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">fontsize</span> <span class="o">=</span> <span class="mi">12</span><span class="p">)</span>
+<span class="n">_</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">(</span><span class="n">rotation</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">ha</span> <span class="o">=</span> <span class="s2">&#34;center&#34;</span><span class="p">,</span> <span class="n">fontsize</span> <span class="o">=</span> <span class="mi">10</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">margins</span><span class="p">(</span><span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">)</span>
+</code></pre></div><p><img src="UK_REF_2014_files/UK_REF_2014_25_0.png" alt="png"></p>
+<h3 id="and-which-subjects-are-the-most-common-among-the-universities-assessed">And which subjects are the most common among the universities assessed?</h3>
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="n">result</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="s2">&#34;&#34;&#34;
+</span><span class="s2">        SELECT Unit_of_Assessment_Name,
+</span><span class="s2">               COUNT(DISTINCT Institution_Name) AS Number_of_Institutions
+</span><span class="s2">        FROM REF_Results
+</span><span class="s2">        GROUP BY Unit_of_Assessment_Name
+</span><span class="s2">        ORDER BY COUNT(DISTINCT Institution_Name) DESC;&#34;&#34;&#34;</span><span class="p">,</span> <span class="n">database</span><span class="p">)</span>
+</code></pre></div><div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">result</span><span class="p">[</span><span class="s2">&#34;Unit_of_Assessment_Name&#34;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">),</span> <span class="n">height</span><span class="o">=</span><span class="n">result</span><span class="p">[</span><span class="s2">&#34;Number_of_Institutions&#34;</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;red&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&#34;Subjects by Number of Institutions&#34;</span><span class="p">,</span> <span class="n">pad</span> <span class="o">=</span> <span class="mi">20</span><span class="p">,</span> <span class="n">fontsize</span> <span class="o">=</span> <span class="mi">16</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&#34;Number of Institutions&#34;</span><span class="p">,</span> <span class="n">labelpad</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">fontsize</span> <span class="o">=</span> <span class="mi">12</span><span class="p">)</span>
+<span class="n">_</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">(</span><span class="n">rotation</span> <span class="o">=</span> <span class="mi">60</span><span class="p">,</span> <span class="n">ha</span> <span class="o">=</span> <span class="s2">&#34;right&#34;</span><span class="p">,</span> <span class="n">fontsize</span> <span class="o">=</span> <span class="mi">10</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">margins</span><span class="p">(</span><span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">)</span>
+</code></pre></div><p><img src="UK_REF_2014_files/UK_REF_2014_28_0.png" alt="png"></p>
+<h3 id="which-universities-perform-the-best-in-the-assessment">Which universities perform the best in the assessment?</h3>
+<p>Based on the data available, there are several ways we could try to establish which university performed the best across the assessment.</p>
+<p>Each university is awarded a star rating for each subject assessed in three &lsquo;profiles&rsquo;: Outputs, Impact, Environment. They also receive an &lsquo;Overall&rsquo; star rating. The 4* rating is the highest possible outcome, and is awarded where the &lsquo;quality &hellip; is world-leading in terms of originality, significance and rigour&rsquo;.</p>
+<p>To compare the performance of different universities, we can see which universities had the highest average percentage of submissions awarded an &lsquo;Overall&rsquo; 4* evaluation.</p>
+<p>London Business School and Courtauld Institute of Art performed the best against this measure. But by including the total number of subjects they were assessed against, we see that both of these institutes are specialised in one subject area.</p>
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="n">result</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="s2">&#34;&#34;&#34;
+</span><span class="s2">WITH Four_Star_Percentages AS (SELECT DISTINCT Institution_Name,
+</span><span class="s2">                                      Unit_of_Assessment_Name,
+</span><span class="s2">                                      Star_Rating,
+</span><span class="s2">                                      Percentage
+</span><span class="s2">                                FROM REF_Results
+</span><span class="s2">                                WHERE Profile = &#34;Overall&#34; AND Star_Rating = &#34;4*&#34;)
+</span><span class="s2">
+</span><span class="s2">SELECT Institution_Name,
+</span><span class="s2">       COUNT(Unit_of_Assessment_Name),
+</span><span class="s2">       CAST(SUM(Percentage) AS REAL) / COUNT(Star_Rating) AS Average_4_Star_Percentage
+</span><span class="s2">FROM Four_Star_Percentages
+</span><span class="s2">GROUP BY Institution_Name
+</span><span class="s2">ORDER BY CAST(SUM(Percentage) AS REAL) / COUNT(Star_Rating) DESC
+</span><span class="s2">LIMIT 20;&#34;&#34;&#34;</span><span class="p">,</span> <span class="n">database</span><span class="p">)</span>
+</code></pre></div><div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="n">fig</span><span class="p">,</span> <span class="n">axis1</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+<span class="n">axis1</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="bp">False</span><span class="p">)</span>
+<span class="n">axis1</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">result</span><span class="p">[</span><span class="s2">&#34;Institution_Name&#34;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">),</span> <span class="n">height</span><span class="o">=</span><span class="n">result</span><span class="p">[</span><span class="s2">&#34;Average_4_Star_Percentage&#34;</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;red&#39;</span><span class="p">)</span>
+<span class="n">axis1</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&#34;Top 20 Universities by Average 4* Rating&#34;</span><span class="p">,</span> <span class="n">pad</span> <span class="o">=</span> <span class="mi">20</span><span class="p">,</span> <span class="n">fontsize</span> <span class="o">=</span> <span class="mi">16</span><span class="p">)</span>
+<span class="n">axis1</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&#34;Average </span><span class="si">% o</span><span class="s2">f 4* Evaluations&#34;</span><span class="p">,</span> <span class="n">labelpad</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">color</span> <span class="o">=</span> <span class="s1">&#39;r&#39;</span><span class="p">,</span> <span class="n">fontsize</span> <span class="o">=</span> <span class="mi">12</span><span class="p">)</span>
+<span class="n">axis1</span><span class="o">.</span><span class="n">set_xticklabels</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="s2">&#34;Institution_Name&#34;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">),</span> <span class="n">horizontalalignment</span> <span class="o">=</span> <span class="s2">&#34;right&#34;</span><span class="p">)</span>
+<span class="n">axes2</span> <span class="o">=</span> <span class="n">axis1</span><span class="o">.</span><span class="n">twinx</span><span class="p">()</span>
+<span class="n">axes2</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="s2">&#34;COUNT(Unit_of_Assessment_Name)&#34;</span><span class="p">],</span> <span class="n">marker</span> <span class="o">=</span> <span class="s2">&#34;o&#34;</span><span class="p">,</span> <span class="n">linestyle</span> <span class="o">=</span> <span class="s2">&#34;&#34;</span><span class="p">)</span>
+<span class="n">axes2</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&#34;Number of Subjects Assessed&#34;</span><span class="p">,</span> <span class="n">labelpad</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">color</span> <span class="o">=</span> <span class="s1">&#39;b&#39;</span><span class="p">,</span> <span class="n">fontsize</span> <span class="o">=</span> <span class="mi">12</span><span class="p">)</span>
+<span class="n">axes2</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="bp">False</span><span class="p">)</span>
+<span class="n">_</span> <span class="o">=</span> <span class="n">axis1</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">20</span><span class="p">)</span>
+<span class="n">axis1</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="n">colors</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">)</span>
+<span class="n">axis1</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="n">labelsize</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span> <span class="n">rotation</span> <span class="o">=</span> <span class="mi">45</span><span class="p">)</span>
+<span class="n">axes2</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="n">colors</span><span class="o">=</span><span class="s1">&#39;b&#39;</span><span class="p">)</span>
+</code></pre></div><pre><code>&lt;ipython-input-16-c40615171364&gt;:6: UserWarning: FixedFormatter should only be used together with FixedLocator
+  axis1.set_xticklabels(result[&quot;Institution_Name&quot;].astype(str), horizontalalignment = &quot;right&quot;)
+</code></pre>
+<p><img src="UK_REF_2014_files/UK_REF_2014_31_1.png" alt="png"></p>
+<h3 id="what-about-the-institutions-which-were-the-weakest-performers-in-this-assessment">What about the institutions which were the weakest performers in this assessment?</h3>
+<p>The unclassified rating is the lowest possible rating in the assessment, and is given for &lsquo;quality that falls below the standard of nationally recognised work&rsquo;.</p>
+<p>We can find the universities whose submissions got the highest average percentage of Unclassified ratings. By this measure, Writtle College is the worst performing institution in the dataset, with an average of 35% of submissions receiving Unclassified ratings across its two subject areas.</p>
+<p>Based on the previous chart, we might conclude that universities which specialise in one or a small number of subjects would perform better: the two universities with the highest average percentage of 4* evaluations were each assessed in only one subject. However, several of the universities with the highest percentage of Unclassified ratings also specialise in one subject. So, specialisation is no guarantee of quality.</p>
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="n">result</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="s2">&#34;&#34;&#34;
+</span><span class="s2">WITH Unclassified_Percentages AS (SELECT DISTINCT Institution_Name,
+</span><span class="s2">                                         Unit_of_Assessment_Name,
+</span><span class="s2">                                         Star_Rating,
+</span><span class="s2">                                         Percentage
+</span><span class="s2">                                  FROM REF_Results
+</span><span class="s2">                                  WHERE Profile = &#34;Overall&#34; AND Star_Rating = &#34;unclassified&#34;)
+</span><span class="s2">
+</span><span class="s2">SELECT Institution_Name,
+</span><span class="s2">       COUNT(Unit_of_Assessment_Name),
+</span><span class="s2">       CAST(SUM(Percentage) AS REAL) / COUNT(Star_Rating) AS Average_Unclassified_Percentage
+</span><span class="s2">FROM Unclassified_Percentages
+</span><span class="s2">GROUP BY Institution_Name
+</span><span class="s2">ORDER BY CAST(SUM(Percentage) AS REAL) / COUNT(Star_Rating) DESC
+</span><span class="s2">LIMIT 20;&#34;&#34;&#34;</span><span class="p">,</span> <span class="n">database</span><span class="p">)</span>
+</code></pre></div><div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="n">fig</span><span class="p">,</span> <span class="n">axis1</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+<span class="n">axis1</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="bp">False</span><span class="p">)</span>
+<span class="n">axis1</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">result</span><span class="p">[</span><span class="s2">&#34;Institution_Name&#34;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">),</span> <span class="n">height</span><span class="o">=</span><span class="n">result</span><span class="p">[</span><span class="s2">&#34;Average_Unclassified_Percentage&#34;</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;red&#39;</span><span class="p">)</span>
+<span class="n">axis1</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&#34;Bottom 20 Universities by Average Unclassified Rating&#34;</span><span class="p">,</span> <span class="n">pad</span> <span class="o">=</span> <span class="mi">20</span><span class="p">,</span> <span class="n">fontsize</span> <span class="o">=</span> <span class="mi">16</span><span class="p">)</span>
+<span class="n">axis1</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&#34;Average </span><span class="si">% o</span><span class="s2">f Unclassified Evaluations&#34;</span><span class="p">,</span> <span class="n">labelpad</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">color</span> <span class="o">=</span> <span class="s1">&#39;r&#39;</span><span class="p">,</span> <span class="n">fontsize</span> <span class="o">=</span> <span class="mi">12</span><span class="p">)</span>
+<span class="n">axis1</span><span class="o">.</span><span class="n">set_xticklabels</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="s2">&#34;Institution_Name&#34;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">),</span> <span class="n">horizontalalignment</span> <span class="o">=</span> <span class="s2">&#34;right&#34;</span><span class="p">)</span>
+<span class="n">axes2</span> <span class="o">=</span> <span class="n">axis1</span><span class="o">.</span><span class="n">twinx</span><span class="p">()</span>
+<span class="n">axes2</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="s2">&#34;COUNT(Unit_of_Assessment_Name)&#34;</span><span class="p">],</span> <span class="n">marker</span> <span class="o">=</span> <span class="s2">&#34;o&#34;</span><span class="p">,</span> <span class="n">linestyle</span> <span class="o">=</span> <span class="s2">&#34;&#34;</span><span class="p">)</span>
+<span class="n">axes2</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&#34;Number of Subjects Assessed&#34;</span><span class="p">,</span> <span class="n">labelpad</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">color</span> <span class="o">=</span> <span class="s1">&#39;b&#39;</span><span class="p">,</span> <span class="n">fontsize</span> <span class="o">=</span> <span class="mi">12</span><span class="p">)</span>
+<span class="n">axes2</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="bp">False</span><span class="p">)</span>
+<span class="n">_</span> <span class="o">=</span> <span class="n">axis1</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">20</span><span class="p">)</span>
+<span class="n">axis1</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="n">colors</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">)</span>
+<span class="n">axis1</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="n">labelsize</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span> <span class="n">rotation</span> <span class="o">=</span> <span class="mi">45</span><span class="p">)</span>
+<span class="n">axes2</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="n">colors</span><span class="o">=</span><span class="s1">&#39;b&#39;</span><span class="p">)</span>
+</code></pre></div><pre><code>&lt;ipython-input-18-6954073e0042&gt;:6: UserWarning: FixedFormatter should only be used together with FixedLocator
+  axis1.set_xticklabels(result[&quot;Institution_Name&quot;].astype(str), horizontalalignment = &quot;right&quot;)
+</code></pre>
+<p><img src="UK_REF_2014_files/UK_REF_2014_34_1.png" alt="png"></p>
+<h2 id="which-universities-have-the-largest-number-of-staff">Which universities have the largest number of staff?</h2>
+<p>The REF results show how many full-time equivalent (FTE) staff members were submitted for the assessment. Which universities have submitted the highest staff numbers for assessment?</p>
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="n">result</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="s2">&#34;&#34;&#34;
+</span><span class="s2">SELECT DISTINCT Institution_Name,
+</span><span class="s2">       SUM(FTE_Category_A_staff_submitted) AS Number_of_Staff_FTE
+</span><span class="s2">FROM REF_Results
+</span><span class="s2">WHERE Profile = &#34;Overall&#34; AND Star_Rating = &#34;4*&#34;
+</span><span class="s2">GROUP BY Institution_Name
+</span><span class="s2">ORDER BY SUM(FTE_Category_A_staff_submitted) DESC
+</span><span class="s2">LIMIT 20;&#34;&#34;&#34;</span><span class="p">,</span> <span class="n">database</span><span class="p">)</span>
+</code></pre></div><div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">result</span><span class="p">[</span><span class="s2">&#34;Institution_Name&#34;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">),</span> <span class="n">height</span><span class="o">=</span><span class="n">result</span><span class="p">[</span><span class="s2">&#34;Number_of_Staff_FTE&#34;</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;red&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&#34;Top 20 Institutions by Number of Staff&#34;</span><span class="p">,</span> <span class="n">pad</span> <span class="o">=</span> <span class="mi">20</span><span class="p">,</span> <span class="n">fontsize</span> <span class="o">=</span> <span class="mi">16</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&#34;Number of Staff (FTE)&#34;</span><span class="p">,</span> <span class="n">labelpad</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">fontsize</span> <span class="o">=</span> <span class="mi">12</span><span class="p">)</span>
+<span class="n">_</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">(</span><span class="n">rotation</span> <span class="o">=</span> <span class="mi">45</span><span class="p">,</span> <span class="n">ha</span> <span class="o">=</span> <span class="s2">&#34;right&#34;</span><span class="p">,</span> <span class="n">fontsize</span> <span class="o">=</span> <span class="mi">10</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">margins</span><span class="p">(</span><span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">)</span>
+</code></pre></div><p><img src="UK_REF_2014_files/UK_REF_2014_37_0.png" alt="png"></p>
+<h2 id="and-the-smallest-number-of-staff">And the smallest number of staff?</h2>
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="n">result</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="s2">&#34;&#34;&#34;
+</span><span class="s2">SELECT DISTINCT Institution_Name,
+</span><span class="s2">       SUM(FTE_Category_A_staff_submitted) AS Number_of_Staff_FTE
+</span><span class="s2">FROM REF_Results
+</span><span class="s2">WHERE Profile = &#34;Overall&#34; AND Star_Rating = &#34;4*&#34;
+</span><span class="s2">GROUP BY Institution_Name
+</span><span class="s2">ORDER BY SUM(FTE_Category_A_staff_submitted) ASC
+</span><span class="s2">LIMIT 20;&#34;&#34;&#34;</span><span class="p">,</span> <span class="n">database</span><span class="p">)</span>
+</code></pre></div><div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">result</span><span class="p">[</span><span class="s2">&#34;Institution_Name&#34;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">),</span> <span class="n">height</span><span class="o">=</span><span class="n">result</span><span class="p">[</span><span class="s2">&#34;Number_of_Staff_FTE&#34;</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;red&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&#34;20 Smallest Institutions by Number of Staff&#34;</span><span class="p">,</span> <span class="n">pad</span> <span class="o">=</span> <span class="mi">20</span><span class="p">,</span> <span class="n">fontsize</span> <span class="o">=</span> <span class="mi">16</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&#34;Number of Staff (FTE)&#34;</span><span class="p">,</span> <span class="n">labelpad</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">fontsize</span> <span class="o">=</span> <span class="mi">12</span><span class="p">)</span>
+<span class="n">_</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">(</span><span class="n">rotation</span> <span class="o">=</span> <span class="mi">45</span><span class="p">,</span> <span class="n">ha</span> <span class="o">=</span> <span class="s2">&#34;right&#34;</span><span class="p">,</span> <span class="n">fontsize</span> <span class="o">=</span> <span class="mi">10</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">margins</span><span class="p">(</span><span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">)</span>
+</code></pre></div><p><img src="UK_REF_2014_files/UK_REF_2014_40_0.png" alt="png"></p>
+<h2 id="which-universities-are-the-most-collaborative">Which universities are the most collaborative?</h2>
+<p>Institutions were able to prepare joint submissions with another institution and submit this to the assessment.</p>
+<p>Which universities submitted the most joint submissions?</p>
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="c1">#pd.read_sql(&#34;&#34;&#34;SELECT * FROM REF_Results</span>
+<span class="c1">#               WHERE &#39;Joint submission&#39; NOT LIKE &#34;None&#34;;&#34;&#34;&#34;, database)</span>
+</code></pre></div><h2 id="how-to-find-the-best-university-for-you">How to find the best university for you</h2>
+<p>If you&rsquo;re trying to decide on a university and course, you can tailor this search to see which universities performed the best in the in the subject you&rsquo;re interested in.</p>
+<p>As a reminder, these are the subjects covered by the assessment. You can amend the WHERE clause in the next code block to focus your search.</p>
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="s2">&#34;&#34;&#34;SELECT DISTINCT Unit_of_Assessment_Name
+</span><span class="s2">               FROM REF_Results
+</span><span class="s2">               ORDER BY Unit_of_Assessment_Name ASC;&#34;&#34;&#34;</span><span class="p">,</span> <span class="n">database</span><span class="p">)</span>
+</code></pre></div><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+<pre><code>.dataframe tbody tr th {
+    vertical-align: top;
+}
+
+.dataframe thead th {
+    text-align: right;
+}
+</code></pre>
+<p></style></p>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Unit_of_Assessment_Name</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>Aeronautical, Mechanical, Chemical and Manufac...</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>Agriculture, Veterinary and Food Science</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>Allied Health Professions, Dentistry, Nursing ...</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>Anthropology and Development Studies</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>Architecture, Built Environment and Planning</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>Area Studies</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>Art and Design: History, Practice and Theory</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>Biological Sciences</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>Business and Management Studies</td>
+    </tr>
+    <tr>
+      <th>9</th>
+      <td>Chemistry</td>
+    </tr>
+    <tr>
+      <th>10</th>
+      <td>Civil and Construction Engineering</td>
+    </tr>
+    <tr>
+      <th>11</th>
+      <td>Classics</td>
+    </tr>
+    <tr>
+      <th>12</th>
+      <td>Clinical Medicine</td>
+    </tr>
+    <tr>
+      <th>13</th>
+      <td>Communication, Cultural and Media Studies, Lib...</td>
+    </tr>
+    <tr>
+      <th>14</th>
+      <td>Computer Science and Informatics</td>
+    </tr>
+    <tr>
+      <th>15</th>
+      <td>Earth Systems and Environmental Sciences</td>
+    </tr>
+    <tr>
+      <th>16</th>
+      <td>Economics and Econometrics</td>
+    </tr>
+    <tr>
+      <th>17</th>
+      <td>Education</td>
+    </tr>
+    <tr>
+      <th>18</th>
+      <td>Electrical and Electronic Engineering, Metallu...</td>
+    </tr>
+    <tr>
+      <th>19</th>
+      <td>English Language and Literature</td>
+    </tr>
+    <tr>
+      <th>20</th>
+      <td>General Engineering</td>
+    </tr>
+    <tr>
+      <th>21</th>
+      <td>Geography, Environmental Studies and Archaeology</td>
+    </tr>
+    <tr>
+      <th>22</th>
+      <td>History</td>
+    </tr>
+    <tr>
+      <th>23</th>
+      <td>Law</td>
+    </tr>
+    <tr>
+      <th>24</th>
+      <td>Mathematical Sciences</td>
+    </tr>
+    <tr>
+      <th>25</th>
+      <td>Modern Languages and Linguistics</td>
+    </tr>
+    <tr>
+      <th>26</th>
+      <td>Music, Drama, Dance and Performing Arts</td>
+    </tr>
+    <tr>
+      <th>27</th>
+      <td>Philosophy</td>
+    </tr>
+    <tr>
+      <th>28</th>
+      <td>Physics</td>
+    </tr>
+    <tr>
+      <th>29</th>
+      <td>Politics and International Studies</td>
+    </tr>
+    <tr>
+      <th>30</th>
+      <td>Psychology, Psychiatry and Neuroscience</td>
+    </tr>
+    <tr>
+      <th>31</th>
+      <td>Public Health, Health Services and Primary Care</td>
+    </tr>
+    <tr>
+      <th>32</th>
+      <td>Social Work and Social Policy</td>
+    </tr>
+    <tr>
+      <th>33</th>
+      <td>Sociology</td>
+    </tr>
+    <tr>
+      <th>34</th>
+      <td>Sport and Exercise Sciences, Leisure and Tourism</td>
+    </tr>
+    <tr>
+      <th>35</th>
+      <td>Theology and Religious Studies</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="s2">&#34;&#34;&#34;
+</span><span class="s2">SELECT Institution_Name,
+</span><span class="s2">       Unit_of_Assessment_Name,
+</span><span class="s2">       CAST(Percentage AS INTEGER) AS &#39;Percentage Overall 4* Ratings&#39;
+</span><span class="s2">FROM REF_Results
+</span><span class="s2">--change the last part depending on the subject of interest
+</span><span class="s2">WHERE Star_Rating = &#34;4*&#34; AND Profile = &#34;Overall&#34; AND Unit_of_Assessment_Name = &#34;Modern Languages and Linguistics&#34;
+</span><span class="s2">ORDER BY CAST(Percentage AS INTEGER) DESC
+</span><span class="s2">LIMIT 10;&#34;&#34;&#34;</span><span class="p">,</span> <span class="n">database</span><span class="p">)</span>
+</code></pre></div><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+<pre><code>.dataframe tbody tr th {
+    vertical-align: top;
+}
+
+.dataframe thead th {
+    text-align: right;
+}
+</code></pre>
+<p></style></p>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Institution_Name</th>
+      <th>Unit_of_Assessment_Name</th>
+      <th>Percentage Overall 4* Ratings</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>Queen Mary University of London</td>
+      <td>Modern Languages and Linguistics</td>
+      <td>62</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>University of York</td>
+      <td>Modern Languages and Linguistics</td>
+      <td>45</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>University of Edinburgh</td>
+      <td>Modern Languages and Linguistics</td>
+      <td>45</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>University of Manchester</td>
+      <td>Modern Languages and Linguistics</td>
+      <td>41</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>Bangor University</td>
+      <td>Modern Languages and Linguistics</td>
+      <td>41</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>University of Cambridge</td>
+      <td>Modern Languages and Linguistics</td>
+      <td>40</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>University of Essex</td>
+      <td>Modern Languages and Linguistics</td>
+      <td>40</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>Queen's University Belfast</td>
+      <td>Modern Languages and Linguistics</td>
+      <td>40</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>University of Kent</td>
+      <td>Modern Languages and Linguistics</td>
+      <td>39</td>
+    </tr>
+    <tr>
+      <th>9</th>
+      <td>University of Southampton</td>
+      <td>Modern Languages and Linguistics</td>
+      <td>39</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+                    <div class="post_footer">
+                        
+                    </div>
+                </div>
+                
+                
+                <div class="doc_comments"></div>
+                
+            </div>
+        </div>
+    </div>
+    <a id="back_to_top" href="#" class="back_to_top"><i class="ri-arrow-up-s-line"></i></a>
+    <footer class="footer">
+    <div class="powered_by">
+        <a href="https://varkai.com">Designed by VarKai,</a>
+        <a href="http://www.gohugo.io/">Proudly published with Hugo</a>
+    </div>
+
+    <div class="footer_slogan">
+        <span></span>
+    </div>
+</footer>
+    <script src="https://mmccrechowicz.github.io/public/js/jquery-3.5.1.min.js"></script>
+<link href="https://mmccrechowicz.github.io/public/css/fancybox.min.css" rel="stylesheet">
+<script src="https://mmccrechowicz.github.io/public/js/fancybox.min.js"></script>
+<script src="https://mmccrechowicz.github.io/public/js/zozo.js"></script>
+
+
+<script type="text/javascript" async
+    src="https://cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+        MathJax.Hub.Config({
+            tex2jax: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\[\[', '\]\]']],
+                processEscapes: true,
+                processEnvironments: true,
+                skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+                TeX: {
+                    equationNumbers: { autoNumber: "AMS" },
+                    extensions: ["AMSmath.js", "AMSsymbols.js"]
+                }
+            }
+        });
+
+        MathJax.Hub.Queue(function () {
+            
+            
+            
+            var all = MathJax.Hub.getAllJax(), i;
+            for (i = 0; i < all.length; i += 1) {
+                all[i].SourceElement().parentNode.className += ' has-jax';
+            }
+        });
+    </script>
+
+<style>
+    code.has-jax {
+        font: inherit;
+        font-size: 100%;
+        background: inherit;
+        border: inherit;
+        color: #515151;
+    }
+</style>
+
+
+
+</body>
+
+</html>
