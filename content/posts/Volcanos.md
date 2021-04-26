@@ -1,13 +1,13 @@
 ---
 title: "Significant Volcanic Eruptions"
 date: 2021-04-10T15:17:35.702320
-draft: true
+draft: False
 summary: Which countries have been most affected by volcanic incidents?
 ---
 
 Note: some map-based visualisations would be good in this analysis. Ask Maciej for help with this: https://colab.research.google.com/github/jakevdp/PythonDataScienceHandbook/blob/master/notebooks/04.13-Geographic-Data-With-Basemap.ipynb#scrollTo=HhB0JKS0_l4s
 
-This analysis uses a [dataset](https://public.tableau.com/s/sites/default/files/media/Resources/significantvolcanoeruptions.xlsx) about 658 significant volcanic eruptions that occurred between 4360 BCE and 2014 CE. 
+This analysis uses a [dataset](https://public.tableau.com/s/sites/default/files/media/Resources/significantvolcanoeruptions.xlsx) about 658 significant volcanic eruptions that occurred between 4360 BCE and 2014 CE.
 
 Using the data available, I identify the most active volcanoes in this period; the countries which experienced the most volcanic activity; the eras with the greatest number of volcanic eruptions; and the impact these volcanoes have had in terms of human lives lost and damage done.
 
@@ -75,7 +75,7 @@ def excel_dataset_to_sqlite(url: str, database_name: str = ":memory:") -> sqlite
 
 #### Import the dataset and create the database
 
-I'm importing a dataset from a URL. 
+I'm importing a dataset from a URL.
 
 
 ```python
@@ -886,7 +886,7 @@ Indonesia has the highest number of volcanoes, as well as the highest number of 
 
 
 ```python
-result = pd.read_sql("""SELECT Country, 
+result = pd.read_sql("""SELECT Country,
                         COUNT(DISTINCT Name) AS Volcanos_Per_Country
                         FROM volerup
                         GROUP BY Country
@@ -905,15 +905,15 @@ plt.margins(0.01, 0.01)
 ```
 
 
-    
+
 ![png](Volcanos_files/Volcanos_23_0.png)
-    
+
 
 
 
 ```python
-result = pd.read_sql("""SELECT Country, 
-                        COUNT(Country) AS Incidents_Per_Country 
+result = pd.read_sql("""SELECT Country,
+                        COUNT(Country) AS Incidents_Per_Country
                         FROM volerup
                         GROUP BY Country
                         ORDER BY COUNT(Country) DESC
@@ -931,9 +931,9 @@ plt.margins(0.01, 0.01)
 ```
 
 
-    
+
 ![png](Volcanos_files/Volcanos_25_0.png)
-    
+
 
 
 However, Italy's volcanoes experience the highest number of eruptions per volcano.
@@ -941,8 +941,8 @@ However, Italy's volcanoes experience the highest number of eruptions per volcan
 
 ```python
 pd.read_sql("""
-    SELECT Country, 
-           COUNT(Country) AS Incidents_Per_Country, 
+    SELECT Country,
+           COUNT(Country) AS Incidents_Per_Country,
            COUNT(DISTINCT Name) AS Volcanos_Per_Country,
            CAST(COUNT(Country) AS REAL) / COUNT(DISTINCT Name) AS Incidents_Per_Volcano
     FROM volerup
@@ -1125,14 +1125,14 @@ pd.read_sql("""
 
 
 
-Mount Etna in Italy is the single most active volcano in the dataset, with 19 incidents. 
+Mount Etna in Italy is the single most active volcano in the dataset, with 19 incidents.
 
 
 ```python
 result = pd.read_sql("""
-    SELECT Name, 
-           Location, 
-           Country, 
+    SELECT Name,
+           Location,
+           Country,
            COUNT(Name) AS Number_of_Incidents
     FROM volerup
     GROUP BY Name
@@ -1152,9 +1152,9 @@ plt.margins(0.01, 0.01)
 ```
 
 
-    
+
 ![png](Volcanos_files/Volcanos_30_0.png)
-    
+
 
 
 #### Indonesia
@@ -1166,8 +1166,8 @@ We can look at the regions in Indonesia to see which are the most volcanically a
 
 ```python
 result = pd.read_sql("""
-    SELECT Location, 
-           COUNT(DISTINCT Name) AS Number_of_Volcanoes, 
+    SELECT Location,
+           COUNT(DISTINCT Name) AS Number_of_Volcanoes,
            COUNT(Location) AS Number_of_Incidents
     FROM volerup
     WHERE Country = 'Indonesia'
@@ -1187,9 +1187,9 @@ plt.margins(0.01, 0.01)
 ```
 
 
-    
+
 ![png](Volcanos_files/Volcanos_33_0.png)
-    
+
 
 
 The dataset includes the [Volcanic Explosivity Index (VEI)](https://en.wikipedia.org/wiki/Volcanic_Explosivity_Index) figure for each eruption. The VEI measures the relative explosiveness of an eruption, with 0 (non-explosive) being the smallest possible value, and 8 the largest.
@@ -1218,14 +1218,14 @@ plt.margins(0.01, 0.01)
 ```
 
 
-    
+
 ![png](Volcanos_files/Volcanos_36_0.png)
-    
+
 
 
 ### When did these eruptions happen?
 
-The data covers the period from 4360 BCE to 2014 CE. 
+The data covers the period from 4360 BCE to 2014 CE.
 
 Were there any centuries in this timespan that were particularly affected by volcanic eruptions?
 
@@ -1235,7 +1235,7 @@ The period between 1000 CE and 2000 CE has the highest number of recorded volcan
 ```python
 result = pd.read_sql("""
   SELECT COUNT(Name),
-         CASE 
+         CASE
             WHEN Year >= -5000 AND Year < -4001 THEN "5th Millennium BCE"
             WHEN Year >= -4000 AND Year < -3001 THEN "4th Millennium BCE"
             WHEN Year >= -3000 AND Year < -2001 THEN "3rd Millennium BCE"
@@ -1244,11 +1244,11 @@ result = pd.read_sql("""
             WHEN Year > 0 AND Year <= 1000 THEN "1st Millennium CE"
             WHEN Year > 1000 AND Year <= 2000 THEN "2nd Millennium CE"
             WHEN Year > 2000 AND Year <= 3000 THEN "3rd Millennium CE"
-         END Century 
+         END Century
   FROM volerup
   GROUP BY Century
-  ORDER BY 
-          CASE 
+  ORDER BY
+          CASE
              WHEN Century = "5th Millennium BCE" THEN 1
              WHEN Century = "4th Millennium BCE" THEN 2
              WHEN Century = "3rd Millennium BCE" THEN 3
@@ -1335,12 +1335,12 @@ result
 
 We can look at the data for 1000 CE to 2000 CE in more detail.
 
-We saw above that there are more data points for the period 1001 CE to 2000 CE than for any millennium. This pattern is seen again in the individual centuries which made up this millennium, as we have a steady increase in the number of data points as the centuries progress. 
+We saw above that there are more data points for the period 1001 CE to 2000 CE than for any millennium. This pattern is seen again in the individual centuries which made up this millennium, as we have a steady increase in the number of data points as the centuries progress.
 
 
 ```python
 result = pd.read_sql("""SELECT COUNT(Name),
-               CASE 
+               CASE
                     WHEN Year >= 1001 AND Year <= 1100 THEN "11th Century CE"
                     WHEN Year >= 1101 AND Year <= 1200 THEN "12th Century CE"
                     WHEN Year >= 1201 AND Year <= 1300 THEN "13th Century CE"
@@ -1351,7 +1351,7 @@ result = pd.read_sql("""SELECT COUNT(Name),
                     WHEN Year >= 1701 AND Year <= 1800 THEN "18th Century CE"
                     WHEN Year >= 1801 AND Year <= 1900 THEN "19th Century CE"
                     WHEN Year >= 1901 AND Year <= 2000 THEN "20th Century CE"
-               END Century 
+               END Century
                FROM volerup
                WHERE Year >= 1001 AND Year <=2000
                GROUP BY Century
@@ -1370,19 +1370,19 @@ plt.margins(0.00, 0.01)
 ```
 
 
-    
+
 ![png](Volcanos_files/Volcanos_41_0.png)
-    
 
 
-The 20th century saw 260 recorded volcanic incidents. Let's have a look at those incidents in more detail. 
+
+The 20th century saw 260 recorded volcanic incidents. Let's have a look at those incidents in more detail.
 
 1902 was the most active year in the twentieth century, with 8 volcanic incidents.
 
 
 ```python
 result = pd.read_sql("""
-    SELECT CAST(Year AS INTEGER) AS Year, 
+    SELECT CAST(Year AS INTEGER) AS Year,
            COUNT(Year) AS Number_of_Incidents
     FROM volerup
     WHERE Year >= 1901 AND Year <= 2000
@@ -1402,16 +1402,16 @@ plt.margins(0.01, 0.01)
 ```
 
 
-    
+
 ![png](Volcanos_files/Volcanos_44_0.png)
-    
+
 
 
 The highest number of twentieth-century volcanic eruptions occurred in Indonesia. This is not surprising, as we know from above that Indonesia had the highest number of volcanic incidents overall, as well as the largest number of volcanoes.
 
 
 ```python
-result = pd.read_sql("""SELECT Country, 
+result = pd.read_sql("""SELECT Country,
                                COUNT(Country) AS Number_of_Incidents
                         FROM volerup
                         WHERE Year >= 1901 AND Year <= 2000
@@ -1431,9 +1431,9 @@ plt.margins(0.01, 0.01)
 ```
 
 
-    
+
 ![png](Volcanos_files/Volcanos_47_0.png)
-    
+
 
 
 ### Impact - Fatalities
@@ -1442,8 +1442,8 @@ For many of the incidents covered in the database, we have figures for the numbe
 
 
 ```python
-result = pd.read_sql("""SELECT DISTINCT(Name), 
-                               Country, 
+result = pd.read_sql("""SELECT DISTINCT(Name),
+                               Country,
                                SUM(Deaths) AS Total_Deaths
                         FROM volerup
                         WHERE Deaths NOTNULL
@@ -1464,16 +1464,16 @@ plt.margins(0.01, 0.01)
 ```
 
 
-    
+
 ![png](Volcanos_files/Volcanos_50_0.png)
-    
+
 
 
 And which country suffered the greatest death toll from volcanic incidents?
 
 
 ```python
-result = pd.read_sql("""SELECT Country, 
+result = pd.read_sql("""SELECT Country,
                                SUM(Deaths) AS Total_Deaths
                         FROM volerup
                         WHERE Deaths NOTNULL
@@ -1493,17 +1493,17 @@ plt.margins(0.01, 0.01)
 ```
 
 
-    
+
 ![png](Volcanos_files/Volcanos_53_0.png)
-    
+
 
 
 And which year was the deadliest?
 
 
 ```python
-result = pd.read_sql("""SELECT CAST(Year AS INTEGER) AS Year, 
-                               COUNT(Name) AS Number_of_Incidents, 
+result = pd.read_sql("""SELECT CAST(Year AS INTEGER) AS Year,
+                               COUNT(Name) AS Number_of_Incidents,
                                SUM(Deaths) AS Total_Deaths
                         FROM volerup
                         WHERE Deaths NOTNULL
@@ -1524,25 +1524,25 @@ plt.margins(0.01, 0.01)
 ```
 
 
-    
+
 ![png](Volcanos_files/Volcanos_56_0.png)
-    
+
 
 
 ### Impact - Financial Cost
 
 Which volcanic incidents did the most damage?
 
-Although the query limits search results to 20, only 10 records in the database have a dollar value for damages. 
+Although the query limits search results to 20, only 10 records in the database have a dollar value for damages.
 
 The eruption of St Helens in 1980 is the most damaging incident in the dataset.
 
 
 ```python
 result = pd.read_sql("""
-    SELECT Name, 
-           Country, 
-           CAST(Year AS INTEGER) AS Year, 
+    SELECT Name,
+           Country,
+           CAST(Year AS INTEGER) AS Year,
            CAST(SUM(TOTAL_DAMAGE_MILLIONS_DOLLARS) AS INTEGER) AS 'Total Damage ($m)'
     FROM volerup
     WHERE TOTAL_DAMAGE_MILLIONS_DOLLARS NOTNULL
@@ -1563,9 +1563,9 @@ plt.margins(0.01, 0.01)
 ```
 
 
-    
+
 ![png](Volcanos_files/Volcanos_59_0.png)
-    
+
 
 
 ### Impact - Destructiveness
@@ -1576,8 +1576,8 @@ We can also find out how many homes were destroyed by each incident.
 ```python
 result = pd.read_sql("""
  SELECT Name,  
-        Country, 
-        CAST(Year AS INTEGER) AS Year, 
+        Country,
+        CAST(Year AS INTEGER) AS Year,
         CAST(SUM(TOTAL_HOUSES_DESTROYED) AS INTEGER) AS Houses_Destroyed
  FROM volerup
  WHERE TOTAL_HOUSES_DESTROYED NOTNULL
@@ -1598,9 +1598,9 @@ plt.margins(0.01, 0.01)
 ```
 
 
-    
+
 ![png](Volcanos_files/Volcanos_62_0.png)
-    
+
 
 
 ### Associated Phenomena - Tsunamis and Earthquakes
@@ -1616,7 +1616,7 @@ Indonesia faced the highest number of volcano-related tsunamis. This is not surp
 
 ```python
 result = pd.read_sql("""
-   SELECT Country, 
+   SELECT Country,
           COUNT(Country) AS Number_of_Tsunamis
    FROM volerup
    WHERE Associated_Tsunami = "TSU"
@@ -1635,21 +1635,21 @@ plt.margins(0.01, 0.01)
 ```
 
 
-    
+
 ![png](Volcanos_files/Volcanos_66_0.png)
-    
+
 
 
 #### Earthquakes
 
 Fewer volcanis eruptions are linked to earthquakes than to tsunamis. 55 of the eruptions in the dataset have an associated earthquake.
 
-The United States and Japan are the two countries most affected by volcano-related earthquakes. 
+The United States and Japan are the two countries most affected by volcano-related earthquakes.
 
 
 ```python
 result = pd.read_sql("""
-     SELECT Country, 
+     SELECT Country,
             COUNT(Country) AS Number_of_Earthquakes
      FROM volerup
      WHERE Associated_Earthquake = "EQ"
@@ -1668,9 +1668,9 @@ plt.margins(0.01, 0.01)
 ```
 
 
-    
+
 ![png](Volcanos_files/Volcanos_69_0.png)
-    
+
 
 
 And what about volcanic eruptions linked to tsunamis and earthquakes?
@@ -1893,5 +1893,3 @@ pd.read_sql("""
   </tbody>
 </table>
 </div>
-
-

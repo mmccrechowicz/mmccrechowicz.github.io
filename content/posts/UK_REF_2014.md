@@ -1,13 +1,13 @@
 ---
 title: "UK University Research Excellence Framework 2014"
 date: 2021-04-10T15:17:31.586474
-draft: true
+draft: False
 summary: Which are the best performing UK universities?
 ---
 
 The [Research Excellence Framework](https://en.wikipedia.org/wiki/Research_Excellence_Framework) is a periodic evaluation of the quality of research produced by universities in the United Kingdom. It was first applied in 2014, with reference to research completed in the period 2008-2013.
 
-The REF assesses submitted research and awards it a classification based on its quality. One of five quality ratings is possible: 
+The REF assesses submitted research and awards it a classification based on its quality. One of five quality ratings is possible:
 
  - **Four star**: Quality that is world-leading in originality, significance and rigour.
  - **Three star**: Quality that is internationally excellent in originality, significance and rigour but which falls short of the highest standards of excellence.
@@ -86,7 +86,7 @@ def excel_dataset_to_sqlite(url: str, database_name: str = ":memory:") -> sqlite
 
 #### Import the dataset and create the database
 
-I'm importing a dataset from a URL. 
+I'm importing a dataset from a URL.
 
 
 ```python
@@ -587,26 +587,26 @@ plt.margins(0.01, 0.01)
 ```
 
 
-    
+
 ![png](UK_REF_2014_files/UK_REF_2014_22_0.png)
-    
 
 
-We can look at the distribution of universities based on the number of subjects they were assessed on. Most universities were assessed on only a small number of subjects, with 26 universities having been evaluated in only one subject. 
+
+We can look at the distribution of universities based on the number of subjects they were assessed on. Most universities were assessed on only a small number of subjects, with 26 universities having been evaluated in only one subject.
 
 
 ```python
 result = pd.read_sql(
-    """WITH Institutions_By_Assessment_Count AS 
-         (SELECT Institution_Name, 
+    """WITH Institutions_By_Assessment_Count AS
+         (SELECT Institution_Name,
           COUNT(DISTINCT Unit_of_Assessment_Name) AS Number_of_Assessment_Units
           FROM REF_Results GROUP BY Institution_Name)
-                
+
         SELECT DISTINCT Number_of_Assessment_Units,
                COUNT(DISTINCT Institution_Name) AS Number_of_Institutions,
-               SUM(COUNT(DISTINCT Institution_Name)) OVER 
+               SUM(COUNT(DISTINCT Institution_Name)) OVER
                   (ORDER BY Number_of_Assessment_Units
-                   ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) 
+                   ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW)
                    AS Running_Total
         FROM Institutions_By_Assessment_Count
         GROUP BY Number_of_Assessment_Units
@@ -625,9 +625,9 @@ plt.margins(0.01, 0.01)
 ```
 
 
-    
+
 ![png](UK_REF_2014_files/UK_REF_2014_25_0.png)
-    
+
 
 
 ### And which subjects are the most common among the universities assessed?
@@ -653,9 +653,9 @@ plt.margins(0.01, 0.01)
 ```
 
 
-    
+
 ![png](UK_REF_2014_files/UK_REF_2014_28_0.png)
-    
+
 
 
 ### Which universities perform the best in the assessment?
@@ -666,18 +666,18 @@ Each university is awarded a star rating for each subject assessed in three 'pro
 
 To compare the performance of different universities, we can see which universities had the highest average percentage of submissions awarded an 'Overall' 4* evaluation.
 
-London Business School and Courtauld Institute of Art performed the best against this measure. But by including the total number of subjects they were assessed against, we see that both of these institutes are specialised in one subject area. 
+London Business School and Courtauld Institute of Art performed the best against this measure. But by including the total number of subjects they were assessed against, we see that both of these institutes are specialised in one subject area.
 
 
 ```python
 result = pd.read_sql("""
-WITH Four_Star_Percentages AS (SELECT DISTINCT Institution_Name, 
+WITH Four_Star_Percentages AS (SELECT DISTINCT Institution_Name,
                                       Unit_of_Assessment_Name,
                                       Star_Rating,
                                       Percentage
                                 FROM REF_Results
                                 WHERE Profile = "Overall" AND Star_Rating = "4*")
-                                              
+
 SELECT Institution_Name,
        COUNT(Unit_of_Assessment_Name),
        CAST(SUM(Percentage) AS REAL) / COUNT(Star_Rating) AS Average_4_Star_Percentage
@@ -710,9 +710,9 @@ axes2.tick_params(axis='y', colors='b')
 
 
 
-    
+
 ![png](UK_REF_2014_files/UK_REF_2014_31_1.png)
-    
+
 
 
 ### What about the institutions which were the weakest performers in this assessment?
@@ -726,13 +726,13 @@ Based on the previous chart, we might conclude that universities which specialis
 
 ```python
 result = pd.read_sql("""
-WITH Unclassified_Percentages AS (SELECT DISTINCT Institution_Name, 
+WITH Unclassified_Percentages AS (SELECT DISTINCT Institution_Name,
                                          Unit_of_Assessment_Name,
                                          Star_Rating,
                                          Percentage
                                   FROM REF_Results
                                   WHERE Profile = "Overall" AND Star_Rating = "unclassified")
-                                              
+
 SELECT Institution_Name,
        COUNT(Unit_of_Assessment_Name),
        CAST(SUM(Percentage) AS REAL) / COUNT(Star_Rating) AS Average_Unclassified_Percentage
@@ -765,9 +765,9 @@ axes2.tick_params(axis='y', colors='b')
 
 
 
-    
+
 ![png](UK_REF_2014_files/UK_REF_2014_34_1.png)
-    
+
 
 
 ## Which universities have the largest number of staff?
@@ -797,9 +797,9 @@ plt.margins(0.01, 0.01)
 ```
 
 
-    
+
 ![png](UK_REF_2014_files/UK_REF_2014_37_0.png)
-    
+
 
 
 ## And the smallest number of staff?
@@ -827,9 +827,9 @@ plt.margins(0.01, 0.01)
 ```
 
 
-    
+
 ![png](UK_REF_2014_files/UK_REF_2014_40_0.png)
-    
+
 
 
 ## Which universities are the most collaborative?
@@ -1040,7 +1040,7 @@ SELECT Institution_Name,
        CAST(Percentage AS INTEGER) AS 'Percentage Overall 4* Ratings'
 FROM REF_Results
 --change the last part depending on the subject of interest
-WHERE Star_Rating = "4*" AND Profile = "Overall" AND Unit_of_Assessment_Name = "Modern Languages and Linguistics" 
+WHERE Star_Rating = "4*" AND Profile = "Overall" AND Unit_of_Assessment_Name = "Modern Languages and Linguistics"
 ORDER BY CAST(Percentage AS INTEGER) DESC
 LIMIT 10;""", database)
 ```
@@ -1135,5 +1135,3 @@ LIMIT 10;""", database)
   </tbody>
 </table>
 </div>
-
-
