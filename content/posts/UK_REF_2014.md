@@ -2,12 +2,13 @@
 title: "UK University Research Excellence Framework 2014"
 date: 2021-04-10T15:17:31.586474
 draft: false
+tags: ["SQL", "Jupyter"]
 summary: Which are the best performing UK universities?
 ---
 
 The [Research Excellence Framework](https://en.wikipedia.org/wiki/Research_Excellence_Framework) is a periodic evaluation of the quality of research produced by universities in the United Kingdom. It was first applied in 2014, with reference to research completed in the period 2008-2013.
 
-The REF assesses submitted research and awards it a classification based on its quality. One of five quality ratings is possible:
+The REF assesses submitted research and awards it a classification based on its quality. One of five quality ratings is possible: 
 
  - **Four star**: Quality that is world-leading in originality, significance and rigour.
  - **Three star**: Quality that is internationally excellent in originality, significance and rigour but which falls short of the highest standards of excellence.
@@ -86,7 +87,7 @@ def excel_dataset_to_sqlite(url: str, database_name: str = ":memory:") -> sqlite
 
 #### Import the dataset and create the database
 
-I'm importing a dataset from a URL.
+I'm importing a dataset from a URL. 
 
 
 ```python
@@ -154,7 +155,7 @@ database.execute(
 
 
 
-    <sqlite3.Cursor at 0x125d85880>
+    <sqlite3.Cursor at 0x121fcd810>
 
 
 And then check that the change was made.
@@ -587,26 +588,26 @@ plt.margins(0.01, 0.01)
 ```
 
 
-
+    
 ![png](UK_REF_2014_files/UK_REF_2014_22_0.png)
+    
 
 
-
-We can look at the distribution of universities based on the number of subjects they were assessed on. Most universities were assessed on only a small number of subjects, with 26 universities having been evaluated in only one subject.
+We can look at the distribution of universities based on the number of subjects they were assessed on. Most universities were assessed on only a small number of subjects, with 26 universities having been evaluated in only one subject. 
 
 
 ```python
 result = pd.read_sql(
-    """WITH Institutions_By_Assessment_Count AS
-         (SELECT Institution_Name,
+    """WITH Institutions_By_Assessment_Count AS 
+         (SELECT Institution_Name, 
           COUNT(DISTINCT Unit_of_Assessment_Name) AS Number_of_Assessment_Units
           FROM REF_Results GROUP BY Institution_Name)
-
+                
         SELECT DISTINCT Number_of_Assessment_Units,
                COUNT(DISTINCT Institution_Name) AS Number_of_Institutions,
-               SUM(COUNT(DISTINCT Institution_Name)) OVER
+               SUM(COUNT(DISTINCT Institution_Name)) OVER 
                   (ORDER BY Number_of_Assessment_Units
-                   ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW)
+                   ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) 
                    AS Running_Total
         FROM Institutions_By_Assessment_Count
         GROUP BY Number_of_Assessment_Units
@@ -625,9 +626,9 @@ plt.margins(0.01, 0.01)
 ```
 
 
-
+    
 ![png](UK_REF_2014_files/UK_REF_2014_25_0.png)
-
+    
 
 
 ### And which subjects are the most common among the universities assessed?
@@ -653,9 +654,9 @@ plt.margins(0.01, 0.01)
 ```
 
 
-
+    
 ![png](UK_REF_2014_files/UK_REF_2014_28_0.png)
-
+    
 
 
 ### Which universities perform the best in the assessment?
@@ -666,18 +667,18 @@ Each university is awarded a star rating for each subject assessed in three 'pro
 
 To compare the performance of different universities, we can see which universities had the highest average percentage of submissions awarded an 'Overall' 4* evaluation.
 
-London Business School and Courtauld Institute of Art performed the best against this measure. But by including the total number of subjects they were assessed against, we see that both of these institutes are specialised in one subject area.
+London Business School and Courtauld Institute of Art performed the best against this measure. But by including the total number of subjects they were assessed against, we see that both of these institutes are specialised in one subject area. 
 
 
 ```python
 result = pd.read_sql("""
-WITH Four_Star_Percentages AS (SELECT DISTINCT Institution_Name,
+WITH Four_Star_Percentages AS (SELECT DISTINCT Institution_Name, 
                                       Unit_of_Assessment_Name,
                                       Star_Rating,
                                       Percentage
                                 FROM REF_Results
                                 WHERE Profile = "Overall" AND Star_Rating = "4*")
-
+                                              
 SELECT Institution_Name,
        COUNT(Unit_of_Assessment_Name),
        CAST(SUM(Percentage) AS REAL) / COUNT(Star_Rating) AS Average_4_Star_Percentage
@@ -710,9 +711,9 @@ axes2.tick_params(axis='y', colors='b')
 
 
 
-
+    
 ![png](UK_REF_2014_files/UK_REF_2014_31_1.png)
-
+    
 
 
 ### What about the institutions which were the weakest performers in this assessment?
@@ -726,13 +727,13 @@ Based on the previous chart, we might conclude that universities which specialis
 
 ```python
 result = pd.read_sql("""
-WITH Unclassified_Percentages AS (SELECT DISTINCT Institution_Name,
+WITH Unclassified_Percentages AS (SELECT DISTINCT Institution_Name, 
                                          Unit_of_Assessment_Name,
                                          Star_Rating,
                                          Percentage
                                   FROM REF_Results
                                   WHERE Profile = "Overall" AND Star_Rating = "unclassified")
-
+                                              
 SELECT Institution_Name,
        COUNT(Unit_of_Assessment_Name),
        CAST(SUM(Percentage) AS REAL) / COUNT(Star_Rating) AS Average_Unclassified_Percentage
@@ -765,9 +766,9 @@ axes2.tick_params(axis='y', colors='b')
 
 
 
-
+    
 ![png](UK_REF_2014_files/UK_REF_2014_34_1.png)
-
+    
 
 
 ## Which universities have the largest number of staff?
@@ -797,9 +798,9 @@ plt.margins(0.01, 0.01)
 ```
 
 
-
+    
 ![png](UK_REF_2014_files/UK_REF_2014_37_0.png)
-
+    
 
 
 ## And the smallest number of staff?
@@ -827,22 +828,476 @@ plt.margins(0.01, 0.01)
 ```
 
 
-
+    
 ![png](UK_REF_2014_files/UK_REF_2014_40_0.png)
-
+    
 
 
 ## Which universities are the most collaborative?
 
-Institutions were able to prepare joint submissions with another institution and submit this to the assessment.
+Institutions were able to prepare joint submissions with another institution and submit this to the assessment. A total of 23 universities prepared joint submissions.
 
-Which universities submitted the most joint submissions?
+The University of Edinburgh entered the highest number of joint submissions, at a total of six. Edinburgh also had the highest number of partners, at three. 
 
 
 ```python
-#pd.read_sql("""SELECT * FROM REF_Results
-#               WHERE 'Joint submission' NOT LIKE "None";""", database)
+pd.read_sql("""SELECT Institution_Name,
+                      COUNT(DISTINCT Unit_of_Assessment_Name) AS Number_of_Joint_Submissions,
+                      COUNT(DISTINCT `Joint submission`) AS Number_of_Partners
+               FROM REF_Results
+               WHERE "Joint submission" LIKE "%joint%"
+               GROUP BY Institution_Name
+               ORDER BY Number_of_Joint_Submissions DESC;""", database)
 ```
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Institution_Name</th>
+      <th>Number_of_Joint_Submissions</th>
+      <th>Number_of_Partners</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>University of Edinburgh</td>
+      <td>6</td>
+      <td>3</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>Heriot-Watt University</td>
+      <td>3</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>Bangor University</td>
+      <td>3</td>
+      <td>2</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>University of Wales Trinity Saint David</td>
+      <td>2</td>
+      <td>2</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>University of St Andrews</td>
+      <td>2</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>University College London</td>
+      <td>2</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>Liverpool School of Tropical Medicine</td>
+      <td>2</td>
+      <td>2</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>Cardiff Metropolitan University</td>
+      <td>2</td>
+      <td>2</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>Birkbeck College</td>
+      <td>2</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>9</th>
+      <td>Aberystwyth University</td>
+      <td>2</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>10</th>
+      <td>University of the Highlands and Islands</td>
+      <td>1</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>11</th>
+      <td>University of Warwick</td>
+      <td>1</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>12</th>
+      <td>University of Wales</td>
+      <td>1</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>13</th>
+      <td>University of Sussex</td>
+      <td>1</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>14</th>
+      <td>University of Strathclyde</td>
+      <td>1</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>15</th>
+      <td>University of South Wales</td>
+      <td>1</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>16</th>
+      <td>University of Liverpool</td>
+      <td>1</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>17</th>
+      <td>University of Kent</td>
+      <td>1</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>18</th>
+      <td>University of Greenwich</td>
+      <td>1</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>19</th>
+      <td>University of Glasgow</td>
+      <td>1</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>20</th>
+      <td>University of Brighton</td>
+      <td>1</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>21</th>
+      <td>SRUC</td>
+      <td>1</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>22</th>
+      <td>Robert Gordon University</td>
+      <td>1</td>
+      <td>1</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
+We can see these collaborations in more detail in the table below.
+
+```python
+pd.read_sql("""
+    SELECT Institution_Name,
+           Unit_of_Assessment_Name,
+           `Joint submission`
+    FROM REF_Results
+    WHERE "Joint submission" LIKE "%joint%"
+    GROUP BY Institution_Name, Unit_of_Assessment_Name, `Joint submission`;""", database)
+```
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Institution_Name</th>
+      <th>Unit_of_Assessment_Name</th>
+      <th>Joint submission</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>Aberystwyth University</td>
+      <td>Agriculture, Veterinary and Food Science</td>
+      <td>(joint submission with Bangor University)</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>Aberystwyth University</td>
+      <td>Earth Systems and Environmental Sciences</td>
+      <td>(joint submission with Bangor University)</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>Bangor University</td>
+      <td>Agriculture, Veterinary and Food Science</td>
+      <td>(joint submission with Aberystwyth University)</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>Bangor University</td>
+      <td>Earth Systems and Environmental Sciences</td>
+      <td>(joint submission with Aberystwyth University)</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>Bangor University</td>
+      <td>Sport and Exercise Sciences, Leisure and Tourism</td>
+      <td>(joint submission with Cardiff Metropolitan Un...</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>Birkbeck College</td>
+      <td>Biological Sciences</td>
+      <td>(joint submission with University College London)</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>Birkbeck College</td>
+      <td>Earth Systems and Environmental Sciences</td>
+      <td>(joint submission with University College London)</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>Cardiff Metropolitan University</td>
+      <td>Art and Design: History, Practice and Theory</td>
+      <td>(joint submission with University of South Wal...</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>Cardiff Metropolitan University</td>
+      <td>Sport and Exercise Sciences, Leisure and Tourism</td>
+      <td>(joint submission with Bangor University)</td>
+    </tr>
+    <tr>
+      <th>9</th>
+      <td>Heriot-Watt University</td>
+      <td>Architecture, Built Environment and Planning</td>
+      <td>(joint submission with University of Edinburgh)</td>
+    </tr>
+    <tr>
+      <th>10</th>
+      <td>Heriot-Watt University</td>
+      <td>General Engineering</td>
+      <td>(joint submission with University of Edinburgh)</td>
+    </tr>
+    <tr>
+      <th>11</th>
+      <td>Heriot-Watt University</td>
+      <td>Mathematical Sciences</td>
+      <td>(joint submission with University of Edinburgh)</td>
+    </tr>
+    <tr>
+      <th>12</th>
+      <td>Liverpool School of Tropical Medicine</td>
+      <td>Clinical Medicine</td>
+      <td>(joint submission with University of Liverpool)</td>
+    </tr>
+    <tr>
+      <th>13</th>
+      <td>Liverpool School of Tropical Medicine</td>
+      <td>Public Health, Health Services and Primary Care</td>
+      <td>(joint submission with University of Warwick)</td>
+    </tr>
+    <tr>
+      <th>14</th>
+      <td>Robert Gordon University</td>
+      <td>Allied Health Professions, Dentistry, Nursing ...</td>
+      <td>(joint submission with University of the Highl...</td>
+    </tr>
+    <tr>
+      <th>15</th>
+      <td>SRUC</td>
+      <td>Agriculture, Veterinary and Food Science</td>
+      <td>(joint submission with University of Edinburgh)</td>
+    </tr>
+    <tr>
+      <th>16</th>
+      <td>University College London</td>
+      <td>Biological Sciences</td>
+      <td>(joint submission with Birkbeck College)</td>
+    </tr>
+    <tr>
+      <th>17</th>
+      <td>University College London</td>
+      <td>Earth Systems and Environmental Sciences</td>
+      <td>(joint submission with Birkbeck College)</td>
+    </tr>
+    <tr>
+      <th>18</th>
+      <td>University of Brighton</td>
+      <td>Allied Health Professions, Dentistry, Nursing ...</td>
+      <td>(joint submission with University of Sussex)</td>
+    </tr>
+    <tr>
+      <th>19</th>
+      <td>University of Edinburgh</td>
+      <td>Agriculture, Veterinary and Food Science</td>
+      <td>(joint submission with SRUC)</td>
+    </tr>
+    <tr>
+      <th>20</th>
+      <td>University of Edinburgh</td>
+      <td>Architecture, Built Environment and Planning</td>
+      <td>(joint submission with Heriot-Watt University)</td>
+    </tr>
+    <tr>
+      <th>21</th>
+      <td>University of Edinburgh</td>
+      <td>Chemistry</td>
+      <td>(joint submission with University of St Andrews)</td>
+    </tr>
+    <tr>
+      <th>22</th>
+      <td>University of Edinburgh</td>
+      <td>General Engineering</td>
+      <td>(joint submission with Heriot-Watt University)</td>
+    </tr>
+    <tr>
+      <th>23</th>
+      <td>University of Edinburgh</td>
+      <td>Mathematical Sciences</td>
+      <td>(joint submission with Heriot-Watt University)</td>
+    </tr>
+    <tr>
+      <th>24</th>
+      <td>University of Edinburgh</td>
+      <td>Physics</td>
+      <td>(joint submission with University of St Andrews)</td>
+    </tr>
+    <tr>
+      <th>25</th>
+      <td>University of Glasgow</td>
+      <td>Chemistry</td>
+      <td>(joint submission with University of Strathclyde)</td>
+    </tr>
+    <tr>
+      <th>26</th>
+      <td>University of Greenwich</td>
+      <td>Allied Health Professions, Dentistry, Nursing ...</td>
+      <td>(joint submission with University of Kent)</td>
+    </tr>
+    <tr>
+      <th>27</th>
+      <td>University of Kent</td>
+      <td>Allied Health Professions, Dentistry, Nursing ...</td>
+      <td>(joint submission with University of Greenwich...</td>
+    </tr>
+    <tr>
+      <th>28</th>
+      <td>University of Liverpool</td>
+      <td>Clinical Medicine</td>
+      <td>(joint submission with Liverpool School of Tro...</td>
+    </tr>
+    <tr>
+      <th>29</th>
+      <td>University of South Wales</td>
+      <td>Art and Design: History, Practice and Theory</td>
+      <td>(joint submission with Cardiff Metropolitan Un...</td>
+    </tr>
+    <tr>
+      <th>30</th>
+      <td>University of St Andrews</td>
+      <td>Chemistry</td>
+      <td>(joint submission with University of Edinburgh)</td>
+    </tr>
+    <tr>
+      <th>31</th>
+      <td>University of St Andrews</td>
+      <td>Physics</td>
+      <td>(joint submission with University of Edinburgh)</td>
+    </tr>
+    <tr>
+      <th>32</th>
+      <td>University of Strathclyde</td>
+      <td>Chemistry</td>
+      <td>(joint submission with University of Glasgow)</td>
+    </tr>
+    <tr>
+      <th>33</th>
+      <td>University of Sussex</td>
+      <td>Allied Health Professions, Dentistry, Nursing ...</td>
+      <td>(joint submission with University of Brighton)</td>
+    </tr>
+    <tr>
+      <th>34</th>
+      <td>University of Wales</td>
+      <td>Modern Languages and Linguistics</td>
+      <td>(joint submission with University of Wales Tri...</td>
+    </tr>
+    <tr>
+      <th>35</th>
+      <td>University of Wales Trinity Saint David</td>
+      <td>Art and Design: History, Practice and Theory</td>
+      <td>(joint submission with Cardiff Metropolitan Un...</td>
+    </tr>
+    <tr>
+      <th>36</th>
+      <td>University of Wales Trinity Saint David</td>
+      <td>Modern Languages and Linguistics</td>
+      <td>(joint submission with University of Wales)</td>
+    </tr>
+    <tr>
+      <th>37</th>
+      <td>University of Warwick</td>
+      <td>Public Health, Health Services and Primary Care</td>
+      <td>(joint submission with Liverpool School of Tro...</td>
+    </tr>
+    <tr>
+      <th>38</th>
+      <td>University of the Highlands and Islands</td>
+      <td>Allied Health Professions, Dentistry, Nursing ...</td>
+      <td>(joint submission with Robert Gordon University)</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
 
 ## How to find the best university for you
 
@@ -1040,7 +1495,7 @@ SELECT Institution_Name,
        CAST(Percentage AS INTEGER) AS 'Percentage Overall 4* Ratings'
 FROM REF_Results
 --change the last part depending on the subject of interest
-WHERE Star_Rating = "4*" AND Profile = "Overall" AND Unit_of_Assessment_Name = "Modern Languages and Linguistics"
+WHERE Star_Rating = "4*" AND Profile = "Overall" AND Unit_of_Assessment_Name = "Modern Languages and Linguistics" 
 ORDER BY CAST(Percentage AS INTEGER) DESC
 LIMIT 10;""", database)
 ```
@@ -1135,3 +1590,5 @@ LIMIT 10;""", database)
   </tbody>
 </table>
 </div>
+
+
