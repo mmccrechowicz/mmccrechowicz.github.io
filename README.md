@@ -6,3 +6,4 @@
 4. The notebook files (`.ipynb`) should live in `content/posts`.
 5. To convert Jupyter to website: To convert notebooks to markdown posts, run `poetry run convert`.
 6. To edit Jupyter notebooks: To start jupyter, run `poetry shell` then `jupyter notebook`.
+hug

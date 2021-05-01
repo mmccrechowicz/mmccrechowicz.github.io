@@ -1,12 +1,39 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Rainbow Sparkle Data Analysis</title>
+    <title>Matthew McCarthy-Rechowicz</title>
     <link>https://mmccrechowicz.github.io/public/</link>
-    <description>Recent content on Rainbow Sparkle Data Analysis</description>
+    <description>Recent content on Matthew McCarthy-Rechowicz</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en</language>
-    <lastBuildDate>Sat, 10 Apr 2021 15:26:09 +0000</lastBuildDate><atom:link href="https://mmccrechowicz.github.io/public/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Thu, 29 Apr 2021 15:17:31 +0000</lastBuildDate><atom:link href="https://mmccrechowicz.github.io/public/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Tableau: Wimbledon Championships</title>
+      <link>https://mmccrechowicz.github.io/public/posts/tableau_wimbledon/</link>
+      <pubDate>Thu, 29 Apr 2021 15:17:31 +0000</pubDate>
+      
+      <guid>https://mmccrechowicz.github.io/public/posts/tableau_wimbledon/</guid>
+      <description>Analysing data about the winners and runners-up at Wimbledon</description>
+    </item>
+    
+    <item>
+      <title>Tableau: Netflix</title>
+      <link>https://mmccrechowicz.github.io/public/posts/tableau_netflix/</link>
+      <pubDate>Tue, 27 Apr 2021 15:17:31 +0000</pubDate>
+      
+      <guid>https://mmccrechowicz.github.io/public/posts/tableau_netflix/</guid>
+      <description>Taking a look at data on Netflix content</description>
+    </item>
+    
+    <item>
+      <title>Tableau: University Fundraising</title>
+      <link>https://mmccrechowicz.github.io/public/posts/tableau_alumni/</link>
+      <pubDate>Tue, 20 Apr 2021 15:17:31 +0000</pubDate>
+      
+      <guid>https://mmccrechowicz.github.io/public/posts/tableau_alumni/</guid>
+      <description>Alumni Donations</description>
+    </item>
+    
     <item>
       <title>World Bank CO2 Emissions Data</title>
       <link>https://mmccrechowicz.github.io/public/posts/co2_emissions/</link>

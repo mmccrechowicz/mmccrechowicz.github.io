@@ -8,7 +8,7 @@
 	
 	
 	
-	<title>University Fundraising ｜ Rainbow Sparkle Data Analysis</title>
+	<title>University Fundraising ｜ Matthew McCarthy-Rechowicz</title>
 	
     
     
@@ -67,7 +67,7 @@
         <div class="site_title">
             <h1>
                 <a href="https://mmccrechowicz.github.io/public/">
-                    <span>Rainbow Sparkle Data Analysis</span>
+                    <span>Matthew McCarthy-Rechowicz</span>
                 </a>
             </h1>
         </div>
@@ -76,7 +76,7 @@
             <div class="my_socials">
                 
                 
-                <a href="%20" title="github" target="_blank"><i class="ri-github-fill"></i></a>
+                <a href="https://github.com/mmccrechowicz" title="github" target="_blank"><i class="ri-github-fill"></i></a>
                 
                 
                 
@@ -756,8 +756,8 @@
 <p>Looking at the annual average donations made, there is no clear pattern or trend; rather we see fluctuations from year to year. Donations peaked in 2013 before falling in the two subsequent years.</p>
 <p>It would be interesting to know whether the development team ran any initiatives or campaigns in 2013 that could explain that year&rsquo;s high level of donations, especially after 2012, which saw the lowest annual donations among the years covered.</p>
 <div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="n">result</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="s2">&#34;&#34;&#34;
-</span><span class="s2">SELECT substr(Gift_Date, 1, 4) AS Year,
-</span><span class="s2">       SUM(Gift_Amount),
+</span><span class="s2">SELECT substr(Gift_Date, 1, 4) AS Year, 
+</span><span class="s2">       SUM(Gift_Amount), 
 </span><span class="s2">       COUNT(Gift_Amount)
 </span><span class="s2">FROM GiftRecords
 </span><span class="s2">GROUP BY Year;&#34;&#34;&#34;</span><span class="p">,</span> <span class="n">database</span><span class="p">)</span>
@@ -811,7 +811,7 @@
 <p>From the chart above, we know who the top overall donors are.</p>
 <p>But what does this look like on an annual basis? We can find the top five largest gifts each year to see if there are any patterns.</p>
 <div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="n">result</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="s2">&#34;&#34;&#34;
-</span><span class="s2">SELECT * FROM (SELECT Prospect_ID,
+</span><span class="s2">SELECT * FROM (SELECT Prospect_ID, 
 </span><span class="s2">               CAST(Gift_Amount AS INT) AS Gift_Amount,
 </span><span class="s2">               substr(Gift_Date, 1, 4) as Year,
 </span><span class="s2">               RANK () OVER (PARTITION BY substr(Gift_Date, 1, 4) ORDER BY Gift_Amount DESC) donor_rank
@@ -887,9 +887,9 @@
 </span><span class="s2">With total_donations As (Select Sum(Gift_Amount) as total_donations
 </span><span class="s2">                         From GiftRecords)
 </span><span class="s2">
-</span><span class="s2">Select Distinct(Prospect_ID),
-</span><span class="s2">       SUM(Gift_Amount),
-</span><span class="s2">       total_donations,
+</span><span class="s2">Select Distinct(Prospect_ID), 
+</span><span class="s2">       SUM(Gift_Amount), 
+</span><span class="s2">       total_donations, 
 </span><span class="s2">       (SUM(Gift_Amount) / total_donations) AS percentage_of_total
 </span><span class="s2">From GiftRecords
 </span><span class="s2">Join total_donations
@@ -909,9 +909,9 @@
 <p>In which states were alumni the most generous?</p>
 <p>Colorado was the most generous state, sending more than $3m in donations to the university. Montana was the least generous state.</p>
 <div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="n">result</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span>
-<span class="s2">&#34;&#34;&#34;Select State,
-</span><span class="s2">          SUM(Gift_Amount),
-</span><span class="s2">          COUNT(Gift_Amount),
+<span class="s2">&#34;&#34;&#34;Select State, 
+</span><span class="s2">          SUM(Gift_Amount), 
+</span><span class="s2">          COUNT(Gift_Amount), 
 </span><span class="s2">          SUM(Gift_Amount) / COUNT(Gift_Amount) AS Average_Gift
 </span><span class="s2">From GiftRecords
 </span><span class="s2">Group By State
@@ -928,8 +928,8 @@
 <p>Colorado recorded more than 90 times as many gifts as Montana, and an average gift amount that was more than 60% higher than Montana&rsquo;s. The largest gift from a Colorado donor was \$38,052, almost \$30,000 more than the largest gift originating in Montana.</p>
 <p>210 individual donors from Colorado made contributions to the univeristy, compared to just 2 from Montana.</p>
 <div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="n">result</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="s2">&#34;&#34;&#34;
-</span><span class="s2">SELECT State,
-</span><span class="s2">       COUNT(Gift_Amount) AS Number_of_Gifts,
+</span><span class="s2">SELECT State, 
+</span><span class="s2">       COUNT(Gift_Amount) AS Number_of_Gifts, 
 </span><span class="s2">       MAX(Gift_Amount) Largest_Gift_Amount,
 </span><span class="s2">       AVG(Gift_Amount) Average_Gift_Amount,
 </span><span class="s2">       COUNT(DISTINCT City) Number_of_Cities,
@@ -989,9 +989,9 @@
 <h3 id="most-generous-cities">Most generous cities</h3>
 <p>Colorado was the most generous state, and its capital was the most generous city in the dataset.</p>
 <div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="n">result</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="s2">&#34;&#34;&#34;
-</span><span class="s2">Select City,
-</span><span class="s2">       SUM(Gift_Amount),
-</span><span class="s2">       COUNT(Gift_Amount),
+</span><span class="s2">Select City, 
+</span><span class="s2">       SUM(Gift_Amount), 
+</span><span class="s2">       COUNT(Gift_Amount), 
 </span><span class="s2">       SUM(Gift_Amount) / COUNT(Gift_Amount) AS Average_Gift
 </span><span class="s2">From GiftRecords
 </span><span class="s2">Group By City
@@ -1007,8 +1007,8 @@
 </code></pre></div><p><img src="University_Donations_files/University_Donations_44_0.png" alt="png"></p>
 <p>Let&rsquo;s look at the data for Denver in more detail. We see that Denver accounts for most of the donations from the state of Colorado: 311 of the 368 total gifts, and 181 of the 210 individual donors from Colorado are from Denver.</p>
 <div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="n">result</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="s2">&#34;&#34;&#34;
-</span><span class="s2">SELECT City,
-</span><span class="s2">       COUNT(Gift_Amount) AS Number_of_Gifts,
+</span><span class="s2">SELECT City, 
+</span><span class="s2">       COUNT(Gift_Amount) AS Number_of_Gifts, 
 </span><span class="s2">       MAX(Gift_Amount) Largest_Gift_Amount,
 </span><span class="s2">       AVG(Gift_Amount) Average_Gift_Amount,
 </span><span class="s2">       COUNT(DISTINCT City) Number_of_Cities,
@@ -1060,9 +1060,9 @@
 <p>Are donors who studied particular majors more likely to donate money to the university after they graduate?</p>
 <p>The chart below shows the top 20 most generous majors. Engineers were the most generous donors to the university, followed by Composition and Mathematics graduates.</p>
 <div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="n">result</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="s2">&#34;&#34;&#34;
-</span><span class="s2">Select Major,
-</span><span class="s2">       SUM(Gift_Amount),
-</span><span class="s2">       COUNT(Gift_Amount),
+</span><span class="s2">Select Major, 
+</span><span class="s2">       SUM(Gift_Amount), 
+</span><span class="s2">       COUNT(Gift_Amount), 
 </span><span class="s2">       SUM(Gift_Amount) / COUNT(Gift_Amount) AS Average_Gift
 </span><span class="s2">From GiftRecords
 </span><span class="s2">Group By Major
@@ -1079,13 +1079,13 @@
 <p>We can take a closer look at the top three most generous majors.</p>
 <p>Although Engineering graduates were the most generous overall, fewer Engineering graduates made gifts than did graduates from Composition or Mathematics. Of the three majors, Composition delivered the highest number of gifts and the highest number of individual donors, but the smallest overall and average gift values.</p>
 <div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="n">result</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="s2">&#34;&#34;&#34;
-</span><span class="s2">SELECT Major,
-</span><span class="s2">       COUNT(Gift_Amount) AS Number_of_Gifts,
+</span><span class="s2">SELECT Major, 
+</span><span class="s2">       COUNT(Gift_Amount) AS Number_of_Gifts, 
 </span><span class="s2">       MAX(Gift_Amount) Largest_Gift_Amount,
 </span><span class="s2">       AVG(Gift_Amount) Average_Gift_Amount,
 </span><span class="s2">       COUNT(DISTINCT Prospect_ID) Number_of_Donors
 </span><span class="s2">From GiftRecords
-</span><span class="s2">WHERE Major = &#39;Engineering-No Major&#39;
+</span><span class="s2">WHERE Major = &#39;Engineering-No Major&#39; 
 </span><span class="s2">        OR Major = &#39;Composition&#39; OR Major = &#39;Mathematics&#39;
 </span><span class="s2">Group By Major;&#34;&#34;&#34;</span><span class="p">,</span> <span class="n">database</span><span class="p">)</span>
 <span class="n">result</span>
@@ -1147,8 +1147,8 @@
 <p>The two most popular donation destinations were non-subject specific: the Diversity Fund and the University Annual Fund.</p>
 <p>The College of Natural Science was the third highest overall recipient of donations, and received more donations than any other university faculty.</p>
 <div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="n">result</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="s2">&#34;&#34;&#34;
-</span><span class="s2">Select Allocation_Subcategory,
-</span><span class="s2">       SUM(Gift_Amount),
+</span><span class="s2">Select Allocation_Subcategory, 
+</span><span class="s2">       SUM(Gift_Amount), 
 </span><span class="s2">       COUNT(Gift_Amount)
 </span><span class="s2">From GiftRecords
 </span><span class="s2">Group By Allocation_Subcategory
@@ -1165,8 +1165,8 @@
 <p>Of these three, the University Annual Fund received the highest number of gifts from the highest number of individual donors. However, this fund had the lowest average gift.</p>
 <p>We might assume that the Diversity Fund and the University Annual Fund would attract a more diverse group of donors in terms of the subjects they studied. However, the College of Natural Science had donors from all 12 colleges in the university, as did the other two funds, and had donors from only eight fewer majors than the general funds.</p>
 <div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="n">result</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="s2">&#34;&#34;&#34;
-</span><span class="s2">SELECT Allocation_Subcategory,
-</span><span class="s2">       COUNT(Gift_Amount) AS Number_of_Gifts,
+</span><span class="s2">SELECT Allocation_Subcategory, 
+</span><span class="s2">       COUNT(Gift_Amount) AS Number_of_Gifts, 
 </span><span class="s2">       SUM(Gift_Amount) AS Total_Gift_Amount,
 </span><span class="s2">       MAX(Gift_Amount) AS Largest_Gift_Amount,
 </span><span class="s2">       AVG(Gift_Amount) AS Average_Gift_Amount,
@@ -1246,12 +1246,12 @@
 <p>The dataset covers donations made between 2010 and 2015 by individuals who graduated from the university between 1960 and 2009.</p>
 <p>The first chart shows that, until about 25 years after graduation, graduates get more generous the longer they have been away from the university. After the 25-year mark, they gradually become less generous.</p>
 <div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="n">result</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="s2">&#34;&#34;&#34;
-</span><span class="s2">SELECT (substr(Gift_Date, 1, 4) - Graduation_Year) AS Years_Since_Graduation,
+</span><span class="s2">SELECT (substr(Gift_Date, 1, 4) - Graduation_Year) AS Years_Since_Graduation, 
 </span><span class="s2">       SUM(Gift_Amount),
 </span><span class="s2">       COUNT(Gift_Amount),
 </span><span class="s2">       SUM(Gift_Amount) / COUNT(Gift_Amount) AS Average_Gift
-</span><span class="s2">FROM GiftRecords
-</span><span class="s2">LEFT JOIN GraduationYear On
+</span><span class="s2">FROM GiftRecords 
+</span><span class="s2">LEFT JOIN GraduationYear On 
 </span><span class="s2">        GiftRecords.Prospect_ID = GraduationYear.Prospect_ID
 </span><span class="s2">GROUP BY Years_Since_Graduation;&#34;&#34;&#34;</span><span class="p">,</span> <span class="n">database</span><span class="p">)</span>
 </code></pre></div><div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
@@ -1281,6 +1281,19 @@
 </code></pre></div><p><img src="University_Donations_files/University_Donations_61_0.png" alt="png"></p>
 </div>
                     <div class="post_footer">
+                        
+                        <div class="meta">
+                            <div class="info">
+                                <span class="field tags">
+                                    <i class="ri-stack-line"></i>
+                                    
+                                    <a href="https://mmccrechowicz.github.io/public/tags/sql/">SQL</a>
+                                    
+                                    <a href="https://mmccrechowicz.github.io/public/tags/jupyter/">Jupyter</a>
+                                    
+                                </span>
+                            </div>
+                        </div>
                         
                     </div>
                 </div>

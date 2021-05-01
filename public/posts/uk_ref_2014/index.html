@@ -8,7 +8,7 @@
 	
 	
 	
-	<title>UK University Research Excellence Framework 2014 ｜ Rainbow Sparkle Data Analysis</title>
+	<title>UK University Research Excellence Framework 2014 ｜ Matthew McCarthy-Rechowicz</title>
 	
     
     
@@ -67,7 +67,7 @@
         <div class="site_title">
             <h1>
                 <a href="https://mmccrechowicz.github.io/public/">
-                    <span>Rainbow Sparkle Data Analysis</span>
+                    <span>Matthew McCarthy-Rechowicz</span>
                 </a>
             </h1>
         </div>
@@ -76,7 +76,7 @@
             <div class="my_socials">
                 
                 
-                <a href="%20" title="github" target="_blank"><i class="ri-github-fill"></i></a>
+                <a href="https://github.com/mmccrechowicz" title="github" target="_blank"><i class="ri-github-fill"></i></a>
                 
                 
                 
@@ -208,7 +208,7 @@
 <p>That first table name isn&rsquo;t very helpful. Let&rsquo;s change it to something more meaningful.</p>
 <div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="n">database</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
     <span class="s2">&#34;&#34;&#34;ALTER TABLE &#39;Sheet1-Tableau&#39; RENAME TO REF_Results;&#34;&#34;&#34;</span><span class="p">)</span>
-</code></pre></div><pre><code>&lt;sqlite3.Cursor at 0x125d85880&gt;
+</code></pre></div><pre><code>&lt;sqlite3.Cursor at 0x121fcd810&gt;
 </code></pre>
 <p>And then check that the change was made.</p>
 <div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="s2">&#34;SELECT name FROM sqlite_master WHERE type=&#39;table&#39;;&#34;</span><span class="p">,</span> <span class="n">database</span><span class="p">)</span>
@@ -586,16 +586,16 @@
 </code></pre></div><p><img src="UK_REF_2014_files/UK_REF_2014_22_0.png" alt="png"></p>
 <p>We can look at the distribution of universities based on the number of subjects they were assessed on. Most universities were assessed on only a small number of subjects, with 26 universities having been evaluated in only one subject.</p>
 <div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="n">result</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span>
-    <span class="s2">&#34;&#34;&#34;WITH Institutions_By_Assessment_Count AS
-</span><span class="s2">         (SELECT Institution_Name,
+    <span class="s2">&#34;&#34;&#34;WITH Institutions_By_Assessment_Count AS 
+</span><span class="s2">         (SELECT Institution_Name, 
 </span><span class="s2">          COUNT(DISTINCT Unit_of_Assessment_Name) AS Number_of_Assessment_Units
 </span><span class="s2">          FROM REF_Results GROUP BY Institution_Name)
-</span><span class="s2">
+</span><span class="s2">                
 </span><span class="s2">        SELECT DISTINCT Number_of_Assessment_Units,
 </span><span class="s2">               COUNT(DISTINCT Institution_Name) AS Number_of_Institutions,
-</span><span class="s2">               SUM(COUNT(DISTINCT Institution_Name)) OVER
+</span><span class="s2">               SUM(COUNT(DISTINCT Institution_Name)) OVER 
 </span><span class="s2">                  (ORDER BY Number_of_Assessment_Units
-</span><span class="s2">                   ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW)
+</span><span class="s2">                   ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) 
 </span><span class="s2">                   AS Running_Total
 </span><span class="s2">        FROM Institutions_By_Assessment_Count
 </span><span class="s2">        GROUP BY Number_of_Assessment_Units
@@ -628,13 +628,13 @@
 <p>To compare the performance of different universities, we can see which universities had the highest average percentage of submissions awarded an &lsquo;Overall&rsquo; 4* evaluation.</p>
 <p>London Business School and Courtauld Institute of Art performed the best against this measure. But by including the total number of subjects they were assessed against, we see that both of these institutes are specialised in one subject area.</p>
 <div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="n">result</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="s2">&#34;&#34;&#34;
-</span><span class="s2">WITH Four_Star_Percentages AS (SELECT DISTINCT Institution_Name,
+</span><span class="s2">WITH Four_Star_Percentages AS (SELECT DISTINCT Institution_Name, 
 </span><span class="s2">                                      Unit_of_Assessment_Name,
 </span><span class="s2">                                      Star_Rating,
 </span><span class="s2">                                      Percentage
 </span><span class="s2">                                FROM REF_Results
 </span><span class="s2">                                WHERE Profile = &#34;Overall&#34; AND Star_Rating = &#34;4*&#34;)
-</span><span class="s2">
+</span><span class="s2">                                              
 </span><span class="s2">SELECT Institution_Name,
 </span><span class="s2">       COUNT(Unit_of_Assessment_Name),
 </span><span class="s2">       CAST(SUM(Percentage) AS REAL) / COUNT(Star_Rating) AS Average_4_Star_Percentage
@@ -665,13 +665,13 @@
 <p>We can find the universities whose submissions got the highest average percentage of Unclassified ratings. By this measure, Writtle College is the worst performing institution in the dataset, with an average of 35% of submissions receiving Unclassified ratings across its two subject areas.</p>
 <p>Based on the previous chart, we might conclude that universities which specialise in one or a small number of subjects would perform better: the two universities with the highest average percentage of 4* evaluations were each assessed in only one subject. However, several of the universities with the highest percentage of Unclassified ratings also specialise in one subject. So, specialisation is no guarantee of quality.</p>
 <div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="n">result</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="s2">&#34;&#34;&#34;
-</span><span class="s2">WITH Unclassified_Percentages AS (SELECT DISTINCT Institution_Name,
+</span><span class="s2">WITH Unclassified_Percentages AS (SELECT DISTINCT Institution_Name, 
 </span><span class="s2">                                         Unit_of_Assessment_Name,
 </span><span class="s2">                                         Star_Rating,
 </span><span class="s2">                                         Percentage
 </span><span class="s2">                                  FROM REF_Results
 </span><span class="s2">                                  WHERE Profile = &#34;Overall&#34; AND Star_Rating = &#34;unclassified&#34;)
-</span><span class="s2">
+</span><span class="s2">                                              
 </span><span class="s2">SELECT Institution_Name,
 </span><span class="s2">       COUNT(Unit_of_Assessment_Name),
 </span><span class="s2">       CAST(SUM(Percentage) AS REAL) / COUNT(Star_Rating) AS Average_Unclassified_Percentage
@@ -731,11 +731,450 @@
 <span class="n">plt</span><span class="o">.</span><span class="n">margins</span><span class="p">(</span><span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">)</span>
 </code></pre></div><p><img src="UK_REF_2014_files/UK_REF_2014_40_0.png" alt="png"></p>
 <h2 id="which-universities-are-the-most-collaborative">Which universities are the most collaborative?</h2>
-<p>Institutions were able to prepare joint submissions with another institution and submit this to the assessment.</p>
-<p>Which universities submitted the most joint submissions?</p>
-<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="c1">#pd.read_sql(&#34;&#34;&#34;SELECT * FROM REF_Results</span>
-<span class="c1">#               WHERE &#39;Joint submission&#39; NOT LIKE &#34;None&#34;;&#34;&#34;&#34;, database)</span>
-</code></pre></div><h2 id="how-to-find-the-best-university-for-you">How to find the best university for you</h2>
+<p>Institutions were able to prepare joint submissions with another institution and submit this to the assessment. A total of 23 universities prepared joint submissions.</p>
+<p>The University of Edinburgh entered the highest number of joint submissions, at a total of six. Edinburgh also had the highest number of partners, at three.</p>
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="s2">&#34;&#34;&#34;SELECT Institution_Name,
+</span><span class="s2">                      COUNT(DISTINCT Unit_of_Assessment_Name) AS Number_of_Joint_Submissions,
+</span><span class="s2">                      COUNT(DISTINCT `Joint submission`) AS Number_of_Partners
+</span><span class="s2">               FROM REF_Results
+</span><span class="s2">               WHERE &#34;Joint submission&#34; LIKE &#34;%joint%&#34;
+</span><span class="s2">               GROUP BY Institution_Name
+</span><span class="s2">               ORDER BY Number_of_Joint_Submissions DESC;&#34;&#34;&#34;</span><span class="p">,</span> <span class="n">database</span><span class="p">)</span>
+</code></pre></div><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+<pre><code>.dataframe tbody tr th {
+    vertical-align: top;
+}
+
+.dataframe thead th {
+    text-align: right;
+}
+</code></pre>
+<p></style></p>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Institution_Name</th>
+      <th>Number_of_Joint_Submissions</th>
+      <th>Number_of_Partners</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>University of Edinburgh</td>
+      <td>6</td>
+      <td>3</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>Heriot-Watt University</td>
+      <td>3</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>Bangor University</td>
+      <td>3</td>
+      <td>2</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>University of Wales Trinity Saint David</td>
+      <td>2</td>
+      <td>2</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>University of St Andrews</td>
+      <td>2</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>University College London</td>
+      <td>2</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>Liverpool School of Tropical Medicine</td>
+      <td>2</td>
+      <td>2</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>Cardiff Metropolitan University</td>
+      <td>2</td>
+      <td>2</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>Birkbeck College</td>
+      <td>2</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>9</th>
+      <td>Aberystwyth University</td>
+      <td>2</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>10</th>
+      <td>University of the Highlands and Islands</td>
+      <td>1</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>11</th>
+      <td>University of Warwick</td>
+      <td>1</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>12</th>
+      <td>University of Wales</td>
+      <td>1</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>13</th>
+      <td>University of Sussex</td>
+      <td>1</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>14</th>
+      <td>University of Strathclyde</td>
+      <td>1</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>15</th>
+      <td>University of South Wales</td>
+      <td>1</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>16</th>
+      <td>University of Liverpool</td>
+      <td>1</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>17</th>
+      <td>University of Kent</td>
+      <td>1</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>18</th>
+      <td>University of Greenwich</td>
+      <td>1</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>19</th>
+      <td>University of Glasgow</td>
+      <td>1</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>20</th>
+      <td>University of Brighton</td>
+      <td>1</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>21</th>
+      <td>SRUC</td>
+      <td>1</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>22</th>
+      <td>Robert Gordon University</td>
+      <td>1</td>
+      <td>1</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<p>We can see these collaborations in more detail in the table below.</p>
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="s2">&#34;&#34;&#34;
+</span><span class="s2">    SELECT Institution_Name,
+</span><span class="s2">           Unit_of_Assessment_Name,
+</span><span class="s2">           `Joint submission`
+</span><span class="s2">    FROM REF_Results
+</span><span class="s2">    WHERE &#34;Joint submission&#34; LIKE &#34;%joint%&#34;
+</span><span class="s2">    GROUP BY Institution_Name, Unit_of_Assessment_Name, `Joint submission`;&#34;&#34;&#34;</span><span class="p">,</span> <span class="n">database</span><span class="p">)</span>
+</code></pre></div><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+<pre><code>.dataframe tbody tr th {
+    vertical-align: top;
+}
+
+.dataframe thead th {
+    text-align: right;
+}
+</code></pre>
+<p></style></p>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Institution_Name</th>
+      <th>Unit_of_Assessment_Name</th>
+      <th>Joint submission</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>Aberystwyth University</td>
+      <td>Agriculture, Veterinary and Food Science</td>
+      <td>(joint submission with Bangor University)</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>Aberystwyth University</td>
+      <td>Earth Systems and Environmental Sciences</td>
+      <td>(joint submission with Bangor University)</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>Bangor University</td>
+      <td>Agriculture, Veterinary and Food Science</td>
+      <td>(joint submission with Aberystwyth University)</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>Bangor University</td>
+      <td>Earth Systems and Environmental Sciences</td>
+      <td>(joint submission with Aberystwyth University)</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>Bangor University</td>
+      <td>Sport and Exercise Sciences, Leisure and Tourism</td>
+      <td>(joint submission with Cardiff Metropolitan Un...</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>Birkbeck College</td>
+      <td>Biological Sciences</td>
+      <td>(joint submission with University College London)</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>Birkbeck College</td>
+      <td>Earth Systems and Environmental Sciences</td>
+      <td>(joint submission with University College London)</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>Cardiff Metropolitan University</td>
+      <td>Art and Design: History, Practice and Theory</td>
+      <td>(joint submission with University of South Wal...</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>Cardiff Metropolitan University</td>
+      <td>Sport and Exercise Sciences, Leisure and Tourism</td>
+      <td>(joint submission with Bangor University)</td>
+    </tr>
+    <tr>
+      <th>9</th>
+      <td>Heriot-Watt University</td>
+      <td>Architecture, Built Environment and Planning</td>
+      <td>(joint submission with University of Edinburgh)</td>
+    </tr>
+    <tr>
+      <th>10</th>
+      <td>Heriot-Watt University</td>
+      <td>General Engineering</td>
+      <td>(joint submission with University of Edinburgh)</td>
+    </tr>
+    <tr>
+      <th>11</th>
+      <td>Heriot-Watt University</td>
+      <td>Mathematical Sciences</td>
+      <td>(joint submission with University of Edinburgh)</td>
+    </tr>
+    <tr>
+      <th>12</th>
+      <td>Liverpool School of Tropical Medicine</td>
+      <td>Clinical Medicine</td>
+      <td>(joint submission with University of Liverpool)</td>
+    </tr>
+    <tr>
+      <th>13</th>
+      <td>Liverpool School of Tropical Medicine</td>
+      <td>Public Health, Health Services and Primary Care</td>
+      <td>(joint submission with University of Warwick)</td>
+    </tr>
+    <tr>
+      <th>14</th>
+      <td>Robert Gordon University</td>
+      <td>Allied Health Professions, Dentistry, Nursing ...</td>
+      <td>(joint submission with University of the Highl...</td>
+    </tr>
+    <tr>
+      <th>15</th>
+      <td>SRUC</td>
+      <td>Agriculture, Veterinary and Food Science</td>
+      <td>(joint submission with University of Edinburgh)</td>
+    </tr>
+    <tr>
+      <th>16</th>
+      <td>University College London</td>
+      <td>Biological Sciences</td>
+      <td>(joint submission with Birkbeck College)</td>
+    </tr>
+    <tr>
+      <th>17</th>
+      <td>University College London</td>
+      <td>Earth Systems and Environmental Sciences</td>
+      <td>(joint submission with Birkbeck College)</td>
+    </tr>
+    <tr>
+      <th>18</th>
+      <td>University of Brighton</td>
+      <td>Allied Health Professions, Dentistry, Nursing ...</td>
+      <td>(joint submission with University of Sussex)</td>
+    </tr>
+    <tr>
+      <th>19</th>
+      <td>University of Edinburgh</td>
+      <td>Agriculture, Veterinary and Food Science</td>
+      <td>(joint submission with SRUC)</td>
+    </tr>
+    <tr>
+      <th>20</th>
+      <td>University of Edinburgh</td>
+      <td>Architecture, Built Environment and Planning</td>
+      <td>(joint submission with Heriot-Watt University)</td>
+    </tr>
+    <tr>
+      <th>21</th>
+      <td>University of Edinburgh</td>
+      <td>Chemistry</td>
+      <td>(joint submission with University of St Andrews)</td>
+    </tr>
+    <tr>
+      <th>22</th>
+      <td>University of Edinburgh</td>
+      <td>General Engineering</td>
+      <td>(joint submission with Heriot-Watt University)</td>
+    </tr>
+    <tr>
+      <th>23</th>
+      <td>University of Edinburgh</td>
+      <td>Mathematical Sciences</td>
+      <td>(joint submission with Heriot-Watt University)</td>
+    </tr>
+    <tr>
+      <th>24</th>
+      <td>University of Edinburgh</td>
+      <td>Physics</td>
+      <td>(joint submission with University of St Andrews)</td>
+    </tr>
+    <tr>
+      <th>25</th>
+      <td>University of Glasgow</td>
+      <td>Chemistry</td>
+      <td>(joint submission with University of Strathclyde)</td>
+    </tr>
+    <tr>
+      <th>26</th>
+      <td>University of Greenwich</td>
+      <td>Allied Health Professions, Dentistry, Nursing ...</td>
+      <td>(joint submission with University of Kent)</td>
+    </tr>
+    <tr>
+      <th>27</th>
+      <td>University of Kent</td>
+      <td>Allied Health Professions, Dentistry, Nursing ...</td>
+      <td>(joint submission with University of Greenwich...</td>
+    </tr>
+    <tr>
+      <th>28</th>
+      <td>University of Liverpool</td>
+      <td>Clinical Medicine</td>
+      <td>(joint submission with Liverpool School of Tro...</td>
+    </tr>
+    <tr>
+      <th>29</th>
+      <td>University of South Wales</td>
+      <td>Art and Design: History, Practice and Theory</td>
+      <td>(joint submission with Cardiff Metropolitan Un...</td>
+    </tr>
+    <tr>
+      <th>30</th>
+      <td>University of St Andrews</td>
+      <td>Chemistry</td>
+      <td>(joint submission with University of Edinburgh)</td>
+    </tr>
+    <tr>
+      <th>31</th>
+      <td>University of St Andrews</td>
+      <td>Physics</td>
+      <td>(joint submission with University of Edinburgh)</td>
+    </tr>
+    <tr>
+      <th>32</th>
+      <td>University of Strathclyde</td>
+      <td>Chemistry</td>
+      <td>(joint submission with University of Glasgow)</td>
+    </tr>
+    <tr>
+      <th>33</th>
+      <td>University of Sussex</td>
+      <td>Allied Health Professions, Dentistry, Nursing ...</td>
+      <td>(joint submission with University of Brighton)</td>
+    </tr>
+    <tr>
+      <th>34</th>
+      <td>University of Wales</td>
+      <td>Modern Languages and Linguistics</td>
+      <td>(joint submission with University of Wales Tri...</td>
+    </tr>
+    <tr>
+      <th>35</th>
+      <td>University of Wales Trinity Saint David</td>
+      <td>Art and Design: History, Practice and Theory</td>
+      <td>(joint submission with Cardiff Metropolitan Un...</td>
+    </tr>
+    <tr>
+      <th>36</th>
+      <td>University of Wales Trinity Saint David</td>
+      <td>Modern Languages and Linguistics</td>
+      <td>(joint submission with University of Wales)</td>
+    </tr>
+    <tr>
+      <th>37</th>
+      <td>University of Warwick</td>
+      <td>Public Health, Health Services and Primary Care</td>
+      <td>(joint submission with Liverpool School of Tro...</td>
+    </tr>
+    <tr>
+      <th>38</th>
+      <td>University of the Highlands and Islands</td>
+      <td>Allied Health Professions, Dentistry, Nursing ...</td>
+      <td>(joint submission with Robert Gordon University)</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<h2 id="how-to-find-the-best-university-for-you">How to find the best university for you</h2>
 <p>If you&rsquo;re trying to decide on a university and course, you can tailor this search to see which universities performed the best in the in the subject you&rsquo;re interested in.</p>
 <p>As a reminder, these are the subjects covered by the assessment. You can amend the WHERE clause in the next code block to focus your search.</p>
 <div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="s2">&#34;&#34;&#34;SELECT DISTINCT Unit_of_Assessment_Name
@@ -916,7 +1355,7 @@
 </span><span class="s2">       CAST(Percentage AS INTEGER) AS &#39;Percentage Overall 4* Ratings&#39;
 </span><span class="s2">FROM REF_Results
 </span><span class="s2">--change the last part depending on the subject of interest
-</span><span class="s2">WHERE Star_Rating = &#34;4*&#34; AND Profile = &#34;Overall&#34; AND Unit_of_Assessment_Name = &#34;Modern Languages and Linguistics&#34;
+</span><span class="s2">WHERE Star_Rating = &#34;4*&#34; AND Profile = &#34;Overall&#34; AND Unit_of_Assessment_Name = &#34;Modern Languages and Linguistics&#34; 
 </span><span class="s2">ORDER BY CAST(Percentage AS INTEGER) DESC
 </span><span class="s2">LIMIT 10;&#34;&#34;&#34;</span><span class="p">,</span> <span class="n">database</span><span class="p">)</span>
 </code></pre></div><div>
@@ -1008,6 +1447,19 @@
 </div>
 </div>
                     <div class="post_footer">
+                        
+                        <div class="meta">
+                            <div class="info">
+                                <span class="field tags">
+                                    <i class="ri-stack-line"></i>
+                                    
+                                    <a href="https://mmccrechowicz.github.io/public/tags/sql/">SQL</a>
+                                    
+                                    <a href="https://mmccrechowicz.github.io/public/tags/jupyter/">Jupyter</a>
+                                    
+                                </span>
+                            </div>
+                        </div>
                         
                     </div>
                 </div>
