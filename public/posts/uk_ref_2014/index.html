@@ -95,18 +95,10 @@
                 <div class="post">
                     <div class="post_title post_detail_title">
                         <h2><a href='/public/posts/uk_ref_2014/'>UK University Research Excellence Framework 2014</a></h2>
-                        <span class="date">2021.04.10</span>
+                        <span class="date">2021.04.20</span>
                     </div>
                     <div class="post_content markdown"><p>The <a href="https://en.wikipedia.org/wiki/Research_Excellence_Framework">Research Excellence Framework</a> is a periodic evaluation of the quality of research produced by universities in the United Kingdom. It was first applied in 2014, with reference to research completed in the period 2008-2013.</p>
-<p>The REF assesses submitted research and awards it a classification based on its quality. One of five quality ratings is possible:</p>
-<ul>
-<li><strong>Four star</strong>: Quality that is world-leading in originality, significance and rigour.</li>
-<li><strong>Three star</strong>: Quality that is internationally excellent in originality, significance and rigour but which falls short of the highest standards of excellence.</li>
-<li><strong>Two star</strong>: Quality that is recognised internationally in originality, significance and rigour.</li>
-<li><strong>One star</strong>: Quality that is recognised nationally in originality, significance and rigour.</li>
-<li><strong>Unclassified Quality</strong>: that falls below the standard of nationally recognised work. Or work which does not meet the published definition of research for the purposes of this assessment.</li>
-</ul>
-<p>This analysis uses data from the 2014 REF to understand the UK&rsquo;s higher education landscape and identify the top-performing universities, including:</p>
+<p>This analysis takes data from the 2014 REF and uses SQLite, pandas and matplotlib in Jupyter Notebooks to understand the UK&rsquo;s higher education landscape and identify the top-performing universities, including:</p>
 <ul>
 <li>Which institutions teach the broadest range of subjects, and which specialise in particular areas of learning?</li>
 <li>Which subjects are the most widely taught at UK universities?</li>
@@ -165,213 +157,23 @@
 </code></pre></div></details>
 <h3 id="prepare-the-data">Prepare the data</h3>
 <h4 id="import-the-dataset-and-create-the-database">Import the dataset and create the database</h4>
-<p>I&rsquo;m importing a dataset from a URL.</p>
+<p>The data comes from Research Excellence Framework 2014. It is an Excel workbook with two worksheets. The main worksheet contains the core data from the REF, the second worksheet provides some information about the REF.</p>
+<p>I download the file from this <a href="https://public.tableau.com/s/sites/default/files/media/Resources/Research%20Excellence%20Framework%202014%20Results_Pivoted.xlsx%22">URL</a>, and convert it into an SQL database to enable analysis in Jupyter Notebooks.</p>
 <div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="n">database</span> <span class="o">=</span> <span class="n">excel_dataset_to_sqlite</span><span class="p">(</span><span class="s2">&#34;https://public.tableau.com/s/sites/default/files/media/Resources/Research</span><span class="si">%20E</span><span class="s2">xcellence</span><span class="si">%20F</span><span class="s2">ramework</span><span class="si">%202014%</span><span class="s2">20Results_Pivoted.xlsx&#34;</span><span class="p">)</span>
-</code></pre></div><pre><code>/Users/Matthew/Library/Caches/pypoetry/virtualenvs/notebooks-iGyxaocD-py3.8/lib/python3.8/site-packages/pandas/core/generic.py:2779: UserWarning: The spaces in these column names will not be changed. In pandas versions &lt; 0.14, spaces were converted to underscores.
+</code></pre></div><pre><code>/Users/Matthew/Library/Caches/pypoetry/virtualenvs/notebooks-IW0Gw3EE-py3.8/lib/python3.8/site-packages/pandas/core/generic.py:2779: UserWarning: The spaces in these column names will not be changed. In pandas versions &lt; 0.14, spaces were converted to underscores.
   sql.to_sql(
 </code></pre>
-<h4 id="view-the-table-names-to-make-sure-the-correct-tables-have-been-created">View the table names to make sure the correct tables have been created</h4>
-<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="s2">&#34;SELECT name FROM sqlite_master WHERE type=&#39;table&#39;;&#34;</span><span class="p">,</span> <span class="n">database</span><span class="p">)</span>
-</code></pre></div><div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-<pre><code>.dataframe tbody tr th {
-    vertical-align: top;
-}
-
-.dataframe thead th {
-    text-align: right;
-}
-</code></pre>
-<p></style></p>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>name</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>Sheet1-Tableau</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>About</td>
-    </tr>
-  </tbody>
-</table>
-</div>
-<p>That first table name isn&rsquo;t very helpful. Let&rsquo;s change it to something more meaningful.</p>
+<p>Once the database has been created, I change the names of some of the tables and columns to make the data easier to work with.</p>
+<details>
+<summary>Code</summary>
 <div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="n">database</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
     <span class="s2">&#34;&#34;&#34;ALTER TABLE &#39;Sheet1-Tableau&#39; RENAME TO REF_Results;&#34;&#34;&#34;</span><span class="p">)</span>
-</code></pre></div><pre><code>&lt;sqlite3.Cursor at 0x121fcd810&gt;
-</code></pre>
-<p>And then check that the change was made.</p>
-<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="s2">&#34;SELECT name FROM sqlite_master WHERE type=&#39;table&#39;;&#34;</span><span class="p">,</span> <span class="n">database</span><span class="p">)</span>
-</code></pre></div><div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-<pre><code>.dataframe tbody tr th {
-    vertical-align: top;
-}
 
-.dataframe thead th {
-    text-align: right;
-}
+</code></pre></div></details>
+<pre><code>&lt;sqlite3.Cursor at 0x121fed2d0&gt;
 </code></pre>
-<p></style></p>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>name</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>REF_Results</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>About</td>
-    </tr>
-  </tbody>
-</table>
-</div>
-<p>Now let&rsquo;s have a look at the column names to make sure they won&rsquo;t make it difficult to work with this dataset.</p>
-<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="s2">&#34;&#34;&#34;SELECT * FROM REF_Results
-</span><span class="s2">            LIMIT 5;&#34;&#34;&#34;</span><span class="p">,</span> <span class="n">database</span><span class="p">)</span>
-</code></pre></div><div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-<pre><code>.dataframe tbody tr th {
-    vertical-align: top;
-}
-
-.dataframe thead th {
-    text-align: right;
-}
-</code></pre>
-<p></style></p>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>index</th>
-      <th>Institution code (UKPRN)</th>
-      <th>Institution name</th>
-      <th>Institution sort order</th>
-      <th>Main panel</th>
-      <th>Unit of assessment number</th>
-      <th>Unit of assessment name</th>
-      <th>Multiple submission letter</th>
-      <th>Multiple submission name</th>
-      <th>Joint submission</th>
-      <th>Profile</th>
-      <th>FTE Category A staff submitted</th>
-      <th>Star Rating</th>
-      <th>Percentage</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>0</td>
-      <td>10000291</td>
-      <td>Anglia Ruskin University</td>
-      <td>10</td>
-      <td>A</td>
-      <td>3</td>
-      <td>Allied Health Professions, Dentistry, Nursing ...</td>
-      <td></td>
-      <td>None</td>
-      <td>None</td>
-      <td>Outputs</td>
-      <td>11.30</td>
-      <td>4*</td>
-      <td>6.4</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>1</td>
-      <td>10000291</td>
-      <td>Anglia Ruskin University</td>
-      <td>10</td>
-      <td>A</td>
-      <td>3</td>
-      <td>Allied Health Professions, Dentistry, Nursing ...</td>
-      <td></td>
-      <td>None</td>
-      <td>None</td>
-      <td>Outputs</td>
-      <td>11.30</td>
-      <td>3*</td>
-      <td>68.1</td>
-    </tr>
-    <tr>
-      <th>2</th>
-      <td>2</td>
-      <td>10000291</td>
-      <td>Anglia Ruskin University</td>
-      <td>10</td>
-      <td>A</td>
-      <td>3</td>
-      <td>Allied Health Professions, Dentistry, Nursing ...</td>
-      <td></td>
-      <td>None</td>
-      <td>None</td>
-      <td>Outputs</td>
-      <td>11.30</td>
-      <td>2*</td>
-      <td>25.5</td>
-    </tr>
-    <tr>
-      <th>3</th>
-      <td>3</td>
-      <td>10000291</td>
-      <td>Anglia Ruskin University</td>
-      <td>10</td>
-      <td>A</td>
-      <td>3</td>
-      <td>Allied Health Professions, Dentistry, Nursing ...</td>
-      <td></td>
-      <td>None</td>
-      <td>None</td>
-      <td>Outputs</td>
-      <td>11.30</td>
-      <td>1*</td>
-      <td>0</td>
-    </tr>
-    <tr>
-      <th>4</th>
-      <td>4</td>
-      <td>10000291</td>
-      <td>Anglia Ruskin University</td>
-      <td>10</td>
-      <td>A</td>
-      <td>3</td>
-      <td>Allied Health Professions, Dentistry, Nursing ...</td>
-      <td></td>
-      <td>None</td>
-      <td>None</td>
-      <td>Outputs</td>
-      <td>11.30</td>
-      <td>unclassified</td>
-      <td>0</td>
-    </tr>
-  </tbody>
-</table>
-</div>
-<p>Those column names are going to make working with this table more difficult. Let&rsquo;s change them to make life easier for ourselves.</p>
+<details>
+<summary>Code</summary>
 <div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="n">database</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&#34;&#34;&#34;Alter Table REF_Results
 </span><span class="s2">   Rename Column `Institution Code (UKPRN)` To Institution_Code;&#34;&#34;&#34;</span><span class="p">)</span>
 
@@ -396,9 +198,18 @@
 <span class="n">database</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&#34;&#34;&#34;Alter Table REF_Results
 </span><span class="s2">   Rename Column `Star Rating` To Star_Rating;&#34;&#34;&#34;</span><span class="p">)</span>
 
-<span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="s2">&#34;&#34;&#34;SELECT * FROM REF_Results
-</span><span class="s2">                    LIMIT 5;&#34;&#34;&#34;</span><span class="p">,</span> <span class="n">database</span><span class="p">)</span>
+<span class="n">database</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&#34;&#34;&#34;Alter Table REF_Results
+</span><span class="s2">   Rename Column `Joint submission` To Joint_submission;&#34;&#34;&#34;</span><span class="p">)</span>
 
+
+</code></pre></div></details>
+<pre><code>&lt;sqlite3.Cursor at 0x121fed110&gt;
+</code></pre>
+<h2 id="understand-the-data">Understand the data</h2>
+<p>There is one table of interest: REF_Resutls. The table has 38,220 rows and 14 columns. REF_Results contains data about the universities assessed in the REF, the subjects they were assessed in, how many staff were submitted, the ratings they receieved, and whether universities completed joint submissions with another institution.</p>
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="s2">&#34;&#34;&#34;
+</span><span class="s2">    SELECT *
+</span><span class="s2">    FROM REF_Results;&#34;&#34;&#34;</span><span class="p">,</span> <span class="n">database</span><span class="p">)</span>
 </code></pre></div><div>
 <style scoped>
     .dataframe tbody tr th:only-of-type {
@@ -426,7 +237,7 @@
       <th>Unit_of_Assessment_Name</th>
       <th>Multiple submission letter</th>
       <th>Multiple submission name</th>
-      <th>Joint submission</th>
+      <th>Joint_submission</th>
       <th>Profile</th>
       <th>FTE_Category_A_staff_submitted</th>
       <th>Star_Rating</th>
@@ -519,17 +330,119 @@
       <td>unclassified</td>
       <td>0</td>
     </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>38215</th>
+      <td>38215</td>
+      <td>10007807</td>
+      <td>University of Ulster</td>
+      <td>7630</td>
+      <td>D</td>
+      <td>36</td>
+      <td>Communication, Cultural and Media Studies, Lib...</td>
+      <td></td>
+      <td>None</td>
+      <td>None</td>
+      <td>Overall</td>
+      <td>16.40</td>
+      <td>4*</td>
+      <td>21</td>
+    </tr>
+    <tr>
+      <th>38216</th>
+      <td>38216</td>
+      <td>10007807</td>
+      <td>University of Ulster</td>
+      <td>7630</td>
+      <td>D</td>
+      <td>36</td>
+      <td>Communication, Cultural and Media Studies, Lib...</td>
+      <td></td>
+      <td>None</td>
+      <td>None</td>
+      <td>Overall</td>
+      <td>16.40</td>
+      <td>3*</td>
+      <td>39</td>
+    </tr>
+    <tr>
+      <th>38217</th>
+      <td>38217</td>
+      <td>10007807</td>
+      <td>University of Ulster</td>
+      <td>7630</td>
+      <td>D</td>
+      <td>36</td>
+      <td>Communication, Cultural and Media Studies, Lib...</td>
+      <td></td>
+      <td>None</td>
+      <td>None</td>
+      <td>Overall</td>
+      <td>16.40</td>
+      <td>2*</td>
+      <td>22</td>
+    </tr>
+    <tr>
+      <th>38218</th>
+      <td>38218</td>
+      <td>10007807</td>
+      <td>University of Ulster</td>
+      <td>7630</td>
+      <td>D</td>
+      <td>36</td>
+      <td>Communication, Cultural and Media Studies, Lib...</td>
+      <td></td>
+      <td>None</td>
+      <td>None</td>
+      <td>Overall</td>
+      <td>16.40</td>
+      <td>1*</td>
+      <td>12</td>
+    </tr>
+    <tr>
+      <th>38219</th>
+      <td>38219</td>
+      <td>10007807</td>
+      <td>University of Ulster</td>
+      <td>7630</td>
+      <td>D</td>
+      <td>36</td>
+      <td>Communication, Cultural and Media Studies, Lib...</td>
+      <td></td>
+      <td>None</td>
+      <td>None</td>
+      <td>Overall</td>
+      <td>16.40</td>
+      <td>unclassified</td>
+      <td>6</td>
+    </tr>
   </tbody>
 </table>
+<p>38220 rows × 14 columns</p>
 </div>
-<h2 id="understand-the-data">Understand the data</h2>
-<p>The dataset has 38,220 rows. But how many unique records do we have in each of the 14 columns?</p>
-<p>We can see that 154 institutions are included in the dataset, and that they were assessed in 36 different subjects, across four profiles. Five different star ratings were available.</p>
-<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="s2">&#34;&#34;&#34;SELECT COUNT(DISTINCT Institution_Name) AS Institutions,
-</span><span class="s2">                COUNT(DISTINCT Unit_of_Assessment_Name) AS Units_of_Assessment,
-</span><span class="s2">                COUNT(DISTINCT Profile) AS Profiles,
-</span><span class="s2">                COUNT(DISTINCT Star_Rating) AS Star_Ratings
-</span><span class="s2">                FROM REF_Results;&#34;&#34;&#34;</span><span class="p">,</span> <span class="n">database</span><span class="p">)</span>
+<p>154 institutions are included in the dataset, and they were assessed in 36 different subjects, across four profiles. Five different star ratings were available.</p>
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="s2">&#34;&#34;&#34;
+</span><span class="s2">    SELECT COUNT(DISTINCT Institution_Name) AS Institutions,
+</span><span class="s2">           COUNT(DISTINCT Unit_of_Assessment_Name) AS Units_of_Assessment,
+</span><span class="s2">           COUNT(DISTINCT Profile) AS Profiles,
+</span><span class="s2">           COUNT(DISTINCT Star_Rating) AS Star_Ratings
+</span><span class="s2">           FROM REF_Results;&#34;&#34;&#34;</span><span class="p">,</span> <span class="n">database</span><span class="p">)</span>
 
 </code></pre></div><div>
 <style scoped>
@@ -566,8 +479,7 @@
   </tbody>
 </table>
 </div>
-<h2 id="analyze-the-data">Analyze the data</h2>
-<h3 id="lets-start-by-seeing-which-universities-were-assessed-across-the-widest-range-of-subjects">Let&rsquo;s start by seeing which universities were assessed across the widest range of subjects.</h3>
+<h2 id="which-universities-were-assessed-across-the-widest-range-of-subjects">Which universities were assessed across the widest range of subjects?</h2>
 <p>We know there are 36 unique subjects (units of assessment) in the database. No single institution was assessed on all of them - UCL has the widest range at 32 of the 36 subjects - and some universities were only assessed in one subject.</p>
 <div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="n">result</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span>
     <span class="s2">&#34;&#34;&#34;SELECT Institution_Name, COUNT(DISTINCT Unit_of_Assessment_Name)
@@ -583,7 +495,7 @@
 <span class="c1">#plt.axhline(result[&#34;number_data_points&#34;].mean(), color=&#39;blue&#39;, linewidth=2, label = &#34;# Countries&#34;)</span>
 <span class="c1">#plt.legend()</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">margins</span><span class="p">(</span><span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">)</span>
-</code></pre></div><p><img src="UK_REF_2014_files/UK_REF_2014_22_0.png" alt="png"></p>
+</code></pre></div><p><img src="UK_REF_2014_files/UK_REF_2014_16_0.png" alt="png"></p>
 <p>We can look at the distribution of universities based on the number of subjects they were assessed on. Most universities were assessed on only a small number of subjects, with 26 universities having been evaluated in only one subject.</p>
 <div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="n">result</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span>
     <span class="s2">&#34;&#34;&#34;WITH Institutions_By_Assessment_Count AS 
@@ -607,8 +519,8 @@
 <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&#34;Number of Institutions&#34;</span><span class="p">,</span> <span class="n">labelpad</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">fontsize</span> <span class="o">=</span> <span class="mi">12</span><span class="p">)</span>
 <span class="n">_</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">(</span><span class="n">rotation</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">ha</span> <span class="o">=</span> <span class="s2">&#34;center&#34;</span><span class="p">,</span> <span class="n">fontsize</span> <span class="o">=</span> <span class="mi">10</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">margins</span><span class="p">(</span><span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">)</span>
-</code></pre></div><p><img src="UK_REF_2014_files/UK_REF_2014_25_0.png" alt="png"></p>
-<h3 id="and-which-subjects-are-the-most-common-among-the-universities-assessed">And which subjects are the most common among the universities assessed?</h3>
+</code></pre></div><p><img src="UK_REF_2014_files/UK_REF_2014_19_0.png" alt="png"></p>
+<h2 id="and-which-subjects-are-the-most-common-among-the-universities-assessed">And which subjects are the most common among the universities assessed?</h2>
 <div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="n">result</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="s2">&#34;&#34;&#34;
 </span><span class="s2">        SELECT Unit_of_Assessment_Name,
 </span><span class="s2">               COUNT(DISTINCT Institution_Name) AS Number_of_Institutions
@@ -621,10 +533,18 @@
 <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&#34;Number of Institutions&#34;</span><span class="p">,</span> <span class="n">labelpad</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">fontsize</span> <span class="o">=</span> <span class="mi">12</span><span class="p">)</span>
 <span class="n">_</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">(</span><span class="n">rotation</span> <span class="o">=</span> <span class="mi">60</span><span class="p">,</span> <span class="n">ha</span> <span class="o">=</span> <span class="s2">&#34;right&#34;</span><span class="p">,</span> <span class="n">fontsize</span> <span class="o">=</span> <span class="mi">10</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">margins</span><span class="p">(</span><span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">)</span>
-</code></pre></div><p><img src="UK_REF_2014_files/UK_REF_2014_28_0.png" alt="png"></p>
-<h3 id="which-universities-perform-the-best-in-the-assessment">Which universities perform the best in the assessment?</h3>
+</code></pre></div><p><img src="UK_REF_2014_files/UK_REF_2014_22_0.png" alt="png"></p>
+<h2 id="which-universities-perform-the-best-in-the-assessment">Which universities perform the best in the assessment?</h2>
 <p>Based on the data available, there are several ways we could try to establish which university performed the best across the assessment.</p>
-<p>Each university is awarded a star rating for each subject assessed in three &lsquo;profiles&rsquo;: Outputs, Impact, Environment. They also receive an &lsquo;Overall&rsquo; star rating. The 4* rating is the highest possible outcome, and is awarded where the &lsquo;quality &hellip; is world-leading in terms of originality, significance and rigour&rsquo;.</p>
+<p>The REF assesses submitted research and awards it a classification based on its quality. One of five quality ratings is possible:</p>
+<ul>
+<li><strong>Four star</strong>: Quality that is world-leading in originality, significance and rigour.</li>
+<li><strong>Three star</strong>: Quality that is internationally excellent in originality, significance and rigour but which falls short of the highest standards of excellence.</li>
+<li><strong>Two star</strong>: Quality that is recognised internationally in originality, significance and rigour.</li>
+<li><strong>One star</strong>: Quality that is recognised nationally in originality, significance and rigour.</li>
+<li><strong>Unclassified Quality</strong>: that falls below the standard of nationally recognised work. Or work which does not meet the published definition of research for the purposes of this assessment.</li>
+</ul>
+<p>Each university is awarded a star rating for each subject assessed in three &lsquo;profiles&rsquo;: Outputs, Impact, Environment. They also receive an &lsquo;Overall&rsquo; star rating.</p>
 <p>To compare the performance of different universities, we can see which universities had the highest average percentage of submissions awarded an &lsquo;Overall&rsquo; 4* evaluation.</p>
 <p>London Business School and Courtauld Institute of Art performed the best against this measure. But by including the total number of subjects they were assessed against, we see that both of these institutes are specialised in one subject area.</p>
 <div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="n">result</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="s2">&#34;&#34;&#34;
@@ -656,11 +576,11 @@
 <span class="n">axis1</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="n">colors</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">)</span>
 <span class="n">axis1</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="n">labelsize</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span> <span class="n">rotation</span> <span class="o">=</span> <span class="mi">45</span><span class="p">)</span>
 <span class="n">axes2</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="n">colors</span><span class="o">=</span><span class="s1">&#39;b&#39;</span><span class="p">)</span>
-</code></pre></div><pre><code>&lt;ipython-input-16-c40615171364&gt;:6: UserWarning: FixedFormatter should only be used together with FixedLocator
+</code></pre></div><pre><code>&lt;ipython-input-14-c40615171364&gt;:6: UserWarning: FixedFormatter should only be used together with FixedLocator
   axis1.set_xticklabels(result[&quot;Institution_Name&quot;].astype(str), horizontalalignment = &quot;right&quot;)
 </code></pre>
-<p><img src="UK_REF_2014_files/UK_REF_2014_31_1.png" alt="png"></p>
-<h3 id="what-about-the-institutions-which-were-the-weakest-performers-in-this-assessment">What about the institutions which were the weakest performers in this assessment?</h3>
+<p><img src="UK_REF_2014_files/UK_REF_2014_25_1.png" alt="png"></p>
+<h2 id="what-about-the-institutions-which-were-the-weakest-performers-in-this-assessment">What about the institutions which were the weakest performers in this assessment?</h2>
 <p>The unclassified rating is the lowest possible rating in the assessment, and is given for &lsquo;quality that falls below the standard of nationally recognised work&rsquo;.</p>
 <p>We can find the universities whose submissions got the highest average percentage of Unclassified ratings. By this measure, Writtle College is the worst performing institution in the dataset, with an average of 35% of submissions receiving Unclassified ratings across its two subject areas.</p>
 <p>Based on the previous chart, we might conclude that universities which specialise in one or a small number of subjects would perform better: the two universities with the highest average percentage of 4* evaluations were each assessed in only one subject. However, several of the universities with the highest percentage of Unclassified ratings also specialise in one subject. So, specialisation is no guarantee of quality.</p>
@@ -693,10 +613,10 @@
 <span class="n">axis1</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="n">colors</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">)</span>
 <span class="n">axis1</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="n">labelsize</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span> <span class="n">rotation</span> <span class="o">=</span> <span class="mi">45</span><span class="p">)</span>
 <span class="n">axes2</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="n">colors</span><span class="o">=</span><span class="s1">&#39;b&#39;</span><span class="p">)</span>
-</code></pre></div><pre><code>&lt;ipython-input-18-6954073e0042&gt;:6: UserWarning: FixedFormatter should only be used together with FixedLocator
+</code></pre></div><pre><code>&lt;ipython-input-16-6954073e0042&gt;:6: UserWarning: FixedFormatter should only be used together with FixedLocator
   axis1.set_xticklabels(result[&quot;Institution_Name&quot;].astype(str), horizontalalignment = &quot;right&quot;)
 </code></pre>
-<p><img src="UK_REF_2014_files/UK_REF_2014_34_1.png" alt="png"></p>
+<p><img src="UK_REF_2014_files/UK_REF_2014_28_1.png" alt="png"></p>
 <h2 id="which-universities-have-the-largest-number-of-staff">Which universities have the largest number of staff?</h2>
 <p>The REF results show how many full-time equivalent (FTE) staff members were submitted for the assessment. Which universities have submitted the highest staff numbers for assessment?</p>
 <div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="n">result</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="s2">&#34;&#34;&#34;
@@ -713,7 +633,7 @@
 <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&#34;Number of Staff (FTE)&#34;</span><span class="p">,</span> <span class="n">labelpad</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">fontsize</span> <span class="o">=</span> <span class="mi">12</span><span class="p">)</span>
 <span class="n">_</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">(</span><span class="n">rotation</span> <span class="o">=</span> <span class="mi">45</span><span class="p">,</span> <span class="n">ha</span> <span class="o">=</span> <span class="s2">&#34;right&#34;</span><span class="p">,</span> <span class="n">fontsize</span> <span class="o">=</span> <span class="mi">10</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">margins</span><span class="p">(</span><span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">)</span>
-</code></pre></div><p><img src="UK_REF_2014_files/UK_REF_2014_37_0.png" alt="png"></p>
+</code></pre></div><p><img src="UK_REF_2014_files/UK_REF_2014_31_0.png" alt="png"></p>
 <h2 id="and-the-smallest-number-of-staff">And the smallest number of staff?</h2>
 <div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="n">result</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="s2">&#34;&#34;&#34;
 </span><span class="s2">SELECT DISTINCT Institution_Name,
@@ -729,15 +649,15 @@
 <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&#34;Number of Staff (FTE)&#34;</span><span class="p">,</span> <span class="n">labelpad</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">fontsize</span> <span class="o">=</span> <span class="mi">12</span><span class="p">)</span>
 <span class="n">_</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">(</span><span class="n">rotation</span> <span class="o">=</span> <span class="mi">45</span><span class="p">,</span> <span class="n">ha</span> <span class="o">=</span> <span class="s2">&#34;right&#34;</span><span class="p">,</span> <span class="n">fontsize</span> <span class="o">=</span> <span class="mi">10</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">margins</span><span class="p">(</span><span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">)</span>
-</code></pre></div><p><img src="UK_REF_2014_files/UK_REF_2014_40_0.png" alt="png"></p>
+</code></pre></div><p><img src="UK_REF_2014_files/UK_REF_2014_34_0.png" alt="png"></p>
 <h2 id="which-universities-are-the-most-collaborative">Which universities are the most collaborative?</h2>
 <p>Institutions were able to prepare joint submissions with another institution and submit this to the assessment. A total of 23 universities prepared joint submissions.</p>
 <p>The University of Edinburgh entered the highest number of joint submissions, at a total of six. Edinburgh also had the highest number of partners, at three.</p>
 <div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="s2">&#34;&#34;&#34;SELECT Institution_Name,
 </span><span class="s2">                      COUNT(DISTINCT Unit_of_Assessment_Name) AS Number_of_Joint_Submissions,
-</span><span class="s2">                      COUNT(DISTINCT `Joint submission`) AS Number_of_Partners
+</span><span class="s2">                      COUNT(DISTINCT Joint_submission) AS Number_of_Partners
 </span><span class="s2">               FROM REF_Results
-</span><span class="s2">               WHERE &#34;Joint submission&#34; LIKE &#34;%joint%&#34;
+</span><span class="s2">               WHERE Joint_submission LIKE &#34;%joint%&#34;
 </span><span class="s2">               GROUP BY Institution_Name
 </span><span class="s2">               ORDER BY Number_of_Joint_Submissions DESC;&#34;&#34;&#34;</span><span class="p">,</span> <span class="n">database</span><span class="p">)</span>
 </code></pre></div><div>
@@ -909,10 +829,10 @@
 <div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="s2">&#34;&#34;&#34;
 </span><span class="s2">    SELECT Institution_Name,
 </span><span class="s2">           Unit_of_Assessment_Name,
-</span><span class="s2">           `Joint submission`
+</span><span class="s2">           Joint_submission
 </span><span class="s2">    FROM REF_Results
-</span><span class="s2">    WHERE &#34;Joint submission&#34; LIKE &#34;%joint%&#34;
-</span><span class="s2">    GROUP BY Institution_Name, Unit_of_Assessment_Name, `Joint submission`;&#34;&#34;&#34;</span><span class="p">,</span> <span class="n">database</span><span class="p">)</span>
+</span><span class="s2">    WHERE Joint_submission LIKE &#34;%joint%&#34;
+</span><span class="s2">    GROUP BY Institution_Name, Unit_of_Assessment_Name, Joint_submission;&#34;&#34;&#34;</span><span class="p">,</span> <span class="n">database</span><span class="p">)</span>
 </code></pre></div><div>
 <style scoped>
     .dataframe tbody tr th:only-of-type {
@@ -933,7 +853,7 @@
       <th></th>
       <th>Institution_Name</th>
       <th>Unit_of_Assessment_Name</th>
-      <th>Joint submission</th>
+      <th>Joint_submission</th>
     </tr>
   </thead>
   <tbody>

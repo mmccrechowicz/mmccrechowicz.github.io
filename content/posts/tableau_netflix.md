@@ -1,6 +1,6 @@
 ---
 title: "Tableau: Netflix"
-date: 2021-04-27T15:17:31.586474
+date: 2021-03-27T15:17:31.586474
 draft: false
 tags: ["Tableau"]
 summary: Taking a look at data on Netflix content

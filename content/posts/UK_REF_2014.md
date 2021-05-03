@@ -1,6 +1,6 @@
 ---
 title: "UK University Research Excellence Framework 2014"
-date: 2021-04-10T15:17:31.586474
+date: 2021-04-20T15:17:31.586474
 draft: false
 tags: ["SQL", "Jupyter"]
 summary: Which are the best performing UK universities?
@@ -8,15 +8,7 @@ summary: Which are the best performing UK universities?
 
 The [Research Excellence Framework](https://en.wikipedia.org/wiki/Research_Excellence_Framework) is a periodic evaluation of the quality of research produced by universities in the United Kingdom. It was first applied in 2014, with reference to research completed in the period 2008-2013.
 
-The REF assesses submitted research and awards it a classification based on its quality. One of five quality ratings is possible: 
-
- - **Four star**: Quality that is world-leading in originality, significance and rigour.
- - **Three star**: Quality that is internationally excellent in originality, significance and rigour but which falls short of the highest standards of excellence.
- - **Two star**: Quality that is recognised internationally in originality, significance and rigour.
- - **One star**: Quality that is recognised nationally in originality, significance and rigour.
- - **Unclassified Quality**: that falls below the standard of nationally recognised work. Or work which does not meet the published definition of research for the purposes of this assessment.
-
-This analysis uses data from the 2014 REF to understand the UK's higher education landscape and identify the top-performing universities, including:
+This analysis takes data from the 2014 REF and uses SQLite, pandas and matplotlib in Jupyter Notebooks to understand the UK's higher education landscape and identify the top-performing universities, including:
 
  - Which institutions teach the broadest range of subjects, and which specialise in particular areas of learning?
  - Which subjects are the most widely taught at UK universities?
@@ -87,261 +79,46 @@ def excel_dataset_to_sqlite(url: str, database_name: str = ":memory:") -> sqlite
 
 #### Import the dataset and create the database
 
-I'm importing a dataset from a URL. 
+The data comes from Research Excellence Framework 2014. It is an Excel workbook with two worksheets. The main worksheet contains the core data from the REF, the second worksheet provides some information about the REF.
+
+I download the file from this [URL](https://public.tableau.com/s/sites/default/files/media/Resources/Research%20Excellence%20Framework%202014%20Results_Pivoted.xlsx"), and convert it into an SQL database to enable analysis in Jupyter Notebooks.
 
 
 ```python
 database = excel_dataset_to_sqlite("https://public.tableau.com/s/sites/default/files/media/Resources/Research%20Excellence%20Framework%202014%20Results_Pivoted.xlsx")
 ```
 
-    /Users/Matthew/Library/Caches/pypoetry/virtualenvs/notebooks-iGyxaocD-py3.8/lib/python3.8/site-packages/pandas/core/generic.py:2779: UserWarning: The spaces in these column names will not be changed. In pandas versions < 0.14, spaces were converted to underscores.
+    /Users/Matthew/Library/Caches/pypoetry/virtualenvs/notebooks-IW0Gw3EE-py3.8/lib/python3.8/site-packages/pandas/core/generic.py:2779: UserWarning: The spaces in these column names will not be changed. In pandas versions < 0.14, spaces were converted to underscores.
       sql.to_sql(
 
 
-#### View the table names to make sure the correct tables have been created
-
-
-```python
-pd.read_sql("SELECT name FROM sqlite_master WHERE type='table';", database)
-```
+Once the database has been created, I change the names of some of the tables and columns to make the data easier to work with.
 
 
 
-
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>name</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>Sheet1-Tableau</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>About</td>
-    </tr>
-  </tbody>
-</table>
-</div>
-
-
-
-That first table name isn't very helpful. Let's change it to something more meaningful.
-
+<details>
+<summary>Code</summary>
 
 ```python
 database.execute(
     """ALTER TABLE 'Sheet1-Tableau' RENAME TO REF_Results;""")
+
 ```
 
-
-
-
-    <sqlite3.Cursor at 0x121fcd810>
-
-
-And then check that the change was made.
-
-```python
-pd.read_sql("SELECT name FROM sqlite_master WHERE type='table';", database)
-```
+</details>
 
 
 
 
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
 
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>name</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>REF_Results</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>About</td>
-    </tr>
-  </tbody>
-</table>
-</div>
-
-
-
-Now let's have a look at the column names to make sure they won't make it difficult to work with this dataset.
-
-
-```python
-pd.read_sql("""SELECT * FROM REF_Results
-            LIMIT 5;""", database)
-```
+    <sqlite3.Cursor at 0x121fed2d0>
 
 
 
 
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
 
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>index</th>
-      <th>Institution code (UKPRN)</th>
-      <th>Institution name</th>
-      <th>Institution sort order</th>
-      <th>Main panel</th>
-      <th>Unit of assessment number</th>
-      <th>Unit of assessment name</th>
-      <th>Multiple submission letter</th>
-      <th>Multiple submission name</th>
-      <th>Joint submission</th>
-      <th>Profile</th>
-      <th>FTE Category A staff submitted</th>
-      <th>Star Rating</th>
-      <th>Percentage</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>0</td>
-      <td>10000291</td>
-      <td>Anglia Ruskin University</td>
-      <td>10</td>
-      <td>A</td>
-      <td>3</td>
-      <td>Allied Health Professions, Dentistry, Nursing ...</td>
-      <td></td>
-      <td>None</td>
-      <td>None</td>
-      <td>Outputs</td>
-      <td>11.30</td>
-      <td>4*</td>
-      <td>6.4</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>1</td>
-      <td>10000291</td>
-      <td>Anglia Ruskin University</td>
-      <td>10</td>
-      <td>A</td>
-      <td>3</td>
-      <td>Allied Health Professions, Dentistry, Nursing ...</td>
-      <td></td>
-      <td>None</td>
-      <td>None</td>
-      <td>Outputs</td>
-      <td>11.30</td>
-      <td>3*</td>
-      <td>68.1</td>
-    </tr>
-    <tr>
-      <th>2</th>
-      <td>2</td>
-      <td>10000291</td>
-      <td>Anglia Ruskin University</td>
-      <td>10</td>
-      <td>A</td>
-      <td>3</td>
-      <td>Allied Health Professions, Dentistry, Nursing ...</td>
-      <td></td>
-      <td>None</td>
-      <td>None</td>
-      <td>Outputs</td>
-      <td>11.30</td>
-      <td>2*</td>
-      <td>25.5</td>
-    </tr>
-    <tr>
-      <th>3</th>
-      <td>3</td>
-      <td>10000291</td>
-      <td>Anglia Ruskin University</td>
-      <td>10</td>
-      <td>A</td>
-      <td>3</td>
-      <td>Allied Health Professions, Dentistry, Nursing ...</td>
-      <td></td>
-      <td>None</td>
-      <td>None</td>
-      <td>Outputs</td>
-      <td>11.30</td>
-      <td>1*</td>
-      <td>0</td>
-    </tr>
-    <tr>
-      <th>4</th>
-      <td>4</td>
-      <td>10000291</td>
-      <td>Anglia Ruskin University</td>
-      <td>10</td>
-      <td>A</td>
-      <td>3</td>
-      <td>Allied Health Professions, Dentistry, Nursing ...</td>
-      <td></td>
-      <td>None</td>
-      <td>None</td>
-      <td>Outputs</td>
-      <td>11.30</td>
-      <td>unclassified</td>
-      <td>0</td>
-    </tr>
-  </tbody>
-</table>
-</div>
-
-
-
-Those column names are going to make working with this table more difficult. Let's change them to make life easier for ourselves.
-
+<details>
+<summary>Code</summary>
 
 ```python
 database.execute("""Alter Table REF_Results
@@ -368,9 +145,31 @@ database.execute("""Alter Table REF_Results
 database.execute("""Alter Table REF_Results
    Rename Column `Star Rating` To Star_Rating;""")
 
-pd.read_sql("""SELECT * FROM REF_Results
-                    LIMIT 5;""", database)
+database.execute("""Alter Table REF_Results
+   Rename Column `Joint submission` To Joint_submission;""")
 
+
+```
+
+</details>
+
+
+
+
+
+    <sqlite3.Cursor at 0x121fed110>
+
+
+
+## Understand the data
+
+There is one table of interest: REF_Resutls. The table has 38,220 rows and 14 columns. REF_Results contains data about the universities assessed in the REF, the subjects they were assessed in, how many staff were submitted, the ratings they receieved, and whether universities completed joint submissions with another institution.
+
+
+```python
+pd.read_sql("""
+    SELECT *
+    FROM REF_Results;""", database)
 ```
 
 
@@ -403,7 +202,7 @@ pd.read_sql("""SELECT * FROM REF_Results
       <th>Unit_of_Assessment_Name</th>
       <th>Multiple submission letter</th>
       <th>Multiple submission name</th>
-      <th>Joint submission</th>
+      <th>Joint_submission</th>
       <th>Profile</th>
       <th>FTE_Category_A_staff_submitted</th>
       <th>Star_Rating</th>
@@ -496,25 +295,123 @@ pd.read_sql("""SELECT * FROM REF_Results
       <td>unclassified</td>
       <td>0</td>
     </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>38215</th>
+      <td>38215</td>
+      <td>10007807</td>
+      <td>University of Ulster</td>
+      <td>7630</td>
+      <td>D</td>
+      <td>36</td>
+      <td>Communication, Cultural and Media Studies, Lib...</td>
+      <td></td>
+      <td>None</td>
+      <td>None</td>
+      <td>Overall</td>
+      <td>16.40</td>
+      <td>4*</td>
+      <td>21</td>
+    </tr>
+    <tr>
+      <th>38216</th>
+      <td>38216</td>
+      <td>10007807</td>
+      <td>University of Ulster</td>
+      <td>7630</td>
+      <td>D</td>
+      <td>36</td>
+      <td>Communication, Cultural and Media Studies, Lib...</td>
+      <td></td>
+      <td>None</td>
+      <td>None</td>
+      <td>Overall</td>
+      <td>16.40</td>
+      <td>3*</td>
+      <td>39</td>
+    </tr>
+    <tr>
+      <th>38217</th>
+      <td>38217</td>
+      <td>10007807</td>
+      <td>University of Ulster</td>
+      <td>7630</td>
+      <td>D</td>
+      <td>36</td>
+      <td>Communication, Cultural and Media Studies, Lib...</td>
+      <td></td>
+      <td>None</td>
+      <td>None</td>
+      <td>Overall</td>
+      <td>16.40</td>
+      <td>2*</td>
+      <td>22</td>
+    </tr>
+    <tr>
+      <th>38218</th>
+      <td>38218</td>
+      <td>10007807</td>
+      <td>University of Ulster</td>
+      <td>7630</td>
+      <td>D</td>
+      <td>36</td>
+      <td>Communication, Cultural and Media Studies, Lib...</td>
+      <td></td>
+      <td>None</td>
+      <td>None</td>
+      <td>Overall</td>
+      <td>16.40</td>
+      <td>1*</td>
+      <td>12</td>
+    </tr>
+    <tr>
+      <th>38219</th>
+      <td>38219</td>
+      <td>10007807</td>
+      <td>University of Ulster</td>
+      <td>7630</td>
+      <td>D</td>
+      <td>36</td>
+      <td>Communication, Cultural and Media Studies, Lib...</td>
+      <td></td>
+      <td>None</td>
+      <td>None</td>
+      <td>Overall</td>
+      <td>16.40</td>
+      <td>unclassified</td>
+      <td>6</td>
+    </tr>
   </tbody>
 </table>
+<p>38220 rows × 14 columns</p>
 </div>
 
 
-
-## Understand the data
-
-The dataset has 38,220 rows. But how many unique records do we have in each of the 14 columns?
-
-We can see that 154 institutions are included in the dataset, and that they were assessed in 36 different subjects, across four profiles. Five different star ratings were available.
-
+154 institutions are included in the dataset, and they were assessed in 36 different subjects, across four profiles. Five different star ratings were available.
 
 ```python
-pd.read_sql("""SELECT COUNT(DISTINCT Institution_Name) AS Institutions,
-                COUNT(DISTINCT Unit_of_Assessment_Name) AS Units_of_Assessment,
-                COUNT(DISTINCT Profile) AS Profiles,
-                COUNT(DISTINCT Star_Rating) AS Star_Ratings
-                FROM REF_Results;""", database)
+pd.read_sql("""
+    SELECT COUNT(DISTINCT Institution_Name) AS Institutions,
+           COUNT(DISTINCT Unit_of_Assessment_Name) AS Units_of_Assessment,
+           COUNT(DISTINCT Profile) AS Profiles,
+           COUNT(DISTINCT Star_Rating) AS Star_Ratings
+           FROM REF_Results;""", database)
 
 ```
 
@@ -559,9 +456,7 @@ pd.read_sql("""SELECT COUNT(DISTINCT Institution_Name) AS Institutions,
 
 
 
-## Analyze the data
-
-### Let's start by seeing which universities were assessed across the widest range of subjects.
+## Which universities were assessed across the widest range of subjects?
 
 We know there are 36 unique subjects (units of assessment) in the database. No single institution was assessed on all of them - UCL has the widest range at 32 of the 36 subjects - and some universities were only assessed in one subject.
 
@@ -589,7 +484,7 @@ plt.margins(0.01, 0.01)
 
 
     
-![png](UK_REF_2014_files/UK_REF_2014_22_0.png)
+![png](UK_REF_2014_files/UK_REF_2014_16_0.png)
     
 
 
@@ -627,11 +522,11 @@ plt.margins(0.01, 0.01)
 
 
     
-![png](UK_REF_2014_files/UK_REF_2014_25_0.png)
+![png](UK_REF_2014_files/UK_REF_2014_19_0.png)
     
 
 
-### And which subjects are the most common among the universities assessed?
+## And which subjects are the most common among the universities assessed?
 
 
 ```python
@@ -655,15 +550,23 @@ plt.margins(0.01, 0.01)
 
 
     
-![png](UK_REF_2014_files/UK_REF_2014_28_0.png)
+![png](UK_REF_2014_files/UK_REF_2014_22_0.png)
     
 
 
-### Which universities perform the best in the assessment?
+## Which universities perform the best in the assessment?
 
 Based on the data available, there are several ways we could try to establish which university performed the best across the assessment.
 
-Each university is awarded a star rating for each subject assessed in three 'profiles': Outputs, Impact, Environment. They also receive an 'Overall' star rating. The 4* rating is the highest possible outcome, and is awarded where the 'quality ... is world-leading in terms of originality, significance and rigour'.
+The REF assesses submitted research and awards it a classification based on its quality. One of five quality ratings is possible: 
+
+ - **Four star**: Quality that is world-leading in originality, significance and rigour.
+ - **Three star**: Quality that is internationally excellent in originality, significance and rigour but which falls short of the highest standards of excellence.
+ - **Two star**: Quality that is recognised internationally in originality, significance and rigour.
+ - **One star**: Quality that is recognised nationally in originality, significance and rigour.
+ - **Unclassified Quality**: that falls below the standard of nationally recognised work. Or work which does not meet the published definition of research for the purposes of this assessment.
+
+Each university is awarded a star rating for each subject assessed in three 'profiles': Outputs, Impact, Environment. They also receive an 'Overall' star rating.
 
 To compare the performance of different universities, we can see which universities had the highest average percentage of submissions awarded an 'Overall' 4* evaluation.
 
@@ -706,17 +609,17 @@ axis1.tick_params(axis='x', labelsize = 10, rotation = 45)
 axes2.tick_params(axis='y', colors='b')
 ```
 
-    <ipython-input-16-c40615171364>:6: UserWarning: FixedFormatter should only be used together with FixedLocator
+    <ipython-input-14-c40615171364>:6: UserWarning: FixedFormatter should only be used together with FixedLocator
       axis1.set_xticklabels(result["Institution_Name"].astype(str), horizontalalignment = "right")
 
 
 
     
-![png](UK_REF_2014_files/UK_REF_2014_31_1.png)
+![png](UK_REF_2014_files/UK_REF_2014_25_1.png)
     
 
 
-### What about the institutions which were the weakest performers in this assessment?
+## What about the institutions which were the weakest performers in this assessment?
 
 The unclassified rating is the lowest possible rating in the assessment, and is given for 'quality that falls below the standard of nationally recognised work'.
 
@@ -761,13 +664,13 @@ axis1.tick_params(axis='x', labelsize = 10, rotation = 45)
 axes2.tick_params(axis='y', colors='b')
 ```
 
-    <ipython-input-18-6954073e0042>:6: UserWarning: FixedFormatter should only be used together with FixedLocator
+    <ipython-input-16-6954073e0042>:6: UserWarning: FixedFormatter should only be used together with FixedLocator
       axis1.set_xticklabels(result["Institution_Name"].astype(str), horizontalalignment = "right")
 
 
 
     
-![png](UK_REF_2014_files/UK_REF_2014_34_1.png)
+![png](UK_REF_2014_files/UK_REF_2014_28_1.png)
     
 
 
@@ -799,7 +702,7 @@ plt.margins(0.01, 0.01)
 
 
     
-![png](UK_REF_2014_files/UK_REF_2014_37_0.png)
+![png](UK_REF_2014_files/UK_REF_2014_31_0.png)
     
 
 
@@ -829,7 +732,7 @@ plt.margins(0.01, 0.01)
 
 
     
-![png](UK_REF_2014_files/UK_REF_2014_40_0.png)
+![png](UK_REF_2014_files/UK_REF_2014_34_0.png)
     
 
 
@@ -843,9 +746,9 @@ The University of Edinburgh entered the highest number of joint submissions, at 
 ```python
 pd.read_sql("""SELECT Institution_Name,
                       COUNT(DISTINCT Unit_of_Assessment_Name) AS Number_of_Joint_Submissions,
-                      COUNT(DISTINCT `Joint submission`) AS Number_of_Partners
+                      COUNT(DISTINCT Joint_submission) AS Number_of_Partners
                FROM REF_Results
-               WHERE "Joint submission" LIKE "%joint%"
+               WHERE Joint_submission LIKE "%joint%"
                GROUP BY Institution_Name
                ORDER BY Number_of_Joint_Submissions DESC;""", database)
 ```
@@ -1026,10 +929,10 @@ We can see these collaborations in more detail in the table below.
 pd.read_sql("""
     SELECT Institution_Name,
            Unit_of_Assessment_Name,
-           `Joint submission`
+           Joint_submission
     FROM REF_Results
-    WHERE "Joint submission" LIKE "%joint%"
-    GROUP BY Institution_Name, Unit_of_Assessment_Name, `Joint submission`;""", database)
+    WHERE Joint_submission LIKE "%joint%"
+    GROUP BY Institution_Name, Unit_of_Assessment_Name, Joint_submission;""", database)
 ```
 
 
@@ -1055,7 +958,7 @@ pd.read_sql("""
       <th></th>
       <th>Institution_Name</th>
       <th>Unit_of_Assessment_Name</th>
-      <th>Joint submission</th>
+      <th>Joint_submission</th>
     </tr>
   </thead>
   <tbody>
