@@ -97,9 +97,9 @@
                         <h2><a href='/public/posts/volcanos/'>Significant Volcanic Eruptions</a></h2>
                         <span class="date">2021.04.10</span>
                     </div>
-                    <div class="post_content markdown"><p>Note: some map-based visualisations would be good in this analysis. Ask Maciej for help with this: <a href="https://colab.research.google.com/github/jakevdp/PythonDataScienceHandbook/blob/master/notebooks/04.13-Geographic-Data-With-Basemap.ipynb#scrollTo=HhB0JKS0_l4s">https://colab.research.google.com/github/jakevdp/PythonDataScienceHandbook/blob/master/notebooks/04.13-Geographic-Data-With-Basemap.ipynb#scrollTo=HhB0JKS0_l4s</a></p>
-<p>This analysis uses a <a href="https://public.tableau.com/s/sites/default/files/media/Resources/significantvolcanoeruptions.xlsx">dataset</a> about 658 significant volcanic eruptions that occurred between 4360 BCE and 2014 CE.</p>
-<p>Using the data available, I identify the most active volcanoes in this period; the countries which experienced the most volcanic activity; the eras with the greatest number of volcanic eruptions; and the impact these volcanoes have had in terms of human lives lost and damage done.</p>
+                    <div class="post_content markdown"><p>This analysis uses a dataset from the National Oceanic and Atmospheric Administration&rsquo;s <a href="https://www.ngdc.noaa.gov/">National Centers for Environmental Information</a> about 658 significant volcanic eruptions that occurred between 4360 BCE and 2014 CE.</p>
+<p>Using SQLite, pandas and matplotlib in Jupyter Notebooks, I identify the most active volcanoes in this period; the countries which experienced the most volcanic activity; the eras with the greatest number of volcanic eruptions; and the impact these volcanoes have had in terms of human lives lost and damage done.</p>
+<p>The original dataset can be downloaded <a href="https://public.tableau.com/s/sites/default/files/media/Resources/significantvolcanoeruptions.xlsx">here</a>.</p>
 <h2 id="set-up">Set up</h2>
 <h3 id="define-functions">Define functions</h3>
 <details>
@@ -152,359 +152,13 @@
 </code></pre></div></details>
 <h3 id="prepare-the-data">Prepare the data</h3>
 <h4 id="import-the-dataset-and-create-the-database">Import the dataset and create the database</h4>
-<p>I&rsquo;m importing a dataset from a URL.</p>
+<p>The data comes from the NOAA&rsquo;s National Centers for Environmental Information. It&rsquo;s an Excel file with one sheet of data about volcanic eruptions.</p>
+<p>I download the file from this <a href="https://public.tableau.com/s/sites/default/files/media/Resources/significantvolcanoeruptions.xlsx">URL</a>, and convert it into an SQL database to enable analysis in Jupyter Notebooks.</p>
 <div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="n">database</span> <span class="o">=</span> <span class="n">excel_dataset_to_sqlite</span><span class="p">(</span><span class="s2">&#34;https://public.tableau.com/s/sites/default/files/media/Resources/significantvolcanoeruptions.xlsx&#34;</span><span class="p">)</span>
-</code></pre></div><pre><code>/Users/Matthew/Library/Caches/pypoetry/virtualenvs/notebooks-iGyxaocD-py3.8/lib/python3.8/site-packages/pandas/core/generic.py:2779: UserWarning: The spaces in these column names will not be changed. In pandas versions &lt; 0.14, spaces were converted to underscores.
+</code></pre></div><pre><code>/Users/Matthew/Library/Caches/pypoetry/virtualenvs/notebooks-IW0Gw3EE-py3.8/lib/python3.8/site-packages/pandas/core/generic.py:2779: UserWarning: The spaces in these column names will not be changed. In pandas versions &lt; 0.14, spaces were converted to underscores.
   sql.to_sql(
 </code></pre>
-<h4 id="view-the-table-names-to-make-sure-the-correct-tables-have-been-created">View the table names to make sure the correct tables have been created</h4>
-<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="s2">&#34;SELECT name FROM sqlite_master WHERE type=&#39;table&#39;;&#34;</span><span class="p">,</span> <span class="n">database</span><span class="p">)</span>
-</code></pre></div><div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-<pre><code>.dataframe tbody tr th {
-    vertical-align: top;
-}
-
-.dataframe thead th {
-    text-align: right;
-}
-</code></pre>
-<p></style></p>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>name</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>volerup</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>Metadata</td>
-    </tr>
-  </tbody>
-</table>
-</div>
-<h4 id="now-lets-have-a-look-at-the-column-names-to-make-sure-they-wont-make-it-difficult-to-work-with-this-dataset">Now let&rsquo;s have a look at the column names to make sure they won&rsquo;t make it difficult to work with this dataset.</h4>
-<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="s2">&#34;&#34;&#34;SELECT * FROM volerup;&#34;&#34;&#34;</span><span class="p">,</span> <span class="n">database</span><span class="p">)</span>
-</code></pre></div><div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-<pre><code>.dataframe tbody tr th {
-    vertical-align: top;
-}
-
-.dataframe thead th {
-    text-align: right;
-}
-</code></pre>
-<p></style></p>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>index</th>
-      <th>Year</th>
-      <th>Month</th>
-      <th>Day</th>
-      <th>Associated Tsunami?</th>
-      <th>Associated Earthquake?</th>
-      <th>Name</th>
-      <th>Location</th>
-      <th>Country</th>
-      <th>Latitude</th>
-      <th>...</th>
-      <th>TOTAL_DEATHS</th>
-      <th>TOTAL_DEATHS_DESCRIPTION</th>
-      <th>TOTAL_MISSING</th>
-      <th>TOTAL_MISSING_DESCRIPTION</th>
-      <th>TOTAL_INJURIES</th>
-      <th>TOTAL_INJURIES_DESCRIPTION</th>
-      <th>TOTAL_DAMAGE_MILLIONS_DOLLARS</th>
-      <th>TOTAL_DAMAGE_DESCRIPTION</th>
-      <th>TOTAL_HOUSES_DESTROYED</th>
-      <th>TOTAL_HOUSES_DESTROYED_DESCRIPTION</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>0</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>NaN</td>
-      <td>...</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>1</td>
-      <td>-4,360.00</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>None</td>
-      <td>None</td>
-      <td>Macauley Island</td>
-      <td>Kermadec Is</td>
-      <td>New Zealand</td>
-      <td>-30.20</td>
-      <td>...</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-    </tr>
-    <tr>
-      <th>2</th>
-      <td>2</td>
-      <td>-4,350.00</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>None</td>
-      <td>None</td>
-      <td>Kikai</td>
-      <td>Ryukyu Is</td>
-      <td>Japan</td>
-      <td>30.78</td>
-      <td>...</td>
-      <td>NaN</td>
-      <td>3.00</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>3.00</td>
-      <td>NaN</td>
-      <td>3.00</td>
-    </tr>
-    <tr>
-      <th>3</th>
-      <td>3</td>
-      <td>-4,050.00</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>None</td>
-      <td>None</td>
-      <td>Masaya</td>
-      <td>Nicaragua</td>
-      <td>Nicaragua</td>
-      <td>11.98</td>
-      <td>...</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-    </tr>
-    <tr>
-      <th>4</th>
-      <td>4</td>
-      <td>-4,000.00</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>None</td>
-      <td>None</td>
-      <td>Pago</td>
-      <td>New Britain-SW Pac</td>
-      <td>Papua New Guinea</td>
-      <td>-5.58</td>
-      <td>...</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-    </tr>
-    <tr>
-      <th>...</th>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-    </tr>
-    <tr>
-      <th>654</th>
-      <td>654</td>
-      <td>2,014.00</td>
-      <td>2.00</td>
-      <td>1.00</td>
-      <td>None</td>
-      <td>None</td>
-      <td>Sinabung</td>
-      <td>Sumatra</td>
-      <td>Indonesia</td>
-      <td>3.17</td>
-      <td>...</td>
-      <td>17.00</td>
-      <td>1.00</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>3.00</td>
-      <td>1.00</td>
-      <td>NaN</td>
-      <td>1.00</td>
-      <td>NaN</td>
-      <td>2.00</td>
-    </tr>
-    <tr>
-      <th>655</th>
-      <td>655</td>
-      <td>2,014.00</td>
-      <td>2.00</td>
-      <td>13.00</td>
-      <td>None</td>
-      <td>None</td>
-      <td>Kelut</td>
-      <td>Java</td>
-      <td>Indonesia</td>
-      <td>-7.93</td>
-      <td>...</td>
-      <td>7.00</td>
-      <td>1.00</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>3.00</td>
-      <td>4,098.00</td>
-      <td>4.00</td>
-    </tr>
-    <tr>
-      <th>656</th>
-      <td>656</td>
-      <td>2,014.00</td>
-      <td>9.00</td>
-      <td>27.00</td>
-      <td>None</td>
-      <td>None</td>
-      <td>On-take</td>
-      <td>Honshu-Japan</td>
-      <td>Japan</td>
-      <td>35.90</td>
-      <td>...</td>
-      <td>55.00</td>
-      <td>2.00</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>70.00</td>
-      <td>2.00</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-    </tr>
-    <tr>
-      <th>657</th>
-      <td>657</td>
-      <td>2,014.00</td>
-      <td>11.00</td>
-      <td>10.00</td>
-      <td>None</td>
-      <td>None</td>
-      <td>Kilauea</td>
-      <td>Hawaiian Is</td>
-      <td>United States</td>
-      <td>19.43</td>
-      <td>...</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>14.50</td>
-      <td>3.00</td>
-      <td>1.00</td>
-      <td>1.00</td>
-    </tr>
-    <tr>
-      <th>658</th>
-      <td>658</td>
-      <td>2,014.00</td>
-      <td>11.00</td>
-      <td>23.00</td>
-      <td>None</td>
-      <td>None</td>
-      <td>Fogo</td>
-      <td>Cape Verde Is</td>
-      <td>Cape Verde</td>
-      <td>14.95</td>
-      <td>...</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>1.00</td>
-      <td>NaN</td>
-      <td>1.00</td>
-    </tr>
-  </tbody>
-</table>
-<p>659 rows × 37 columns</p>
-</div>
-<p>A few of these column headers will make it difficult to work with the database. Let&rsquo;s change them to make life easier.</p>
+<p>Once the database has been created, I change some of the column names to make the data easier to work with. The first row of data is empty, so I also remove it.</p>
 <div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="n">database</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&#34;&#34;&#34;
 </span><span class="s2">    Alter Table volerup
 </span><span class="s2">    Rename Column `Associated Tsunami?` To Associated_Tsunami;&#34;&#34;&#34;</span><span class="p">)</span>
@@ -517,328 +171,12 @@
 </span><span class="s2">    Alter Table volerup
 </span><span class="s2">    Rename Column `Volcano Explosivity Index (VEI)` To VEI;&#34;&#34;&#34;</span><span class="p">)</span>
 
-</code></pre></div><pre><code>&lt;sqlite3.Cursor at 0x11df87180&gt;
-</code></pre>
-<p>The first row doesn&rsquo;t seem to have any data in it, so let&rsquo;s get rid of it.</p>
-<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="n">database</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&#34;&#34;&#34;DELETE FROM volerup
+<span class="n">database</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&#34;&#34;&#34;DELETE FROM volerup
 </span><span class="s2">                    WHERE Year IS NULL;&#34;&#34;&#34;</span><span class="p">)</span>
-</code></pre></div><pre><code>&lt;sqlite3.Cursor at 0x11df87500&gt;
+</code></pre></div><pre><code>&lt;sqlite3.Cursor at 0x10f679490&gt;
 </code></pre>
-<p>When we select all, we now have the new column names, and 658 rows instead of 659.</p>
-<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="s2">&#34;&#34;&#34;SELECT * FROM volerup;&#34;&#34;&#34;</span><span class="p">,</span> <span class="n">database</span><span class="p">)</span>
-</code></pre></div><div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-<pre><code>.dataframe tbody tr th {
-    vertical-align: top;
-}
-
-.dataframe thead th {
-    text-align: right;
-}
-</code></pre>
-<p></style></p>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>index</th>
-      <th>Year</th>
-      <th>Month</th>
-      <th>Day</th>
-      <th>Associated_Tsunami</th>
-      <th>Associated_Earthquake</th>
-      <th>Name</th>
-      <th>Location</th>
-      <th>Country</th>
-      <th>Latitude</th>
-      <th>...</th>
-      <th>TOTAL_DEATHS</th>
-      <th>TOTAL_DEATHS_DESCRIPTION</th>
-      <th>TOTAL_MISSING</th>
-      <th>TOTAL_MISSING_DESCRIPTION</th>
-      <th>TOTAL_INJURIES</th>
-      <th>TOTAL_INJURIES_DESCRIPTION</th>
-      <th>TOTAL_DAMAGE_MILLIONS_DOLLARS</th>
-      <th>TOTAL_DAMAGE_DESCRIPTION</th>
-      <th>TOTAL_HOUSES_DESTROYED</th>
-      <th>TOTAL_HOUSES_DESTROYED_DESCRIPTION</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>1</td>
-      <td>-4,360.00</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>None</td>
-      <td>None</td>
-      <td>Macauley Island</td>
-      <td>Kermadec Is</td>
-      <td>New Zealand</td>
-      <td>-30.20</td>
-      <td>...</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>2</td>
-      <td>-4,350.00</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>None</td>
-      <td>None</td>
-      <td>Kikai</td>
-      <td>Ryukyu Is</td>
-      <td>Japan</td>
-      <td>30.78</td>
-      <td>...</td>
-      <td>NaN</td>
-      <td>3.00</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>3.00</td>
-      <td>NaN</td>
-      <td>3.00</td>
-    </tr>
-    <tr>
-      <th>2</th>
-      <td>3</td>
-      <td>-4,050.00</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>None</td>
-      <td>None</td>
-      <td>Masaya</td>
-      <td>Nicaragua</td>
-      <td>Nicaragua</td>
-      <td>11.98</td>
-      <td>...</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-    </tr>
-    <tr>
-      <th>3</th>
-      <td>4</td>
-      <td>-4,000.00</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>None</td>
-      <td>None</td>
-      <td>Pago</td>
-      <td>New Britain-SW Pac</td>
-      <td>Papua New Guinea</td>
-      <td>-5.58</td>
-      <td>...</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-    </tr>
-    <tr>
-      <th>4</th>
-      <td>5</td>
-      <td>-3,580.00</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>None</td>
-      <td>None</td>
-      <td>Taal</td>
-      <td>Luzon-Philippines</td>
-      <td>Philippines</td>
-      <td>14.00</td>
-      <td>...</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-    </tr>
-    <tr>
-      <th>...</th>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-    </tr>
-    <tr>
-      <th>653</th>
-      <td>654</td>
-      <td>2,014.00</td>
-      <td>2.00</td>
-      <td>1.00</td>
-      <td>None</td>
-      <td>None</td>
-      <td>Sinabung</td>
-      <td>Sumatra</td>
-      <td>Indonesia</td>
-      <td>3.17</td>
-      <td>...</td>
-      <td>17.00</td>
-      <td>1.00</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>3.00</td>
-      <td>1.00</td>
-      <td>NaN</td>
-      <td>1.00</td>
-      <td>NaN</td>
-      <td>2.00</td>
-    </tr>
-    <tr>
-      <th>654</th>
-      <td>655</td>
-      <td>2,014.00</td>
-      <td>2.00</td>
-      <td>13.00</td>
-      <td>None</td>
-      <td>None</td>
-      <td>Kelut</td>
-      <td>Java</td>
-      <td>Indonesia</td>
-      <td>-7.93</td>
-      <td>...</td>
-      <td>7.00</td>
-      <td>1.00</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>3.00</td>
-      <td>4,098.00</td>
-      <td>4.00</td>
-    </tr>
-    <tr>
-      <th>655</th>
-      <td>656</td>
-      <td>2,014.00</td>
-      <td>9.00</td>
-      <td>27.00</td>
-      <td>None</td>
-      <td>None</td>
-      <td>On-take</td>
-      <td>Honshu-Japan</td>
-      <td>Japan</td>
-      <td>35.90</td>
-      <td>...</td>
-      <td>55.00</td>
-      <td>2.00</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>70.00</td>
-      <td>2.00</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-    </tr>
-    <tr>
-      <th>656</th>
-      <td>657</td>
-      <td>2,014.00</td>
-      <td>11.00</td>
-      <td>10.00</td>
-      <td>None</td>
-      <td>None</td>
-      <td>Kilauea</td>
-      <td>Hawaiian Is</td>
-      <td>United States</td>
-      <td>19.43</td>
-      <td>...</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>14.50</td>
-      <td>3.00</td>
-      <td>1.00</td>
-      <td>1.00</td>
-    </tr>
-    <tr>
-      <th>657</th>
-      <td>658</td>
-      <td>2,014.00</td>
-      <td>11.00</td>
-      <td>23.00</td>
-      <td>None</td>
-      <td>None</td>
-      <td>Fogo</td>
-      <td>Cape Verde Is</td>
-      <td>Cape Verde</td>
-      <td>14.95</td>
-      <td>...</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>1.00</td>
-      <td>NaN</td>
-      <td>1.00</td>
-    </tr>
-  </tbody>
-</table>
-<p>658 rows × 37 columns</p>
-</div>
-<h2 id="lets-do-a-little-work-to-understand-the-database-better">Let&rsquo;s do a little work to understand the database better.</h2>
-<p>There are 658 rows, but how many unique values do we have in the important columns?</p>
-<p>We can see that the dataset covers 234 volcanoes in 73 locations across 48 countries. There are also 8 distinct values assigned to Volcanic Explosivity Index.</p>
+<h2 id="understand-the-database">Understand the database</h2>
+<p>There are 658 rows in the data. The data covers 234 volcanoes in 73 locations across 48 countries. There are also 8 distinct values assigned to Volcanic Explosivity Index.</p>
 <div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="s2">&#34;&#34;&#34;SELECT COUNT(DISTINCT Name) AS Volcano_Name,
 </span><span class="s2">                      COUNT(DISTINCT Location) AS Location,
 </span><span class="s2">                      COUNT(DISTINCT Country) AS Country,
@@ -879,8 +217,7 @@
   </tbody>
 </table>
 </div>
-<h2 id="analyze-the-data">Analyze the data</h2>
-<h3 id="where-do-volcanic-eruptions-happen">Where do volcanic eruptions happen?</h3>
+<h2 id="where-do-volcanic-eruptions-happen">Where do volcanic eruptions happen?</h2>
 <p>Let&rsquo;s start by identifying the geographical location of these volcanic eruptions.</p>
 <p>Indonesia has the highest number of volcanoes, as well as the highest number of volcanic incidents.</p>
 <div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="n">result</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="s2">&#34;&#34;&#34;SELECT Country, 
@@ -895,7 +232,7 @@
 <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&#34;Number of Volcanoes&#34;</span><span class="p">,</span> <span class="n">labelpad</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">fontsize</span> <span class="o">=</span> <span class="mi">12</span><span class="p">)</span>
 <span class="n">_</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">(</span><span class="n">rotation</span> <span class="o">=</span> <span class="mi">45</span><span class="p">,</span> <span class="n">ha</span> <span class="o">=</span> <span class="s2">&#34;right&#34;</span><span class="p">,</span> <span class="n">fontsize</span> <span class="o">=</span> <span class="mi">10</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">margins</span><span class="p">(</span><span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">)</span>
-</code></pre></div><p><img src="Volcanos_files/Volcanos_23_0.png" alt="png"></p>
+</code></pre></div><p><img src="Volcanos_files/Volcanos_13_0.png" alt="png"></p>
 <div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="n">result</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="s2">&#34;&#34;&#34;SELECT Country, 
 </span><span class="s2">                        COUNT(Country) AS Incidents_Per_Country 
 </span><span class="s2">                        FROM volerup
@@ -908,7 +245,7 @@
 <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&#34;Number of Volcanic Eruptions&#34;</span><span class="p">,</span> <span class="n">labelpad</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">fontsize</span> <span class="o">=</span> <span class="mi">12</span><span class="p">)</span>
 <span class="n">_</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">(</span><span class="n">rotation</span> <span class="o">=</span> <span class="mi">45</span><span class="p">,</span> <span class="n">ha</span> <span class="o">=</span> <span class="s2">&#34;right&#34;</span><span class="p">,</span> <span class="n">fontsize</span> <span class="o">=</span> <span class="mi">10</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">margins</span><span class="p">(</span><span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">)</span>
-</code></pre></div><p><img src="Volcanos_files/Volcanos_25_0.png" alt="png"></p>
+</code></pre></div><p><img src="Volcanos_files/Volcanos_15_0.png" alt="png"></p>
 <p>However, Italy&rsquo;s volcanoes experience the highest number of eruptions per volcano.</p>
 <div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="s2">&#34;&#34;&#34;
 </span><span class="s2">    SELECT Country, 
@@ -1104,8 +441,8 @@
 <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&#34;Number of Volcanic Eruptions&#34;</span><span class="p">,</span> <span class="n">labelpad</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">fontsize</span> <span class="o">=</span> <span class="mi">12</span><span class="p">)</span>
 <span class="n">_</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">(</span><span class="n">rotation</span> <span class="o">=</span> <span class="mi">45</span><span class="p">,</span> <span class="n">ha</span> <span class="o">=</span> <span class="s2">&#34;right&#34;</span><span class="p">,</span> <span class="n">fontsize</span> <span class="o">=</span> <span class="mi">10</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">margins</span><span class="p">(</span><span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">)</span>
-</code></pre></div><p><img src="Volcanos_files/Volcanos_30_0.png" alt="png"></p>
-<h4 id="indonesia">Indonesia</h4>
+</code></pre></div><p><img src="Volcanos_files/Volcanos_20_0.png" alt="png"></p>
+<h3 id="indonesia">Indonesia</h3>
 <p>Let&rsquo;s have a more detailed look at Indonesia, the country with the highest number of volcanoes and volcanic eruptions.</p>
 <p>We can look at the regions in Indonesia to see which are the most volcanically active. Java is the most volcanic region in Indonesia, with 13 volcanoes and 76 incidents.</p>
 <div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="n">result</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="s2">&#34;&#34;&#34;
@@ -1123,7 +460,7 @@
 <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&#34;Number of Volcanic Eruptions&#34;</span><span class="p">,</span> <span class="n">labelpad</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">fontsize</span> <span class="o">=</span> <span class="mi">12</span><span class="p">)</span>
 <span class="n">_</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">(</span><span class="n">rotation</span> <span class="o">=</span> <span class="mi">45</span><span class="p">,</span> <span class="n">ha</span> <span class="o">=</span> <span class="s2">&#34;right&#34;</span><span class="p">,</span> <span class="n">fontsize</span> <span class="o">=</span> <span class="mi">10</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">margins</span><span class="p">(</span><span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">)</span>
-</code></pre></div><p><img src="Volcanos_files/Volcanos_33_0.png" alt="png"></p>
+</code></pre></div><p><img src="Volcanos_files/Volcanos_23_0.png" alt="png"></p>
 <p>The dataset includes the <a href="https://en.wikipedia.org/wiki/Volcanic_Explosivity_Index">Volcanic Explosivity Index (VEI)</a> figure for each eruption. The VEI measures the relative explosiveness of an eruption, with 0 (non-explosive) being the smallest possible value, and 8 the largest.</p>
 <p>The majority of Indonesia&rsquo;s volcanic eruptions sit on this lower end of this scale, with most being a 2 or 3 on the scale.</p>
 <div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="n">result</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="s2">&#34;&#34;&#34;SELECT COUNT(Name) AS Number_of_Incidents,
@@ -1139,8 +476,8 @@
 <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&#34;Number of Volcanic Eruptions&#34;</span><span class="p">,</span> <span class="n">labelpad</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">fontsize</span> <span class="o">=</span> <span class="mi">12</span><span class="p">)</span>
 <span class="n">_</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">(</span><span class="n">rotation</span> <span class="o">=</span> <span class="mi">45</span><span class="p">,</span> <span class="n">ha</span> <span class="o">=</span> <span class="s2">&#34;right&#34;</span><span class="p">,</span> <span class="n">fontsize</span> <span class="o">=</span> <span class="mi">10</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">margins</span><span class="p">(</span><span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">)</span>
-</code></pre></div><p><img src="Volcanos_files/Volcanos_36_0.png" alt="png"></p>
-<h3 id="when-did-these-eruptions-happen">When did these eruptions happen?</h3>
+</code></pre></div><p><img src="Volcanos_files/Volcanos_26_0.png" alt="png"></p>
+<h2 id="when-did-these-eruptions-happen">When did these eruptions happen?</h2>
 <p>The data covers the period from 4360 BCE to 2014 CE.</p>
 <p>Were there any centuries in this timespan that were particularly affected by volcanic eruptions?</p>
 <p>The period between 1000 CE and 2000 CE has the highest number of recorded volcanic incidents. The availability of data regarding the volcanic incidents is dependent on humans' ability to record and measure this activity, so it should not be a surprise that we have more information about the most recent volcanic eruptions than about the ones which occurred centuries or millennia ago.</p>
@@ -1262,7 +599,7 @@
 <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&#34;Number of Volcanic Eruptions&#34;</span><span class="p">,</span> <span class="n">fontsize</span> <span class="o">=</span> <span class="mi">12</span><span class="p">)</span>
 <span class="n">_</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">(</span><span class="n">rotation</span> <span class="o">=</span> <span class="mi">60</span><span class="p">,</span> <span class="n">ha</span> <span class="o">=</span> <span class="s2">&#34;center&#34;</span><span class="p">,</span> <span class="n">fontsize</span> <span class="o">=</span> <span class="mi">10</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">margins</span><span class="p">(</span><span class="mf">0.00</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">)</span>
-</code></pre></div><p><img src="Volcanos_files/Volcanos_41_0.png" alt="png"></p>
+</code></pre></div><p><img src="Volcanos_files/Volcanos_31_0.png" alt="png"></p>
 <p>The 20th century saw 260 recorded volcanic incidents. Let&rsquo;s have a look at those incidents in more detail.</p>
 <p>1902 was the most active year in the twentieth century, with 8 volcanic incidents.</p>
 <div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="n">result</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="s2">&#34;&#34;&#34;
@@ -1279,7 +616,7 @@
 <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&#34;Number of Incidents&#34;</span><span class="p">,</span> <span class="n">labelpad</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">fontsize</span> <span class="o">=</span> <span class="mi">12</span><span class="p">)</span>
 <span class="n">_</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">(</span><span class="n">rotation</span> <span class="o">=</span> <span class="mi">45</span><span class="p">,</span> <span class="n">ha</span> <span class="o">=</span> <span class="s2">&#34;right&#34;</span><span class="p">,</span> <span class="n">fontsize</span> <span class="o">=</span> <span class="mi">10</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">margins</span><span class="p">(</span><span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">)</span>
-</code></pre></div><p><img src="Volcanos_files/Volcanos_44_0.png" alt="png"></p>
+</code></pre></div><p><img src="Volcanos_files/Volcanos_34_0.png" alt="png"></p>
 <p>The highest number of twentieth-century volcanic eruptions occurred in Indonesia. This is not surprising, as we know from above that Indonesia had the highest number of volcanic incidents overall, as well as the largest number of volcanoes.</p>
 <div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="n">result</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="s2">&#34;&#34;&#34;SELECT Country, 
 </span><span class="s2">                               COUNT(Country) AS Number_of_Incidents
@@ -1294,8 +631,8 @@
 <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&#34;Number of Incidents&#34;</span><span class="p">,</span> <span class="n">labelpad</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">fontsize</span> <span class="o">=</span> <span class="mi">12</span><span class="p">)</span>
 <span class="n">_</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">(</span><span class="n">rotation</span> <span class="o">=</span> <span class="mi">45</span><span class="p">,</span> <span class="n">ha</span> <span class="o">=</span> <span class="s2">&#34;right&#34;</span><span class="p">,</span> <span class="n">fontsize</span> <span class="o">=</span> <span class="mi">10</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">margins</span><span class="p">(</span><span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">)</span>
-</code></pre></div><p><img src="Volcanos_files/Volcanos_47_0.png" alt="png"></p>
-<h3 id="impact---fatalities">Impact - Fatalities</h3>
+</code></pre></div><p><img src="Volcanos_files/Volcanos_37_0.png" alt="png"></p>
+<h2 id="impact---fatalities">Impact - Fatalities</h2>
 <p>For many of the incidents covered in the database, we have figures for the number of people killed. Which volcanos have killed the most people?</p>
 <div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="n">result</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="s2">&#34;&#34;&#34;SELECT DISTINCT(Name), 
 </span><span class="s2">                               Country, 
@@ -1312,7 +649,7 @@
 <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&#34;Number of Deaths&#34;</span><span class="p">,</span> <span class="n">labelpad</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">fontsize</span> <span class="o">=</span> <span class="mi">12</span><span class="p">)</span>
 <span class="n">_</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">(</span><span class="n">rotation</span> <span class="o">=</span> <span class="mi">45</span><span class="p">,</span> <span class="n">ha</span> <span class="o">=</span> <span class="s2">&#34;right&#34;</span><span class="p">,</span> <span class="n">fontsize</span> <span class="o">=</span> <span class="mi">10</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">margins</span><span class="p">(</span><span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">)</span>
-</code></pre></div><p><img src="Volcanos_files/Volcanos_50_0.png" alt="png"></p>
+</code></pre></div><p><img src="Volcanos_files/Volcanos_40_0.png" alt="png"></p>
 <p>And which country suffered the greatest death toll from volcanic incidents?</p>
 <div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="n">result</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="s2">&#34;&#34;&#34;SELECT Country, 
 </span><span class="s2">                               SUM(Deaths) AS Total_Deaths
@@ -1327,7 +664,7 @@
 <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&#34;Number of Deaths&#34;</span><span class="p">,</span> <span class="n">labelpad</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">fontsize</span> <span class="o">=</span> <span class="mi">12</span><span class="p">)</span>
 <span class="n">_</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">(</span><span class="n">rotation</span> <span class="o">=</span> <span class="mi">45</span><span class="p">,</span> <span class="n">ha</span> <span class="o">=</span> <span class="s2">&#34;right&#34;</span><span class="p">,</span> <span class="n">fontsize</span> <span class="o">=</span> <span class="mi">10</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">margins</span><span class="p">(</span><span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">)</span>
-</code></pre></div><p><img src="Volcanos_files/Volcanos_53_0.png" alt="png"></p>
+</code></pre></div><p><img src="Volcanos_files/Volcanos_43_0.png" alt="png"></p>
 <p>And which year was the deadliest?</p>
 <div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="n">result</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="s2">&#34;&#34;&#34;SELECT CAST(Year AS INTEGER) AS Year, 
 </span><span class="s2">                               COUNT(Name) AS Number_of_Incidents, 
@@ -1344,8 +681,8 @@
 <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&#34;Number of Deaths&#34;</span><span class="p">,</span> <span class="n">labelpad</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">fontsize</span> <span class="o">=</span> <span class="mi">12</span><span class="p">)</span>
 <span class="n">_</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">(</span><span class="n">rotation</span> <span class="o">=</span> <span class="mi">45</span><span class="p">,</span> <span class="n">ha</span> <span class="o">=</span> <span class="s2">&#34;right&#34;</span><span class="p">,</span> <span class="n">fontsize</span> <span class="o">=</span> <span class="mi">10</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">margins</span><span class="p">(</span><span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">)</span>
-</code></pre></div><p><img src="Volcanos_files/Volcanos_56_0.png" alt="png"></p>
-<h3 id="impact---financial-cost">Impact - Financial Cost</h3>
+</code></pre></div><p><img src="Volcanos_files/Volcanos_46_0.png" alt="png"></p>
+<h2 id="impact---financial-cost">Impact - Financial Cost</h2>
 <p>Which volcanic incidents did the most damage?</p>
 <p>Although the query limits search results to 20, only 10 records in the database have a dollar value for damages.</p>
 <p>The eruption of St Helens in 1980 is the most damaging incident in the dataset.</p>
@@ -1366,8 +703,8 @@
 <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&#34;Total Damage ($m)&#34;</span><span class="p">,</span> <span class="n">labelpad</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">fontsize</span> <span class="o">=</span> <span class="mi">12</span><span class="p">)</span>
 <span class="n">_</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">(</span><span class="n">rotation</span> <span class="o">=</span> <span class="mi">45</span><span class="p">,</span> <span class="n">ha</span> <span class="o">=</span> <span class="s2">&#34;right&#34;</span><span class="p">,</span> <span class="n">fontsize</span> <span class="o">=</span> <span class="mi">10</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">margins</span><span class="p">(</span><span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">)</span>
-</code></pre></div><p><img src="Volcanos_files/Volcanos_59_0.png" alt="png"></p>
-<h3 id="impact---destructiveness">Impact - Destructiveness</h3>
+</code></pre></div><p><img src="Volcanos_files/Volcanos_49_0.png" alt="png"></p>
+<h2 id="impact---destructiveness">Impact - Destructiveness</h2>
 <p>We can also find out how many homes were destroyed by each incident.</p>
 <div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="n">result</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="s2">&#34;&#34;&#34;
 </span><span class="s2"> SELECT Name,  
@@ -1386,10 +723,10 @@
 <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&#34;Total Damage ($m)&#34;</span><span class="p">,</span> <span class="n">labelpad</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">fontsize</span> <span class="o">=</span> <span class="mi">12</span><span class="p">)</span>
 <span class="n">_</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">(</span><span class="n">rotation</span> <span class="o">=</span> <span class="mi">45</span><span class="p">,</span> <span class="n">ha</span> <span class="o">=</span> <span class="s2">&#34;right&#34;</span><span class="p">,</span> <span class="n">fontsize</span> <span class="o">=</span> <span class="mi">10</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">margins</span><span class="p">(</span><span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">)</span>
-</code></pre></div><p><img src="Volcanos_files/Volcanos_62_0.png" alt="png"></p>
-<h3 id="associated-phenomena---tsunamis-and-earthquakes">Associated Phenomena - Tsunamis and Earthquakes</h3>
+</code></pre></div><p><img src="Volcanos_files/Volcanos_52_0.png" alt="png"></p>
+<h2 id="associated-phenomena---tsunamis-and-earthquakes">Associated Phenomena - Tsunamis and Earthquakes</h2>
 <p>The dataset also records where these volcanic eruptions are linked to tsunamis or earthquakes. How many of the eruptions are associated with tsunamis or earthquakes, and which countries are the most affected?</p>
-<h4 id="tsunamis">Tsunamis</h4>
+<h3 id="tsunamis">Tsunamis</h3>
 <p>Of the 658 incidents recorded in the dataset, 133 are linked to tsunamis.</p>
 <p>Indonesia faced the highest number of volcano-related tsunamis. This is not surprising given its high number of volcanoes, and its geography &ndash; Indonesia consists of more than 17,000 islands.</p>
 <div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="n">result</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="s2">&#34;&#34;&#34;
@@ -1405,8 +742,8 @@
 <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&#34;Number of Tsunamis&#34;</span><span class="p">,</span> <span class="n">labelpad</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">fontsize</span> <span class="o">=</span> <span class="mi">12</span><span class="p">)</span>
 <span class="n">_</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">(</span><span class="n">rotation</span> <span class="o">=</span> <span class="mi">45</span><span class="p">,</span> <span class="n">ha</span> <span class="o">=</span> <span class="s2">&#34;right&#34;</span><span class="p">,</span> <span class="n">fontsize</span> <span class="o">=</span> <span class="mi">10</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">margins</span><span class="p">(</span><span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">)</span>
-</code></pre></div><p><img src="Volcanos_files/Volcanos_66_0.png" alt="png"></p>
-<h4 id="earthquakes">Earthquakes</h4>
+</code></pre></div><p><img src="Volcanos_files/Volcanos_56_0.png" alt="png"></p>
+<h3 id="earthquakes">Earthquakes</h3>
 <p>Fewer volcanis eruptions are linked to earthquakes than to tsunamis. 55 of the eruptions in the dataset have an associated earthquake.</p>
 <p>The United States and Japan are the two countries most affected by volcano-related earthquakes.</p>
 <div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="n">result</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="s2">&#34;&#34;&#34;
@@ -1422,7 +759,7 @@
 <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&#34;Number of Earthquakes&#34;</span><span class="p">,</span> <span class="n">labelpad</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">fontsize</span> <span class="o">=</span> <span class="mi">12</span><span class="p">)</span>
 <span class="n">_</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">(</span><span class="n">rotation</span> <span class="o">=</span> <span class="mi">45</span><span class="p">,</span> <span class="n">ha</span> <span class="o">=</span> <span class="s2">&#34;right&#34;</span><span class="p">,</span> <span class="n">fontsize</span> <span class="o">=</span> <span class="mi">10</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">margins</span><span class="p">(</span><span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">)</span>
-</code></pre></div><p><img src="Volcanos_files/Volcanos_69_0.png" alt="png"></p>
+</code></pre></div><p><img src="Volcanos_files/Volcanos_59_0.png" alt="png"></p>
 <p>And what about volcanic eruptions linked to tsunamis and earthquakes?</p>
 <p>36 incidents in the dataset were linked to both an earthquake and a tsunami.</p>
 <div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="s2">&#34;&#34;&#34;

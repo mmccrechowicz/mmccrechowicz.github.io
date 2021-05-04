@@ -15,6 +15,8 @@ This analysis uses data from a university's development department to understand
 *   Which donors should the alumni relations team cultivate because they are or could become major benefactors?
 *   Does the alumni relations team need to do more to engage with alumni, or with any particular demographics within alumni?
 
+The analysis is done using SQLite, pandas and matplotlib in Jupyter Notebooks.
+
 The original dataset can be downloaded [here](https://public.tableau.com/s/sites/default/files/media/advancement_donations_and_giving_demo.xls).
 
 ## Set up
@@ -81,181 +83,27 @@ def excel_dataset_to_sqlite(url: str, database_name: str = ":memory:") -> sqlite
 
 #### Import the dataset and create the database
 
-I'm importing a dataset from a URL. 
+The data comes from an unnamed university and contains anonymised information about the individuals who have donated money to the university. 
+
+There are two tables: the first contains the donors' ID numbers and details of their donations; the second contains just the donor ID and the donor's graduation year. 
+
+I download the file from this [URL](https://public.tableau.com/s/sites/default/files/media/advancement_donations_and_giving_demo.xls), and convert it into an SQL database to enable analysis in Jupyter Notebooks.
 
 
 ```python
 database = excel_dataset_to_sqlite("https://public.tableau.com/s/sites/default/files/media/advancement_donations_and_giving_demo.xls")
 ```
 
-    /Users/Matthew/Library/Caches/pypoetry/virtualenvs/notebooks-iGyxaocD-py3.8/lib/python3.8/site-packages/pandas/core/generic.py:2779: UserWarning: The spaces in these column names will not be changed. In pandas versions < 0.14, spaces were converted to underscores.
+    /Users/Matthew/Library/Caches/pypoetry/virtualenvs/notebooks-IW0Gw3EE-py3.8/lib/python3.8/site-packages/pandas/core/generic.py:2779: UserWarning: The spaces in these column names will not be changed. In pandas versions < 0.14, spaces were converted to underscores.
       sql.to_sql(
 
 
-#### View the table names to make sure the correct tables have been created
-
-
-```python
-pd.read_sql(
-    """SELECT name FROM sqlite_master WHERE type='table';""", database)
-```
+Once the database has been created, I change the names of some of the columns to make the data easier to work with
 
 
 
-
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>name</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>GiftRecords</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>GraduationYear</td>
-    </tr>
-  </tbody>
-</table>
-</div>
-
-
-
-#### The table names look fine. But what about the column names?
-
-The column names have spaces, which will make them annoying to work with in SQL queries. So, let's change the names to make queries easier.
-
-
-```python
-pd.read_sql("""Select * From GiftRecords
-            LIMIT 5;""", database)
-```
-
-
-
-
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>index</th>
-      <th>Allocation Subcategory</th>
-      <th>City</th>
-      <th>College</th>
-      <th>Gift Allocation</th>
-      <th>Gift Amount</th>
-      <th>Gift Date</th>
-      <th>Major</th>
-      <th>Prospect ID</th>
-      <th>State</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>0</td>
-      <td>College of Natural Science</td>
-      <td>Denver</td>
-      <td>College of Natural Science</td>
-      <td>Scholarship</td>
-      <td>5,088.00</td>
-      <td>2010-07-28 00:00:00</td>
-      <td>Biological Science Interdepartmental</td>
-      <td>1000</td>
-      <td>CO</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>1</td>
-      <td>College of Natural Science</td>
-      <td>San Francisco</td>
-      <td>College of Social Science</td>
-      <td>Scholarship</td>
-      <td>3,793.00</td>
-      <td>2010-09-10 00:00:00</td>
-      <td>Human Development and Family Studies</td>
-      <td>1001</td>
-      <td>CA</td>
-    </tr>
-    <tr>
-      <th>2</th>
-      <td>2</td>
-      <td>Minority Scholarship Fund</td>
-      <td>Los Angeles</td>
-      <td>College of Business</td>
-      <td>Scholarship</td>
-      <td>2,952.00</td>
-      <td>2010-06-30 00:00:00</td>
-      <td>Accounting</td>
-      <td>1002</td>
-      <td>CA</td>
-    </tr>
-    <tr>
-      <th>3</th>
-      <td>3</td>
-      <td>College of Communication Arts and Sciences</td>
-      <td>Mesa</td>
-      <td>College of Natural Science</td>
-      <td>Scholarship</td>
-      <td>2,872.00</td>
-      <td>2010-11-23 00:00:00</td>
-      <td>Mathematics</td>
-      <td>1003</td>
-      <td>AZ</td>
-    </tr>
-    <tr>
-      <th>4</th>
-      <td>4</td>
-      <td>Diversity Fund</td>
-      <td>West Valley City</td>
-      <td>College of Social Science</td>
-      <td>Endowment</td>
-      <td>2,022.00</td>
-      <td>2010-10-10 00:00:00</td>
-      <td>Psychology</td>
-      <td>1004</td>
-      <td>UT</td>
-    </tr>
-  </tbody>
-</table>
-</div>
-
-
-
-We can change the column names which have spaces.
-
+<details>
+<summary>Code</summary>
 
 ```python
 database.execute("""Alter Table GiftRecords
@@ -272,306 +120,28 @@ database.execute("""Alter Table GiftRecords
 
 database.execute("""Alter Table GiftRecords
              Rename Column `Prospect ID` To Prospect_ID;""")
-```
 
-
-
-
-    <sqlite3.Cursor at 0x11aae39d0>
-
-
-
-And then check that the changes went through.
-
-
-```python
-pd.read_sql("PRAGMA table_info(GiftRecords);", database)
-```
-
-
-
-
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>cid</th>
-      <th>name</th>
-      <th>type</th>
-      <th>notnull</th>
-      <th>dflt_value</th>
-      <th>pk</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>0</td>
-      <td>index</td>
-      <td>INTEGER</td>
-      <td>0</td>
-      <td>None</td>
-      <td>0</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>1</td>
-      <td>Allocation_Subcategory</td>
-      <td>TEXT</td>
-      <td>0</td>
-      <td>None</td>
-      <td>0</td>
-    </tr>
-    <tr>
-      <th>2</th>
-      <td>2</td>
-      <td>City</td>
-      <td>TEXT</td>
-      <td>0</td>
-      <td>None</td>
-      <td>0</td>
-    </tr>
-    <tr>
-      <th>3</th>
-      <td>3</td>
-      <td>College</td>
-      <td>TEXT</td>
-      <td>0</td>
-      <td>None</td>
-      <td>0</td>
-    </tr>
-    <tr>
-      <th>4</th>
-      <td>4</td>
-      <td>Gift_Allocation</td>
-      <td>TEXT</td>
-      <td>0</td>
-      <td>None</td>
-      <td>0</td>
-    </tr>
-    <tr>
-      <th>5</th>
-      <td>5</td>
-      <td>Gift_Amount</td>
-      <td>REAL</td>
-      <td>0</td>
-      <td>None</td>
-      <td>0</td>
-    </tr>
-    <tr>
-      <th>6</th>
-      <td>6</td>
-      <td>Gift_Date</td>
-      <td>TIMESTAMP</td>
-      <td>0</td>
-      <td>None</td>
-      <td>0</td>
-    </tr>
-    <tr>
-      <th>7</th>
-      <td>7</td>
-      <td>Major</td>
-      <td>TEXT</td>
-      <td>0</td>
-      <td>None</td>
-      <td>0</td>
-    </tr>
-    <tr>
-      <th>8</th>
-      <td>8</td>
-      <td>Prospect_ID</td>
-      <td>INTEGER</td>
-      <td>0</td>
-      <td>None</td>
-      <td>0</td>
-    </tr>
-    <tr>
-      <th>9</th>
-      <td>9</td>
-      <td>State</td>
-      <td>TEXT</td>
-      <td>0</td>
-      <td>None</td>
-      <td>0</td>
-    </tr>
-  </tbody>
-</table>
-</div>
-
-
-
-There's a second table in this database, so we can do the same to the columns in this table.
-
-
-```python
-pd.read_sql("""Select * From GraduationYear
-            LIMIT 5;""", database)
-```
-
-
-
-
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>index</th>
-      <th>Prospect ID</th>
-      <th>Year of Graduation</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>0</td>
-      <td>1515</td>
-      <td>1970</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>1</td>
-      <td>1588</td>
-      <td>1992</td>
-    </tr>
-    <tr>
-      <th>2</th>
-      <td>2</td>
-      <td>2508</td>
-      <td>1984</td>
-    </tr>
-    <tr>
-      <th>3</th>
-      <td>3</td>
-      <td>2589</td>
-      <td>1981</td>
-    </tr>
-    <tr>
-      <th>4</th>
-      <td>4</td>
-      <td>3012</td>
-      <td>1993</td>
-    </tr>
-  </tbody>
-</table>
-</div>
-
-
-
-
-```python
 database.execute("""Alter Table GraduationYear
              Rename Column `Prospect ID` To Prospect_ID;""")
 
 database.execute("""Alter Table GraduationYear
              Rename Column `Year of Graduation` To Graduation_Year;""")
+
 ```
 
-
-
-
-    <sqlite3.Cursor at 0x105492f80>
-
-
-
-
-```python
-pd.read_sql("PRAGMA table_info(GraduationYear);", database)
-```
+</details>
 
 
 
 
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
 
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>cid</th>
-      <th>name</th>
-      <th>type</th>
-      <th>notnull</th>
-      <th>dflt_value</th>
-      <th>pk</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>0</td>
-      <td>index</td>
-      <td>INTEGER</td>
-      <td>0</td>
-      <td>None</td>
-      <td>0</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>1</td>
-      <td>Prospect_ID</td>
-      <td>INTEGER</td>
-      <td>0</td>
-      <td>None</td>
-      <td>0</td>
-    </tr>
-    <tr>
-      <th>2</th>
-      <td>2</td>
-      <td>Graduation_Year</td>
-      <td>INTEGER</td>
-      <td>0</td>
-      <td>None</td>
-      <td>0</td>
-    </tr>
-  </tbody>
-</table>
-</div>
+    <sqlite3.Cursor at 0x10caf0730>
 
 
 
 ## Understand the data
 
-From the above queries, it's clear we can join the two tables in the database on the 'Prospect_ID' field. Let's do that and see what the joined tables look like.
+We can join the two tables in the database on the 'Prospect_ID' field. Let's do that and see what the joined tables look like.
 
 
 ```python
@@ -777,9 +347,7 @@ Join years;""", database)
 
 
 
-## Analyze the data
-
-### How much did the university raise each year?
+## How much did the university raise each year?
 
 The chart below shows total donations for each of the six years in the data. 
 
@@ -810,11 +378,11 @@ plt.margins(0.01, 0.01)
 
 
     
-![png](University_Donations_files/University_Donations_26_0.png)
+![png](University_Donations_files/University_Donations_15_0.png)
     
 
 
-### What is the distribution of gifts?
+## What is the distribution of gifts?
 
 We looked at the data earlier, so we know there are 3913 unique gift records in the data.
 
@@ -865,11 +433,11 @@ plt.margins(0.01, 0.08)
 
 
     
-![png](University_Donations_files/University_Donations_29_0.png)
+![png](University_Donations_files/University_Donations_18_0.png)
     
 
 
-#### Largest gifts in each year
+## Largest gifts in each year
 
 From the chart above, we know who the top overall donors are.
 
@@ -952,11 +520,11 @@ plt.show()
 
 
     
-![png](University_Donations_files/University_Donations_32_0.png)
+![png](University_Donations_files/University_Donations_21_0.png)
     
 
 
-### Most generous donors
+## Most generous donors
 
 Who are the most generous donors and how much have they given?
 
@@ -997,11 +565,11 @@ plt.margins(0.01, 0.01)
 
 
     
-![png](University_Donations_files/University_Donations_35_0.png)
+![png](University_Donations_files/University_Donations_24_0.png)
     
 
 
-### Most generous states
+## Most generous states
 
 In which states were alumni the most generous?
 
@@ -1032,7 +600,7 @@ plt.margins(0.01, 0.01)
 
 
     
-![png](University_Donations_files/University_Donations_38_0.png)
+![png](University_Donations_files/University_Donations_27_0.png)
     
 
 
@@ -1111,7 +679,7 @@ result
 
 
 
-### Most generous cities
+## Most generous cities
 
 Colorado was the most generous state, and its capital was the most generous city in the dataset.
 
@@ -1141,7 +709,7 @@ plt.margins(0.01, 0.01)
 
 
     
-![png](University_Donations_files/University_Donations_44_0.png)
+![png](University_Donations_files/University_Donations_33_0.png)
     
 
 
@@ -1208,7 +776,7 @@ result
 
 
 
-### Most generous majors
+## Most generous majors
 
 Are donors who studied particular majors more likely to donate money to the university after they graduate?
 
@@ -1240,7 +808,7 @@ plt.margins(0.01, 0.01)
 
 
     
-![png](University_Donations_files/University_Donations_49_0.png)
+![png](University_Donations_files/University_Donations_38_0.png)
     
 
 
@@ -1322,7 +890,7 @@ result
 
 
 
-### Most popular gift allocations
+## Most popular gift allocations
 
 Donors were able to direct their gifts to 25 funds or causes within the university. Where did the donations go?
 
@@ -1354,7 +922,7 @@ plt.margins(0.01, 0.01)
 
 
     
-![png](University_Donations_files/University_Donations_54_0.png)
+![png](University_Donations_files/University_Donations_43_0.png)
     
 
 
@@ -1452,7 +1020,7 @@ result
 
 
 
-### When are graduates most generous?
+## When are graduates most generous?
 
 The dataset covers donations made between 2010 and 2015 by individuals who graduated from the university between 1960 and 2009.
 
@@ -1485,7 +1053,7 @@ plt.margins(0.01, 0.01)
 
 
     
-![png](University_Donations_files/University_Donations_59_0.png)
+![png](University_Donations_files/University_Donations_48_0.png)
     
 
 The second chart shows that the average gift does not change significantly over time. Rather, it is the number of gifts that changes significantly over time. The number of gifts increases steadily until the 24th year after graduation, after which there is a steep decline, with the number levelling out at approximately 35 years after graduation.
@@ -1509,6 +1077,6 @@ axes2.tick_params(axis='y', colors='b')
 
 
     
-![png](University_Donations_files/University_Donations_61_0.png)
+![png](University_Donations_files/University_Donations_50_0.png)
     
 

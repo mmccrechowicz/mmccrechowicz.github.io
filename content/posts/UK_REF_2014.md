@@ -163,7 +163,7 @@ database.execute("""Alter Table REF_Results
 
 ## Understand the data
 
-There is one table of interest: REF_Resutls. The table has 38,220 rows and 14 columns. REF_Results contains data about the universities assessed in the REF, the subjects they were assessed in, how many staff were submitted, the ratings they receieved, and whether universities completed joint submissions with another institution.
+There is one table of interest: REF_Results. The table has 38,220 rows and 14 columns. REF_Results contains data about the universities assessed in the REF, the subjects they were assessed in, how many staff were submitted, the ratings they receieved, and whether universities completed joint submissions with another institution.
 
 
 ```python

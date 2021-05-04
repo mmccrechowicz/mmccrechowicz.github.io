@@ -106,6 +106,7 @@
 <li>Which donors should the alumni relations team cultivate because they are or could become major benefactors?</li>
 <li>Does the alumni relations team need to do more to engage with alumni, or with any particular demographics within alumni?</li>
 </ul>
+<p>The analysis is done using SQLite, pandas and matplotlib in Jupyter Notebooks.</p>
 <p>The original dataset can be downloaded <a href="https://public.tableau.com/s/sites/default/files/media/advancement_donations_and_giving_demo.xls">here</a>.</p>
 <h2 id="set-up">Set up</h2>
 <h3 id="define-functions">Define functions</h3>
@@ -159,151 +160,16 @@
 </code></pre></div></details>
 <h3 id="prepare-the-data">Prepare the data</h3>
 <h4 id="import-the-dataset-and-create-the-database">Import the dataset and create the database</h4>
-<p>I&rsquo;m importing a dataset from a URL.</p>
+<p>The data comes from an unnamed university and contains anonymised information about the individuals who have donated money to the university.</p>
+<p>There are two tables: the first contains the donors' ID numbers and details of their donations; the second contains just the donor ID and the donor&rsquo;s graduation year.</p>
+<p>I download the file from this <a href="https://public.tableau.com/s/sites/default/files/media/advancement_donations_and_giving_demo.xls">URL</a>, and convert it into an SQL database to enable analysis in Jupyter Notebooks.</p>
 <div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="n">database</span> <span class="o">=</span> <span class="n">excel_dataset_to_sqlite</span><span class="p">(</span><span class="s2">&#34;https://public.tableau.com/s/sites/default/files/media/advancement_donations_and_giving_demo.xls&#34;</span><span class="p">)</span>
-</code></pre></div><pre><code>/Users/Matthew/Library/Caches/pypoetry/virtualenvs/notebooks-iGyxaocD-py3.8/lib/python3.8/site-packages/pandas/core/generic.py:2779: UserWarning: The spaces in these column names will not be changed. In pandas versions &lt; 0.14, spaces were converted to underscores.
+</code></pre></div><pre><code>/Users/Matthew/Library/Caches/pypoetry/virtualenvs/notebooks-IW0Gw3EE-py3.8/lib/python3.8/site-packages/pandas/core/generic.py:2779: UserWarning: The spaces in these column names will not be changed. In pandas versions &lt; 0.14, spaces were converted to underscores.
   sql.to_sql(
 </code></pre>
-<h4 id="view-the-table-names-to-make-sure-the-correct-tables-have-been-created">View the table names to make sure the correct tables have been created</h4>
-<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span>
-    <span class="s2">&#34;&#34;&#34;SELECT name FROM sqlite_master WHERE type=&#39;table&#39;;&#34;&#34;&#34;</span><span class="p">,</span> <span class="n">database</span><span class="p">)</span>
-</code></pre></div><div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-<pre><code>.dataframe tbody tr th {
-    vertical-align: top;
-}
-
-.dataframe thead th {
-    text-align: right;
-}
-</code></pre>
-<p></style></p>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>name</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>GiftRecords</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>GraduationYear</td>
-    </tr>
-  </tbody>
-</table>
-</div>
-<h4 id="the-table-names-look-fine-but-what-about-the-column-names">The table names look fine. But what about the column names?</h4>
-<p>The column names have spaces, which will make them annoying to work with in SQL queries. So, let&rsquo;s change the names to make queries easier.</p>
-<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="s2">&#34;&#34;&#34;Select * From GiftRecords
-</span><span class="s2">            LIMIT 5;&#34;&#34;&#34;</span><span class="p">,</span> <span class="n">database</span><span class="p">)</span>
-</code></pre></div><div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-<pre><code>.dataframe tbody tr th {
-    vertical-align: top;
-}
-
-.dataframe thead th {
-    text-align: right;
-}
-</code></pre>
-<p></style></p>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>index</th>
-      <th>Allocation Subcategory</th>
-      <th>City</th>
-      <th>College</th>
-      <th>Gift Allocation</th>
-      <th>Gift Amount</th>
-      <th>Gift Date</th>
-      <th>Major</th>
-      <th>Prospect ID</th>
-      <th>State</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>0</td>
-      <td>College of Natural Science</td>
-      <td>Denver</td>
-      <td>College of Natural Science</td>
-      <td>Scholarship</td>
-      <td>5,088.00</td>
-      <td>2010-07-28 00:00:00</td>
-      <td>Biological Science Interdepartmental</td>
-      <td>1000</td>
-      <td>CO</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>1</td>
-      <td>College of Natural Science</td>
-      <td>San Francisco</td>
-      <td>College of Social Science</td>
-      <td>Scholarship</td>
-      <td>3,793.00</td>
-      <td>2010-09-10 00:00:00</td>
-      <td>Human Development and Family Studies</td>
-      <td>1001</td>
-      <td>CA</td>
-    </tr>
-    <tr>
-      <th>2</th>
-      <td>2</td>
-      <td>Minority Scholarship Fund</td>
-      <td>Los Angeles</td>
-      <td>College of Business</td>
-      <td>Scholarship</td>
-      <td>2,952.00</td>
-      <td>2010-06-30 00:00:00</td>
-      <td>Accounting</td>
-      <td>1002</td>
-      <td>CA</td>
-    </tr>
-    <tr>
-      <th>3</th>
-      <td>3</td>
-      <td>College of Communication Arts and Sciences</td>
-      <td>Mesa</td>
-      <td>College of Natural Science</td>
-      <td>Scholarship</td>
-      <td>2,872.00</td>
-      <td>2010-11-23 00:00:00</td>
-      <td>Mathematics</td>
-      <td>1003</td>
-      <td>AZ</td>
-    </tr>
-    <tr>
-      <th>4</th>
-      <td>4</td>
-      <td>Diversity Fund</td>
-      <td>West Valley City</td>
-      <td>College of Social Science</td>
-      <td>Endowment</td>
-      <td>2,022.00</td>
-      <td>2010-10-10 00:00:00</td>
-      <td>Psychology</td>
-      <td>1004</td>
-      <td>UT</td>
-    </tr>
-  </tbody>
-</table>
-</div>
-<p>We can change the column names which have spaces.</p>
+<p>Once the database has been created, I change the names of some of the columns to make the data easier to work with</p>
+<details>
+<summary>Code</summary>
 <div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="n">database</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&#34;&#34;&#34;Alter Table GiftRecords
 </span><span class="s2">             Rename Column `Allocation Subcategory` To Allocation_Subcategory;&#34;&#34;&#34;</span><span class="p">)</span>
 
@@ -318,257 +184,18 @@
 
 <span class="n">database</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&#34;&#34;&#34;Alter Table GiftRecords
 </span><span class="s2">             Rename Column `Prospect ID` To Prospect_ID;&#34;&#34;&#34;</span><span class="p">)</span>
-</code></pre></div><pre><code>&lt;sqlite3.Cursor at 0x11aae39d0&gt;
-</code></pre>
-<p>And then check that the changes went through.</p>
-<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="s2">&#34;PRAGMA table_info(GiftRecords);&#34;</span><span class="p">,</span> <span class="n">database</span><span class="p">)</span>
-</code></pre></div><div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-<pre><code>.dataframe tbody tr th {
-    vertical-align: top;
-}
 
-.dataframe thead th {
-    text-align: right;
-}
-</code></pre>
-<p></style></p>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>cid</th>
-      <th>name</th>
-      <th>type</th>
-      <th>notnull</th>
-      <th>dflt_value</th>
-      <th>pk</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>0</td>
-      <td>index</td>
-      <td>INTEGER</td>
-      <td>0</td>
-      <td>None</td>
-      <td>0</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>1</td>
-      <td>Allocation_Subcategory</td>
-      <td>TEXT</td>
-      <td>0</td>
-      <td>None</td>
-      <td>0</td>
-    </tr>
-    <tr>
-      <th>2</th>
-      <td>2</td>
-      <td>City</td>
-      <td>TEXT</td>
-      <td>0</td>
-      <td>None</td>
-      <td>0</td>
-    </tr>
-    <tr>
-      <th>3</th>
-      <td>3</td>
-      <td>College</td>
-      <td>TEXT</td>
-      <td>0</td>
-      <td>None</td>
-      <td>0</td>
-    </tr>
-    <tr>
-      <th>4</th>
-      <td>4</td>
-      <td>Gift_Allocation</td>
-      <td>TEXT</td>
-      <td>0</td>
-      <td>None</td>
-      <td>0</td>
-    </tr>
-    <tr>
-      <th>5</th>
-      <td>5</td>
-      <td>Gift_Amount</td>
-      <td>REAL</td>
-      <td>0</td>
-      <td>None</td>
-      <td>0</td>
-    </tr>
-    <tr>
-      <th>6</th>
-      <td>6</td>
-      <td>Gift_Date</td>
-      <td>TIMESTAMP</td>
-      <td>0</td>
-      <td>None</td>
-      <td>0</td>
-    </tr>
-    <tr>
-      <th>7</th>
-      <td>7</td>
-      <td>Major</td>
-      <td>TEXT</td>
-      <td>0</td>
-      <td>None</td>
-      <td>0</td>
-    </tr>
-    <tr>
-      <th>8</th>
-      <td>8</td>
-      <td>Prospect_ID</td>
-      <td>INTEGER</td>
-      <td>0</td>
-      <td>None</td>
-      <td>0</td>
-    </tr>
-    <tr>
-      <th>9</th>
-      <td>9</td>
-      <td>State</td>
-      <td>TEXT</td>
-      <td>0</td>
-      <td>None</td>
-      <td>0</td>
-    </tr>
-  </tbody>
-</table>
-</div>
-<p>There&rsquo;s a second table in this database, so we can do the same to the columns in this table.</p>
-<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="s2">&#34;&#34;&#34;Select * From GraduationYear
-</span><span class="s2">            LIMIT 5;&#34;&#34;&#34;</span><span class="p">,</span> <span class="n">database</span><span class="p">)</span>
-</code></pre></div><div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-<pre><code>.dataframe tbody tr th {
-    vertical-align: top;
-}
-
-.dataframe thead th {
-    text-align: right;
-}
-</code></pre>
-<p></style></p>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>index</th>
-      <th>Prospect ID</th>
-      <th>Year of Graduation</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>0</td>
-      <td>1515</td>
-      <td>1970</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>1</td>
-      <td>1588</td>
-      <td>1992</td>
-    </tr>
-    <tr>
-      <th>2</th>
-      <td>2</td>
-      <td>2508</td>
-      <td>1984</td>
-    </tr>
-    <tr>
-      <th>3</th>
-      <td>3</td>
-      <td>2589</td>
-      <td>1981</td>
-    </tr>
-    <tr>
-      <th>4</th>
-      <td>4</td>
-      <td>3012</td>
-      <td>1993</td>
-    </tr>
-  </tbody>
-</table>
-</div>
-<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="n">database</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&#34;&#34;&#34;Alter Table GraduationYear
+<span class="n">database</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&#34;&#34;&#34;Alter Table GraduationYear
 </span><span class="s2">             Rename Column `Prospect ID` To Prospect_ID;&#34;&#34;&#34;</span><span class="p">)</span>
 
 <span class="n">database</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&#34;&#34;&#34;Alter Table GraduationYear
 </span><span class="s2">             Rename Column `Year of Graduation` To Graduation_Year;&#34;&#34;&#34;</span><span class="p">)</span>
-</code></pre></div><pre><code>&lt;sqlite3.Cursor at 0x105492f80&gt;
-</code></pre>
-<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="s2">&#34;PRAGMA table_info(GraduationYear);&#34;</span><span class="p">,</span> <span class="n">database</span><span class="p">)</span>
-</code></pre></div><div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-<pre><code>.dataframe tbody tr th {
-    vertical-align: top;
-}
 
-.dataframe thead th {
-    text-align: right;
-}
+</code></pre></div></details>
+<pre><code>&lt;sqlite3.Cursor at 0x10caf0730&gt;
 </code></pre>
-<p></style></p>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>cid</th>
-      <th>name</th>
-      <th>type</th>
-      <th>notnull</th>
-      <th>dflt_value</th>
-      <th>pk</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>0</td>
-      <td>index</td>
-      <td>INTEGER</td>
-      <td>0</td>
-      <td>None</td>
-      <td>0</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>1</td>
-      <td>Prospect_ID</td>
-      <td>INTEGER</td>
-      <td>0</td>
-      <td>None</td>
-      <td>0</td>
-    </tr>
-    <tr>
-      <th>2</th>
-      <td>2</td>
-      <td>Graduation_Year</td>
-      <td>INTEGER</td>
-      <td>0</td>
-      <td>None</td>
-      <td>0</td>
-    </tr>
-  </tbody>
-</table>
-</div>
 <h2 id="understand-the-data">Understand the data</h2>
-<p>From the above queries, it&rsquo;s clear we can join the two tables in the database on the &lsquo;Prospect_ID&rsquo; field. Let&rsquo;s do that and see what the joined tables look like.</p>
+<p>We can join the two tables in the database on the &lsquo;Prospect_ID&rsquo; field. Let&rsquo;s do that and see what the joined tables look like.</p>
 <div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="s2">&#34;&#34;&#34;
 </span><span class="s2">SELECT * From GiftRecords
 </span><span class="s2">LEFT JOIN GraduationYear ON GiftRecords.Prospect_ID = GraduationYear.Prospect_ID
@@ -750,8 +377,7 @@
   </tbody>
 </table>
 </div>
-<h2 id="analyze-the-data">Analyze the data</h2>
-<h3 id="how-much-did-the-university-raise-each-year">How much did the university raise each year?</h3>
+<h2 id="how-much-did-the-university-raise-each-year">How much did the university raise each year?</h2>
 <p>The chart below shows total donations for each of the six years in the data.</p>
 <p>Looking at the annual average donations made, there is no clear pattern or trend; rather we see fluctuations from year to year. Donations peaked in 2013 before falling in the two subsequent years.</p>
 <p>It would be interesting to know whether the development team ran any initiatives or campaigns in 2013 that could explain that year&rsquo;s high level of donations, especially after 2012, which saw the lowest annual donations among the years covered.</p>
@@ -768,8 +394,8 @@
 <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&#34;Total gifts ($m)&#34;</span><span class="p">,</span> <span class="n">labelpad</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">fontsize</span> <span class="o">=</span> <span class="mi">12</span><span class="p">)</span>
 <span class="n">_</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">(</span><span class="n">rotation</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">ha</span> <span class="o">=</span> <span class="s2">&#34;center&#34;</span><span class="p">,</span> <span class="n">fontsize</span> <span class="o">=</span> <span class="mi">10</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">margins</span><span class="p">(</span><span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">)</span>
-</code></pre></div><p><img src="University_Donations_files/University_Donations_26_0.png" alt="png"></p>
-<h3 id="what-is-the-distribution-of-gifts">What is the distribution of gifts?</h3>
+</code></pre></div><p><img src="University_Donations_files/University_Donations_15_0.png" alt="png"></p>
+<h2 id="what-is-the-distribution-of-gifts">What is the distribution of gifts?</h2>
 <p>We looked at the data earlier, so we know there are 3913 unique gift records in the data.</p>
 <p>To understand these gifts at a basic level, we can look at the distribution of gifts among different gift amounts.</p>
 <p>By bucketing the gifts in this way, it is clear that the vast majority of gifts are below \$10k, with only a small percentage above \$20k.</p>
@@ -806,8 +432,8 @@
 <span class="n">plt</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">xy</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&#34;$300k-$400k&#34;</span><span class="p">,</span> <span class="mi">50</span><span class="p">),</span> <span class="n">ha</span><span class="o">=</span><span class="s1">&#39;center&#39;</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">xy</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&#34;$400k-$500k&#34;</span><span class="p">,</span> <span class="mi">51</span><span class="p">),</span> <span class="n">ha</span><span class="o">=</span><span class="s1">&#39;center&#39;</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">margins</span><span class="p">(</span><span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.08</span><span class="p">)</span>
-</code></pre></div><p><img src="University_Donations_files/University_Donations_29_0.png" alt="png"></p>
-<h4 id="largest-gifts-in-each-year">Largest gifts in each year</h4>
+</code></pre></div><p><img src="University_Donations_files/University_Donations_18_0.png" alt="png"></p>
+<h2 id="largest-gifts-in-each-year">Largest gifts in each year</h2>
 <p>From the chart above, we know who the top overall donors are.</p>
 <p>But what does this look like on an annual basis? We can find the top five largest gifts each year to see if there are any patterns.</p>
 <div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="n">result</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="s2">&#34;&#34;&#34;
@@ -877,8 +503,8 @@
 <span class="n">_</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">(</span><span class="n">rotation</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">ha</span> <span class="o">=</span> <span class="s2">&#34;center&#34;</span><span class="p">,</span> <span class="n">fontsize</span> <span class="o">=</span> <span class="mi">10</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">margins</span><span class="p">(</span><span class="mf">0.03</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
-</code></pre></div><p><img src="University_Donations_files/University_Donations_32_0.png" alt="png"></p>
-<h3 id="most-generous-donors">Most generous donors</h3>
+</code></pre></div><p><img src="University_Donations_files/University_Donations_21_0.png" alt="png"></p>
+<h2 id="most-generous-donors">Most generous donors</h2>
 <p>Who are the most generous donors and how much have they given?</p>
 <p>Based on the distribution chart, we know that two donors in particular have been very generous to the university, donating more than \$400,000 and \$200,000 respectively in single gifts.</p>
 <p>A larger number of donors have also given amounts between \$20,000 and \$100,000.</p>
@@ -904,8 +530,8 @@
 <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&#34;Total gifts ($)&#34;</span><span class="p">,</span> <span class="n">labelpad</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">fontsize</span> <span class="o">=</span> <span class="mi">12</span><span class="p">)</span>
 <span class="n">_</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">(</span><span class="n">rotation</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">ha</span> <span class="o">=</span> <span class="s2">&#34;center&#34;</span><span class="p">,</span> <span class="n">fontsize</span> <span class="o">=</span> <span class="mi">10</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">margins</span><span class="p">(</span><span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">)</span>
-</code></pre></div><p><img src="University_Donations_files/University_Donations_35_0.png" alt="png"></p>
-<h3 id="most-generous-states">Most generous states</h3>
+</code></pre></div><p><img src="University_Donations_files/University_Donations_24_0.png" alt="png"></p>
+<h2 id="most-generous-states">Most generous states</h2>
 <p>In which states were alumni the most generous?</p>
 <p>Colorado was the most generous state, sending more than $3m in donations to the university. Montana was the least generous state.</p>
 <div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="n">result</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span>
@@ -923,7 +549,7 @@
 <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&#34;Total gifts ($ &#39;000)&#34;</span><span class="p">,</span> <span class="n">labelpad</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">fontsize</span> <span class="o">=</span> <span class="mi">12</span><span class="p">)</span>
 <span class="n">_</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">(</span><span class="n">rotation</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">ha</span> <span class="o">=</span> <span class="s2">&#34;center&#34;</span><span class="p">,</span> <span class="n">fontsize</span> <span class="o">=</span> <span class="mi">10</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">margins</span><span class="p">(</span><span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">)</span>
-</code></pre></div><p><img src="University_Donations_files/University_Donations_38_0.png" alt="png"></p>
+</code></pre></div><p><img src="University_Donations_files/University_Donations_27_0.png" alt="png"></p>
 <p>Let&rsquo;s look at Colorado and Montana in more detail.</p>
 <p>Colorado recorded more than 90 times as many gifts as Montana, and an average gift amount that was more than 60% higher than Montana&rsquo;s. The largest gift from a Colorado donor was \$38,052, almost \$30,000 more than the largest gift originating in Montana.</p>
 <p>210 individual donors from Colorado made contributions to the univeristy, compared to just 2 from Montana.</p>
@@ -986,7 +612,7 @@
   </tbody>
 </table>
 </div>
-<h3 id="most-generous-cities">Most generous cities</h3>
+<h2 id="most-generous-cities">Most generous cities</h2>
 <p>Colorado was the most generous state, and its capital was the most generous city in the dataset.</p>
 <div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="n">result</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="s2">&#34;&#34;&#34;
 </span><span class="s2">Select City, 
@@ -1004,7 +630,7 @@
 <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&#34;Total gifts ($ &#39;000)&#34;</span><span class="p">,</span> <span class="n">labelpad</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">fontsize</span> <span class="o">=</span> <span class="mi">12</span><span class="p">)</span>
 <span class="n">_</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">(</span><span class="n">rotation</span> <span class="o">=</span> <span class="mi">60</span><span class="p">,</span> <span class="n">ha</span> <span class="o">=</span> <span class="s2">&#34;right&#34;</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">margins</span><span class="p">(</span><span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">)</span>
-</code></pre></div><p><img src="University_Donations_files/University_Donations_44_0.png" alt="png"></p>
+</code></pre></div><p><img src="University_Donations_files/University_Donations_33_0.png" alt="png"></p>
 <p>Let&rsquo;s look at the data for Denver in more detail. We see that Denver accounts for most of the donations from the state of Colorado: 311 of the 368 total gifts, and 181 of the 210 individual donors from Colorado are from Denver.</p>
 <div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="n">result</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="s2">&#34;&#34;&#34;
 </span><span class="s2">SELECT City, 
@@ -1056,7 +682,7 @@
   </tbody>
 </table>
 </div>
-<h3 id="most-generous-majors">Most generous majors</h3>
+<h2 id="most-generous-majors">Most generous majors</h2>
 <p>Are donors who studied particular majors more likely to donate money to the university after they graduate?</p>
 <p>The chart below shows the top 20 most generous majors. Engineers were the most generous donors to the university, followed by Composition and Mathematics graduates.</p>
 <div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="n">result</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="s2">&#34;&#34;&#34;
@@ -1075,7 +701,7 @@
 <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&#34;Total gifts ($ &#39;000)&#34;</span><span class="p">,</span> <span class="n">labelpad</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">fontsize</span> <span class="o">=</span> <span class="mi">12</span><span class="p">)</span>
 <span class="n">_</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">(</span><span class="n">rotation</span> <span class="o">=</span> <span class="mi">60</span><span class="p">,</span> <span class="n">ha</span> <span class="o">=</span> <span class="s2">&#34;right&#34;</span><span class="p">,</span> <span class="n">fontsize</span> <span class="o">=</span> <span class="mi">10</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">margins</span><span class="p">(</span><span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">)</span>
-</code></pre></div><p><img src="University_Donations_files/University_Donations_49_0.png" alt="png"></p>
+</code></pre></div><p><img src="University_Donations_files/University_Donations_38_0.png" alt="png"></p>
 <p>We can take a closer look at the top three most generous majors.</p>
 <p>Although Engineering graduates were the most generous overall, fewer Engineering graduates made gifts than did graduates from Composition or Mathematics. Of the three majors, Composition delivered the highest number of gifts and the highest number of individual donors, but the smallest overall and average gift values.</p>
 <div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="n">result</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="s2">&#34;&#34;&#34;
@@ -1142,7 +768,7 @@
   </tbody>
 </table>
 </div>
-<h3 id="most-popular-gift-allocations">Most popular gift allocations</h3>
+<h2 id="most-popular-gift-allocations">Most popular gift allocations</h2>
 <p>Donors were able to direct their gifts to 25 funds or causes within the university. Where did the donations go?</p>
 <p>The two most popular donation destinations were non-subject specific: the Diversity Fund and the University Annual Fund.</p>
 <p>The College of Natural Science was the third highest overall recipient of donations, and received more donations than any other university faculty.</p>
@@ -1160,7 +786,7 @@
 <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&#34;Total gifts ($ &#39;000)&#34;</span><span class="p">,</span> <span class="n">labelpad</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">fontsize</span> <span class="o">=</span> <span class="mi">12</span><span class="p">)</span>
 <span class="n">_</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">(</span><span class="n">rotation</span> <span class="o">=</span> <span class="mi">60</span><span class="p">,</span> <span class="n">ha</span> <span class="o">=</span> <span class="s2">&#34;right&#34;</span><span class="p">,</span> <span class="n">fontsize</span> <span class="o">=</span> <span class="mi">10</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">margins</span><span class="p">(</span><span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">)</span>
-</code></pre></div><p><img src="University_Donations_files/University_Donations_54_0.png" alt="png"></p>
+</code></pre></div><p><img src="University_Donations_files/University_Donations_43_0.png" alt="png"></p>
 <p>Let&rsquo;s have a look at the donation profiles for the three funds which received the highest number of donations.</p>
 <p>Of these three, the University Annual Fund received the highest number of gifts from the highest number of individual donors. However, this fund had the lowest average gift.</p>
 <p>We might assume that the Diversity Fund and the University Annual Fund would attract a more diverse group of donors in terms of the subjects they studied. However, the College of Natural Science had donors from all 12 colleges in the university, as did the other two funds, and had donors from only eight fewer majors than the general funds.</p>
@@ -1242,7 +868,7 @@
   </tbody>
 </table>
 </div>
-<h3 id="when-are-graduates-most-generous">When are graduates most generous?</h3>
+<h2 id="when-are-graduates-most-generous">When are graduates most generous?</h2>
 <p>The dataset covers donations made between 2010 and 2015 by individuals who graduated from the university between 1960 and 2009.</p>
 <p>The first chart shows that, until about 25 years after graduation, graduates get more generous the longer they have been away from the university. After the 25-year mark, they gradually become less generous.</p>
 <div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="n">result</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="s2">&#34;&#34;&#34;
@@ -1262,7 +888,7 @@
 <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&#34;Total gifts ($ &#39;000)&#34;</span><span class="p">,</span> <span class="n">labelpad</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">fontsize</span> <span class="o">=</span> <span class="mi">12</span><span class="p">)</span>
 <span class="n">_</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">(</span><span class="n">rotation</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">ha</span> <span class="o">=</span> <span class="s2">&#34;center&#34;</span><span class="p">,</span> <span class="n">fontsize</span> <span class="o">=</span> <span class="mi">10</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">margins</span><span class="p">(</span><span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">)</span>
-</code></pre></div><p><img src="University_Donations_files/University_Donations_59_0.png" alt="png"></p>
+</code></pre></div><p><img src="University_Donations_files/University_Donations_48_0.png" alt="png"></p>
 <p>The second chart shows that the average gift does not change significantly over time. Rather, it is the number of gifts that changes significantly over time. The number of gifts increases steadily until the 24th year after graduation, after which there is a steep decline, with the number levelling out at approximately 35 years after graduation.</p>
 <div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="n">fig</span><span class="p">,</span> <span class="n">axis1</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
 <span class="n">axis1</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="bp">False</span><span class="p">)</span>
@@ -1278,7 +904,7 @@
 <span class="n">axis1</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="n">colors</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">)</span>
 <span class="n">axis1</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="n">labelsize</span> <span class="o">=</span> <span class="mi">10</span><span class="p">)</span>
 <span class="n">axes2</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="n">colors</span><span class="o">=</span><span class="s1">&#39;b&#39;</span><span class="p">)</span>
-</code></pre></div><p><img src="University_Donations_files/University_Donations_61_0.png" alt="png"></p>
+</code></pre></div><p><img src="University_Donations_files/University_Donations_50_0.png" alt="png"></p>
 </div>
                     <div class="post_footer">
                         

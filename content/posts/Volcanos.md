@@ -6,11 +6,11 @@ tags: ["SQL", "Jupyter"]
 summary: Which countries have been most affected by volcanic incidents?
 ---
 
-Note: some map-based visualisations would be good in this analysis. Ask Maciej for help with this: https://colab.research.google.com/github/jakevdp/PythonDataScienceHandbook/blob/master/notebooks/04.13-Geographic-Data-With-Basemap.ipynb#scrollTo=HhB0JKS0_l4s
+This analysis uses a dataset from the National Oceanic and Atmospheric Administration's [National Centers for Environmental Information](https://www.ngdc.noaa.gov/) about 658 significant volcanic eruptions that occurred between 4360 BCE and 2014 CE. 
 
-This analysis uses a [dataset](https://public.tableau.com/s/sites/default/files/media/Resources/significantvolcanoeruptions.xlsx) about 658 significant volcanic eruptions that occurred between 4360 BCE and 2014 CE. 
+Using SQLite, pandas and matplotlib in Jupyter Notebooks, I identify the most active volcanoes in this period; the countries which experienced the most volcanic activity; the eras with the greatest number of volcanic eruptions; and the impact these volcanoes have had in terms of human lives lost and damage done.
 
-Using the data available, I identify the most active volcanoes in this period; the countries which experienced the most volcanic activity; the eras with the greatest number of volcanic eruptions; and the impact these volcanoes have had in terms of human lives lost and damage done.
+The original dataset can be downloaded [here](https://public.tableau.com/s/sites/default/files/media/Resources/significantvolcanoeruptions.xlsx).
 
 ## Set up
 
@@ -76,387 +76,20 @@ def excel_dataset_to_sqlite(url: str, database_name: str = ":memory:") -> sqlite
 
 #### Import the dataset and create the database
 
-I'm importing a dataset from a URL. 
+The data comes from the NOAA's National Centers for Environmental Information. It's an Excel file with one sheet of data about volcanic eruptions. 
+
+I download the file from this [URL](https://public.tableau.com/s/sites/default/files/media/Resources/significantvolcanoeruptions.xlsx), and convert it into an SQL database to enable analysis in Jupyter Notebooks.
 
 
 ```python
 database = excel_dataset_to_sqlite("https://public.tableau.com/s/sites/default/files/media/Resources/significantvolcanoeruptions.xlsx")
 ```
 
-    /Users/Matthew/Library/Caches/pypoetry/virtualenvs/notebooks-iGyxaocD-py3.8/lib/python3.8/site-packages/pandas/core/generic.py:2779: UserWarning: The spaces in these column names will not be changed. In pandas versions < 0.14, spaces were converted to underscores.
+    /Users/Matthew/Library/Caches/pypoetry/virtualenvs/notebooks-IW0Gw3EE-py3.8/lib/python3.8/site-packages/pandas/core/generic.py:2779: UserWarning: The spaces in these column names will not be changed. In pandas versions < 0.14, spaces were converted to underscores.
       sql.to_sql(
 
 
-#### View the table names to make sure the correct tables have been created
-
-
-```python
-pd.read_sql("SELECT name FROM sqlite_master WHERE type='table';", database)
-```
-
-
-
-
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>name</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>volerup</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>Metadata</td>
-    </tr>
-  </tbody>
-</table>
-</div>
-
-
-
-#### Now let's have a look at the column names to make sure they won't make it difficult to work with this dataset.
-
-
-```python
-pd.read_sql("""SELECT * FROM volerup;""", database)
-```
-
-
-
-
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>index</th>
-      <th>Year</th>
-      <th>Month</th>
-      <th>Day</th>
-      <th>Associated Tsunami?</th>
-      <th>Associated Earthquake?</th>
-      <th>Name</th>
-      <th>Location</th>
-      <th>Country</th>
-      <th>Latitude</th>
-      <th>...</th>
-      <th>TOTAL_DEATHS</th>
-      <th>TOTAL_DEATHS_DESCRIPTION</th>
-      <th>TOTAL_MISSING</th>
-      <th>TOTAL_MISSING_DESCRIPTION</th>
-      <th>TOTAL_INJURIES</th>
-      <th>TOTAL_INJURIES_DESCRIPTION</th>
-      <th>TOTAL_DAMAGE_MILLIONS_DOLLARS</th>
-      <th>TOTAL_DAMAGE_DESCRIPTION</th>
-      <th>TOTAL_HOUSES_DESTROYED</th>
-      <th>TOTAL_HOUSES_DESTROYED_DESCRIPTION</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>0</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>None</td>
-      <td>NaN</td>
-      <td>...</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>1</td>
-      <td>-4,360.00</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>None</td>
-      <td>None</td>
-      <td>Macauley Island</td>
-      <td>Kermadec Is</td>
-      <td>New Zealand</td>
-      <td>-30.20</td>
-      <td>...</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-    </tr>
-    <tr>
-      <th>2</th>
-      <td>2</td>
-      <td>-4,350.00</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>None</td>
-      <td>None</td>
-      <td>Kikai</td>
-      <td>Ryukyu Is</td>
-      <td>Japan</td>
-      <td>30.78</td>
-      <td>...</td>
-      <td>NaN</td>
-      <td>3.00</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>3.00</td>
-      <td>NaN</td>
-      <td>3.00</td>
-    </tr>
-    <tr>
-      <th>3</th>
-      <td>3</td>
-      <td>-4,050.00</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>None</td>
-      <td>None</td>
-      <td>Masaya</td>
-      <td>Nicaragua</td>
-      <td>Nicaragua</td>
-      <td>11.98</td>
-      <td>...</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-    </tr>
-    <tr>
-      <th>4</th>
-      <td>4</td>
-      <td>-4,000.00</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>None</td>
-      <td>None</td>
-      <td>Pago</td>
-      <td>New Britain-SW Pac</td>
-      <td>Papua New Guinea</td>
-      <td>-5.58</td>
-      <td>...</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-    </tr>
-    <tr>
-      <th>...</th>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-    </tr>
-    <tr>
-      <th>654</th>
-      <td>654</td>
-      <td>2,014.00</td>
-      <td>2.00</td>
-      <td>1.00</td>
-      <td>None</td>
-      <td>None</td>
-      <td>Sinabung</td>
-      <td>Sumatra</td>
-      <td>Indonesia</td>
-      <td>3.17</td>
-      <td>...</td>
-      <td>17.00</td>
-      <td>1.00</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>3.00</td>
-      <td>1.00</td>
-      <td>NaN</td>
-      <td>1.00</td>
-      <td>NaN</td>
-      <td>2.00</td>
-    </tr>
-    <tr>
-      <th>655</th>
-      <td>655</td>
-      <td>2,014.00</td>
-      <td>2.00</td>
-      <td>13.00</td>
-      <td>None</td>
-      <td>None</td>
-      <td>Kelut</td>
-      <td>Java</td>
-      <td>Indonesia</td>
-      <td>-7.93</td>
-      <td>...</td>
-      <td>7.00</td>
-      <td>1.00</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>3.00</td>
-      <td>4,098.00</td>
-      <td>4.00</td>
-    </tr>
-    <tr>
-      <th>656</th>
-      <td>656</td>
-      <td>2,014.00</td>
-      <td>9.00</td>
-      <td>27.00</td>
-      <td>None</td>
-      <td>None</td>
-      <td>On-take</td>
-      <td>Honshu-Japan</td>
-      <td>Japan</td>
-      <td>35.90</td>
-      <td>...</td>
-      <td>55.00</td>
-      <td>2.00</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>70.00</td>
-      <td>2.00</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-    </tr>
-    <tr>
-      <th>657</th>
-      <td>657</td>
-      <td>2,014.00</td>
-      <td>11.00</td>
-      <td>10.00</td>
-      <td>None</td>
-      <td>None</td>
-      <td>Kilauea</td>
-      <td>Hawaiian Is</td>
-      <td>United States</td>
-      <td>19.43</td>
-      <td>...</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>14.50</td>
-      <td>3.00</td>
-      <td>1.00</td>
-      <td>1.00</td>
-    </tr>
-    <tr>
-      <th>658</th>
-      <td>658</td>
-      <td>2,014.00</td>
-      <td>11.00</td>
-      <td>23.00</td>
-      <td>None</td>
-      <td>None</td>
-      <td>Fogo</td>
-      <td>Cape Verde Is</td>
-      <td>Cape Verde</td>
-      <td>14.95</td>
-      <td>...</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>1.00</td>
-      <td>NaN</td>
-      <td>1.00</td>
-    </tr>
-  </tbody>
-</table>
-<p>659 rows × 37 columns</p>
-</div>
-
-
-
-A few of these column headers will make it difficult to work with the database. Let's change them to make life easier.
+Once the database has been created, I change some of the column names to make the data easier to work with. The first row of data is empty, so I also remove it.
 
 
 ```python
@@ -472,21 +105,6 @@ database.execute("""
     Alter Table volerup
     Rename Column `Volcano Explosivity Index (VEI)` To VEI;""")
 
-```
-
-
-
-
-    <sqlite3.Cursor at 0x11df87180>
-
-
-
-The first row doesn't seem to have any data in it, so let's get rid of it.
-
-
-
-
-```python
 database.execute("""DELETE FROM volerup
                     WHERE Year IS NULL;""")
 ```
@@ -494,338 +112,13 @@ database.execute("""DELETE FROM volerup
 
 
 
-    <sqlite3.Cursor at 0x11df87500>
+    <sqlite3.Cursor at 0x10f679490>
 
 
 
-When we select all, we now have the new column names, and 658 rows instead of 659.
+## Understand the database
 
-
-```python
-pd.read_sql("""SELECT * FROM volerup;""", database)
-```
-
-
-
-
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>index</th>
-      <th>Year</th>
-      <th>Month</th>
-      <th>Day</th>
-      <th>Associated_Tsunami</th>
-      <th>Associated_Earthquake</th>
-      <th>Name</th>
-      <th>Location</th>
-      <th>Country</th>
-      <th>Latitude</th>
-      <th>...</th>
-      <th>TOTAL_DEATHS</th>
-      <th>TOTAL_DEATHS_DESCRIPTION</th>
-      <th>TOTAL_MISSING</th>
-      <th>TOTAL_MISSING_DESCRIPTION</th>
-      <th>TOTAL_INJURIES</th>
-      <th>TOTAL_INJURIES_DESCRIPTION</th>
-      <th>TOTAL_DAMAGE_MILLIONS_DOLLARS</th>
-      <th>TOTAL_DAMAGE_DESCRIPTION</th>
-      <th>TOTAL_HOUSES_DESTROYED</th>
-      <th>TOTAL_HOUSES_DESTROYED_DESCRIPTION</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>1</td>
-      <td>-4,360.00</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>None</td>
-      <td>None</td>
-      <td>Macauley Island</td>
-      <td>Kermadec Is</td>
-      <td>New Zealand</td>
-      <td>-30.20</td>
-      <td>...</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>2</td>
-      <td>-4,350.00</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>None</td>
-      <td>None</td>
-      <td>Kikai</td>
-      <td>Ryukyu Is</td>
-      <td>Japan</td>
-      <td>30.78</td>
-      <td>...</td>
-      <td>NaN</td>
-      <td>3.00</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>3.00</td>
-      <td>NaN</td>
-      <td>3.00</td>
-    </tr>
-    <tr>
-      <th>2</th>
-      <td>3</td>
-      <td>-4,050.00</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>None</td>
-      <td>None</td>
-      <td>Masaya</td>
-      <td>Nicaragua</td>
-      <td>Nicaragua</td>
-      <td>11.98</td>
-      <td>...</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-    </tr>
-    <tr>
-      <th>3</th>
-      <td>4</td>
-      <td>-4,000.00</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>None</td>
-      <td>None</td>
-      <td>Pago</td>
-      <td>New Britain-SW Pac</td>
-      <td>Papua New Guinea</td>
-      <td>-5.58</td>
-      <td>...</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-    </tr>
-    <tr>
-      <th>4</th>
-      <td>5</td>
-      <td>-3,580.00</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>None</td>
-      <td>None</td>
-      <td>Taal</td>
-      <td>Luzon-Philippines</td>
-      <td>Philippines</td>
-      <td>14.00</td>
-      <td>...</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-    </tr>
-    <tr>
-      <th>...</th>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-    </tr>
-    <tr>
-      <th>653</th>
-      <td>654</td>
-      <td>2,014.00</td>
-      <td>2.00</td>
-      <td>1.00</td>
-      <td>None</td>
-      <td>None</td>
-      <td>Sinabung</td>
-      <td>Sumatra</td>
-      <td>Indonesia</td>
-      <td>3.17</td>
-      <td>...</td>
-      <td>17.00</td>
-      <td>1.00</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>3.00</td>
-      <td>1.00</td>
-      <td>NaN</td>
-      <td>1.00</td>
-      <td>NaN</td>
-      <td>2.00</td>
-    </tr>
-    <tr>
-      <th>654</th>
-      <td>655</td>
-      <td>2,014.00</td>
-      <td>2.00</td>
-      <td>13.00</td>
-      <td>None</td>
-      <td>None</td>
-      <td>Kelut</td>
-      <td>Java</td>
-      <td>Indonesia</td>
-      <td>-7.93</td>
-      <td>...</td>
-      <td>7.00</td>
-      <td>1.00</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>3.00</td>
-      <td>4,098.00</td>
-      <td>4.00</td>
-    </tr>
-    <tr>
-      <th>655</th>
-      <td>656</td>
-      <td>2,014.00</td>
-      <td>9.00</td>
-      <td>27.00</td>
-      <td>None</td>
-      <td>None</td>
-      <td>On-take</td>
-      <td>Honshu-Japan</td>
-      <td>Japan</td>
-      <td>35.90</td>
-      <td>...</td>
-      <td>55.00</td>
-      <td>2.00</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>70.00</td>
-      <td>2.00</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-    </tr>
-    <tr>
-      <th>656</th>
-      <td>657</td>
-      <td>2,014.00</td>
-      <td>11.00</td>
-      <td>10.00</td>
-      <td>None</td>
-      <td>None</td>
-      <td>Kilauea</td>
-      <td>Hawaiian Is</td>
-      <td>United States</td>
-      <td>19.43</td>
-      <td>...</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>14.50</td>
-      <td>3.00</td>
-      <td>1.00</td>
-      <td>1.00</td>
-    </tr>
-    <tr>
-      <th>657</th>
-      <td>658</td>
-      <td>2,014.00</td>
-      <td>11.00</td>
-      <td>23.00</td>
-      <td>None</td>
-      <td>None</td>
-      <td>Fogo</td>
-      <td>Cape Verde Is</td>
-      <td>Cape Verde</td>
-      <td>14.95</td>
-      <td>...</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>1.00</td>
-      <td>NaN</td>
-      <td>1.00</td>
-    </tr>
-  </tbody>
-</table>
-<p>658 rows × 37 columns</p>
-</div>
-
-
-
-## Let's do a little work to understand the database better.
-
-There are 658 rows, but how many unique values do we have in the important columns?
-
-We can see that the dataset covers 234 volcanoes in 73 locations across 48 countries. There are also 8 distinct values assigned to Volcanic Explosivity Index.
+There are 658 rows in the data. The data covers 234 volcanoes in 73 locations across 48 countries. There are also 8 distinct values assigned to Volcanic Explosivity Index.
 
 
 ```python
@@ -877,9 +170,7 @@ pd.read_sql("""SELECT COUNT(DISTINCT Name) AS Volcano_Name,
 
 
 
-## Analyze the data
-
-### Where do volcanic eruptions happen?
+## Where do volcanic eruptions happen?
 
 Let's start by identifying the geographical location of these volcanic eruptions.
 
@@ -907,7 +198,7 @@ plt.margins(0.01, 0.01)
 
 
     
-![png](Volcanos_files/Volcanos_23_0.png)
+![png](Volcanos_files/Volcanos_13_0.png)
     
 
 
@@ -933,7 +224,7 @@ plt.margins(0.01, 0.01)
 
 
     
-![png](Volcanos_files/Volcanos_25_0.png)
+![png](Volcanos_files/Volcanos_15_0.png)
     
 
 
@@ -1154,11 +445,11 @@ plt.margins(0.01, 0.01)
 
 
     
-![png](Volcanos_files/Volcanos_30_0.png)
+![png](Volcanos_files/Volcanos_20_0.png)
     
 
 
-#### Indonesia
+### Indonesia
 
 Let's have a more detailed look at Indonesia, the country with the highest number of volcanoes and volcanic eruptions.
 
@@ -1189,7 +480,7 @@ plt.margins(0.01, 0.01)
 
 
     
-![png](Volcanos_files/Volcanos_33_0.png)
+![png](Volcanos_files/Volcanos_23_0.png)
     
 
 
@@ -1220,11 +511,11 @@ plt.margins(0.01, 0.01)
 
 
     
-![png](Volcanos_files/Volcanos_36_0.png)
+![png](Volcanos_files/Volcanos_26_0.png)
     
 
 
-### When did these eruptions happen?
+## When did these eruptions happen?
 
 The data covers the period from 4360 BCE to 2014 CE. 
 
@@ -1372,7 +663,7 @@ plt.margins(0.00, 0.01)
 
 
     
-![png](Volcanos_files/Volcanos_41_0.png)
+![png](Volcanos_files/Volcanos_31_0.png)
     
 
 
@@ -1404,7 +695,7 @@ plt.margins(0.01, 0.01)
 
 
     
-![png](Volcanos_files/Volcanos_44_0.png)
+![png](Volcanos_files/Volcanos_34_0.png)
     
 
 
@@ -1433,11 +724,11 @@ plt.margins(0.01, 0.01)
 
 
     
-![png](Volcanos_files/Volcanos_47_0.png)
+![png](Volcanos_files/Volcanos_37_0.png)
     
 
 
-### Impact - Fatalities
+## Impact - Fatalities
 
 For many of the incidents covered in the database, we have figures for the number of people killed. Which volcanos have killed the most people?
 
@@ -1466,7 +757,7 @@ plt.margins(0.01, 0.01)
 
 
     
-![png](Volcanos_files/Volcanos_50_0.png)
+![png](Volcanos_files/Volcanos_40_0.png)
     
 
 
@@ -1495,7 +786,7 @@ plt.margins(0.01, 0.01)
 
 
     
-![png](Volcanos_files/Volcanos_53_0.png)
+![png](Volcanos_files/Volcanos_43_0.png)
     
 
 
@@ -1526,11 +817,11 @@ plt.margins(0.01, 0.01)
 
 
     
-![png](Volcanos_files/Volcanos_56_0.png)
+![png](Volcanos_files/Volcanos_46_0.png)
     
 
 
-### Impact - Financial Cost
+## Impact - Financial Cost
 
 Which volcanic incidents did the most damage?
 
@@ -1565,11 +856,11 @@ plt.margins(0.01, 0.01)
 
 
     
-![png](Volcanos_files/Volcanos_59_0.png)
+![png](Volcanos_files/Volcanos_49_0.png)
     
 
 
-### Impact - Destructiveness
+## Impact - Destructiveness
 
 We can also find out how many homes were destroyed by each incident.
 
@@ -1600,15 +891,15 @@ plt.margins(0.01, 0.01)
 
 
     
-![png](Volcanos_files/Volcanos_62_0.png)
+![png](Volcanos_files/Volcanos_52_0.png)
     
 
 
-### Associated Phenomena - Tsunamis and Earthquakes
+## Associated Phenomena - Tsunamis and Earthquakes
 
 The dataset also records where these volcanic eruptions are linked to tsunamis or earthquakes. How many of the eruptions are associated with tsunamis or earthquakes, and which countries are the most affected?
 
-#### Tsunamis
+### Tsunamis
 
 Of the 658 incidents recorded in the dataset, 133 are linked to tsunamis.
 
@@ -1637,11 +928,11 @@ plt.margins(0.01, 0.01)
 
 
     
-![png](Volcanos_files/Volcanos_66_0.png)
+![png](Volcanos_files/Volcanos_56_0.png)
     
 
 
-#### Earthquakes
+### Earthquakes
 
 Fewer volcanis eruptions are linked to earthquakes than to tsunamis. 55 of the eruptions in the dataset have an associated earthquake.
 
@@ -1670,7 +961,7 @@ plt.margins(0.01, 0.01)
 
 
     
-![png](Volcanos_files/Volcanos_69_0.png)
+![png](Volcanos_files/Volcanos_59_0.png)
     
 
 

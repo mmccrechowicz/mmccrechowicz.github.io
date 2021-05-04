@@ -206,7 +206,7 @@
 <pre><code>&lt;sqlite3.Cursor at 0x121fed110&gt;
 </code></pre>
 <h2 id="understand-the-data">Understand the data</h2>
-<p>There is one table of interest: REF_Resutls. The table has 38,220 rows and 14 columns. REF_Results contains data about the universities assessed in the REF, the subjects they were assessed in, how many staff were submitted, the ratings they receieved, and whether universities completed joint submissions with another institution.</p>
+<p>There is one table of interest: REF_Results. The table has 38,220 rows and 14 columns. REF_Results contains data about the universities assessed in the REF, the subjects they were assessed in, how many staff were submitted, the ratings they receieved, and whether universities completed joint submissions with another institution.</p>
 <div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="s2">&#34;&#34;&#34;
 </span><span class="s2">    SELECT *
 </span><span class="s2">    FROM REF_Results;&#34;&#34;&#34;</span><span class="p">,</span> <span class="n">database</span><span class="p">)</span>

@@ -3,7 +3,7 @@ title: "Tableau: University Fundraising"
 date: 2020-12-29T15:17:31.586474
 draft: false
 tags: ["Tableau"]
-summary: Alumni Donations
+summary: Who were the university's top donors?
 ---
 
 I posted my analysis of alumni donations data using SQL in Notebooks [here](). I've also done a similar piece of analysis using Tableau. The original dataset is available [here](https://public.tableau.com/s/sites/default/files/media/advancement_donations_and_giving_demo.xls).

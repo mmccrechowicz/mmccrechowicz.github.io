@@ -1,6 +1,6 @@
 ---
-title: "World Bank CO2 Emissions Data"
-date: 2021-04-10T15:26:09.928644
+title: "Global CO2 Emissions, 1960-2011"
+date: 2021-04-28T15:26:09.928644
 draft: false
 tags: ["SQL", "Jupyter"]
 summary: How did global CO2 emissions change between 1960 and 2011?
