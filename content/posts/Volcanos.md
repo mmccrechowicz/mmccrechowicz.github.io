@@ -92,6 +92,10 @@ database = excel_dataset_to_sqlite("https://public.tableau.com/s/sites/default/f
 Once the database has been created, I change some of the column names to make the data easier to work with. The first row of data is empty, so I also remove it.
 
 
+
+<details>
+<summary>Code</summary>
+
 ```python
 database.execute("""
     Alter Table volerup
@@ -107,7 +111,11 @@ database.execute("""
 
 database.execute("""DELETE FROM volerup
                     WHERE Year IS NULL;""")
+
 ```
+
+</details>
+
 
 
 

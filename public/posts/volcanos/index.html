@@ -159,6 +159,8 @@
   sql.to_sql(
 </code></pre>
 <p>Once the database has been created, I change some of the column names to make the data easier to work with. The first row of data is empty, so I also remove it.</p>
+<details>
+<summary>Code</summary>
 <div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="n">database</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&#34;&#34;&#34;
 </span><span class="s2">    Alter Table volerup
 </span><span class="s2">    Rename Column `Associated Tsunami?` To Associated_Tsunami;&#34;&#34;&#34;</span><span class="p">)</span>
@@ -173,7 +175,9 @@
 
 <span class="n">database</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&#34;&#34;&#34;DELETE FROM volerup
 </span><span class="s2">                    WHERE Year IS NULL;&#34;&#34;&#34;</span><span class="p">)</span>
-</code></pre></div><pre><code>&lt;sqlite3.Cursor at 0x10f679490&gt;
+
+</code></pre></div></details>
+<pre><code>&lt;sqlite3.Cursor at 0x10f679490&gt;
 </code></pre>
 <h2 id="understand-the-database">Understand the database</h2>
 <p>There are 658 rows in the data. The data covers 234 volcanoes in 73 locations across 48 countries. There are also 8 distinct values assigned to Volcanic Explosivity Index.</p>
