@@ -120,7 +120,7 @@ database.execute("""ALTER TABLE `Metadata - Countries`
 
 
 
-    <sqlite3.Cursor at 0x11adbc730>
+    <sqlite3.Cursor at 0x111ca2490>
 
 
 
@@ -150,7 +150,7 @@ database.execute("""ALTER TABLE CO2_Per_Capita
 
 
 
-    <sqlite3.Cursor at 0x11b5e6d50>
+    <sqlite3.Cursor at 0x127834dc0>
 
 
 
@@ -497,11 +497,9 @@ plt.margins(0.01, 0.01)
     
 
 
-## Annual emissions have been increasing consistently since 1960.
+## Annual emissions have been increasing consistently since 1960
 
 The emissions figures show that there has been a consistent upward trend in CO2 emissions since 2011, although there have been year-on-year decreases, for instance between 1979 and 1980, or 2008 and 2009.
-
-The average annual emissions for the period 1960-2011 were approximately 17m kt. Annual emissions have been above the average for the period since 1991.
 
 
 ```python
@@ -520,8 +518,6 @@ plt.bar(x=result["Year"].astype(str), height=result["sum_of_year"] / 1000000, co
 plt.title("Annual CO2 Emissions", pad = 20, fontsize = 16)
 plt.ylabel("CO2 Emissions (kt)", labelpad=20, fontsize = 12)
 _ = plt.xticks(rotation = 90, ha = "center", fontsize = 10)
-plt.axhline((result["sum_of_year"] / 1000000).mean(), color='blue', linewidth=2, label = "Average")
-plt.legend()
 plt.margins(0.01, 0.01)
 ```
 
@@ -821,7 +817,7 @@ y2 = result["capita_CO2"]
 ax1.plot(x1, y2, label = "Per Capita CO2 Emissions")
 ax1.set_xticklabels(result["Year"].astype(str), fontsize = 10)
 # Set the y axis label of the current axis.
-ax1.set_ylabel('% Change in Emissions', fontsize = 12)
+ax1.set_ylabel('Emissions (1960 = 100)', fontsize = 12)
 ax1.yaxis.labelpad = 20
 # Set a title of the current axes.
 ax1.set_title('USA - Changes in Gross and Per Capita CO2 Emissions (1960 = 100)', pad = 20, fontsize = 16)
@@ -834,9 +830,9 @@ fig.show()
 
 ```
 
-    <ipython-input-24-bcd2fa143e6c>:13: UserWarning: FixedFormatter should only be used together with FixedLocator
+    <ipython-input-26-17b007b5e674>:13: UserWarning: FixedFormatter should only be used together with FixedLocator
       ax1.set_xticklabels(result["Year"].astype(str), fontsize = 10)
-    <ipython-input-24-bcd2fa143e6c>:23: UserWarning: Matplotlib is currently using module://ipykernel.pylab.backend_inline, which is a non-GUI backend, so cannot show the figure.
+    <ipython-input-26-17b007b5e674>:23: UserWarning: Matplotlib is currently using module://ipykernel.pylab.backend_inline, which is a non-GUI backend, so cannot show the figure.
       fig.show()
 
 

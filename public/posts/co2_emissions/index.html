@@ -176,7 +176,7 @@
 </span><span class="s2">               RENAME TO Metadata_Countries;&#34;&#34;&#34;</span><span class="p">)</span>
 
 </code></pre></div></details>
-<pre><code>&lt;sqlite3.Cursor at 0x11adbc730&gt;
+<pre><code>&lt;sqlite3.Cursor at 0x111ca2490&gt;
 </code></pre>
 <details>
 <summary>Code</summary>
@@ -193,7 +193,7 @@
 </span><span class="s2">               RENAME COLUMN `Country Name` TO Country_Name;&#34;&#34;&#34;</span><span class="p">)</span>
 
 </code></pre></div></details>
-<pre><code>&lt;sqlite3.Cursor at 0x11b5e6d50&gt;
+<pre><code>&lt;sqlite3.Cursor at 0x127834dc0&gt;
 </code></pre>
 <h2 id="understand-the-data">Understand the data</h2>
 <h3 id="what-do-the-tables-look-like">What do the tables look like?</h3>
@@ -475,9 +475,8 @@
 <span class="n">_</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">(</span><span class="n">ha</span> <span class="o">=</span> <span class="s2">&#34;center&#34;</span><span class="p">,</span> <span class="n">fontsize</span> <span class="o">=</span> <span class="mi">10</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">margins</span><span class="p">(</span><span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">)</span>
 </code></pre></div><p><img src="CO2_Emissions_files/CO2_Emissions_23_0.png" alt="png"></p>
-<h2 id="annual-emissions-have-been-increasing-consistently-since-1960">Annual emissions have been increasing consistently since 1960.</h2>
+<h2 id="annual-emissions-have-been-increasing-consistently-since-1960">Annual emissions have been increasing consistently since 1960</h2>
 <p>The emissions figures show that there has been a consistent upward trend in CO2 emissions since 2011, although there have been year-on-year decreases, for instance between 1979 and 1980, or 2008 and 2009.</p>
-<p>The average annual emissions for the period 1960-2011 were approximately 17m kt. Annual emissions have been above the average for the period since 1991.</p>
 <div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="n">result</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_sql</span><span class="p">(</span><span class="s2">&#34;&#34;&#34;SELECT year, SUM(CO2_kt) as sum_of_year, 
 </span><span class="s2">                        AVG(SUM(CO2_kt)) OVER() as avg_sum
 </span><span class="s2">                        FROM CO2_kt
@@ -489,8 +488,6 @@
 <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&#34;Annual CO2 Emissions&#34;</span><span class="p">,</span> <span class="n">pad</span> <span class="o">=</span> <span class="mi">20</span><span class="p">,</span> <span class="n">fontsize</span> <span class="o">=</span> <span class="mi">16</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&#34;CO2 Emissions (kt)&#34;</span><span class="p">,</span> <span class="n">labelpad</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">fontsize</span> <span class="o">=</span> <span class="mi">12</span><span class="p">)</span>
 <span class="n">_</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">(</span><span class="n">rotation</span> <span class="o">=</span> <span class="mi">90</span><span class="p">,</span> <span class="n">ha</span> <span class="o">=</span> <span class="s2">&#34;center&#34;</span><span class="p">,</span> <span class="n">fontsize</span> <span class="o">=</span> <span class="mi">10</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">axhline</span><span class="p">((</span><span class="n">result</span><span class="p">[</span><span class="s2">&#34;sum_of_year&#34;</span><span class="p">]</span> <span class="o">/</span> <span class="mi">1000000</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">(),</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;blue&#39;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">label</span> <span class="o">=</span> <span class="s2">&#34;Average&#34;</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">margins</span><span class="p">(</span><span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">)</span>
 </code></pre></div><p><img src="CO2_Emissions_files/CO2_Emissions_26_0.png" alt="png"></p>
 <h2 id="regions-with-the-highest-emissions">Regions with the highest emissions</h2>
@@ -692,7 +689,7 @@
 <span class="n">ax1</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x1</span><span class="p">,</span> <span class="n">y2</span><span class="p">,</span> <span class="n">label</span> <span class="o">=</span> <span class="s2">&#34;Per Capita CO2 Emissions&#34;</span><span class="p">)</span>
 <span class="n">ax1</span><span class="o">.</span><span class="n">set_xticklabels</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="s2">&#34;Year&#34;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">),</span> <span class="n">fontsize</span> <span class="o">=</span> <span class="mi">10</span><span class="p">)</span>
 <span class="c1"># Set the y axis label of the current axis.</span>
-<span class="n">ax1</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;% Change in Emissions&#39;</span><span class="p">,</span> <span class="n">fontsize</span> <span class="o">=</span> <span class="mi">12</span><span class="p">)</span>
+<span class="n">ax1</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Emissions (1960 = 100)&#39;</span><span class="p">,</span> <span class="n">fontsize</span> <span class="o">=</span> <span class="mi">12</span><span class="p">)</span>
 <span class="n">ax1</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">labelpad</span> <span class="o">=</span> <span class="mi">20</span>
 <span class="c1"># Set a title of the current axes.</span>
 <span class="n">ax1</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;USA - Changes in Gross and Per Capita CO2 Emissions (1960 = 100)&#39;</span><span class="p">,</span> <span class="n">pad</span> <span class="o">=</span> <span class="mi">20</span><span class="p">,</span> <span class="n">fontsize</span> <span class="o">=</span> <span class="mi">16</span><span class="p">)</span>
@@ -703,9 +700,9 @@
 <span class="n">fig</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 
 
-</code></pre></div><pre><code>&lt;ipython-input-24-bcd2fa143e6c&gt;:13: UserWarning: FixedFormatter should only be used together with FixedLocator
+</code></pre></div><pre><code>&lt;ipython-input-26-17b007b5e674&gt;:13: UserWarning: FixedFormatter should only be used together with FixedLocator
   ax1.set_xticklabels(result[&quot;Year&quot;].astype(str), fontsize = 10)
-&lt;ipython-input-24-bcd2fa143e6c&gt;:23: UserWarning: Matplotlib is currently using module://ipykernel.pylab.backend_inline, which is a non-GUI backend, so cannot show the figure.
+&lt;ipython-input-26-17b007b5e674&gt;:23: UserWarning: Matplotlib is currently using module://ipykernel.pylab.backend_inline, which is a non-GUI backend, so cannot show the figure.
   fig.show()
 </code></pre>
 <p><img src="CO2_Emissions_files/CO2_Emissions_44_1.png" alt="png"></p>
